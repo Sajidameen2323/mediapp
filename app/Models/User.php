@@ -68,6 +68,14 @@ class User extends Authenticatable
         return $this->hasOne(Doctor::class);
     }
 
+    /**
+     * Get the health profile for the user.
+     */
+    public function healthProfile(): HasOne
+    {
+        return $this->hasOne(HealthProfile::class);
+    }
+
     // Scopes
     public function scopeActive($query)
     {

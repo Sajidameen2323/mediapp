@@ -58,13 +58,61 @@
 
         <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border dark:border-gray-700">
             <div class="px-4 py-5 sm:p-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Health Profile</h3>
-                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Update your health information</p>
-                <div class="mt-4">
-                    <button class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition-colors duration-200">
-                        Update Profile
-                    </button>
-                </div>
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white flex items-center">
+                    <i class="fas fa-user-injured mr-2 text-red-600 dark:text-red-400"></i>
+                    Health Profile
+                </h3>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Manage your comprehensive health information</p>
+                @if(auth()->user()->healthProfile)
+                    <!-- Health Profile exists -->
+                    <div class="mt-4 space-y-2">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-500 dark:text-gray-400">Status:</span>
+                            <span class="text-green-600 dark:text-green-400 font-medium flex items-center">
+                                <i class="fas fa-check-circle mr-1"></i>Complete
+                            </span>
+                        </div>
+                        @if(auth()->user()->healthProfile->blood_type)
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-gray-500 dark:text-gray-400">Blood Type:</span>
+                                <span class="text-gray-700 dark:text-gray-300 font-medium">{{ auth()->user()->healthProfile->blood_type }}</span>
+                            </div>
+                        @endif
+                        @if(auth()->user()->healthProfile->height && auth()->user()->healthProfile->weight)
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-gray-500 dark:text-gray-400">BMI:</span>
+                                {{-- <span class="text-gray-700 dark:text-gray-300 font-medium">{{ auth()->user()->healthProfile->getBMI() }}</span> --}}
+                                <span class="text-gray-700 dark:text-gray-300 font-medium">{{ auth()->user()->healthProfile->bmi_category }}</span>
+
+                            </div>
+                        @endif
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <a href="{{ route('patient.health-profile.index') }}" 
+                           class="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
+                            <i class="fas fa-eye mr-2"></i>View Profile
+                        </a>
+                        <a href="{{ route('patient.health-profile.edit') }}" 
+                           class="w-full inline-flex items-center justify-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors duration-200">
+                            <i class="fas fa-edit mr-2"></i>Update Profile
+                        </a>
+                    </div>
+                @else
+                    <!-- No Health Profile -->
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between text-sm mb-3">
+                            <span class="text-gray-500 dark:text-gray-400">Status:</span>
+                            <span class="text-orange-600 dark:text-orange-400 font-medium flex items-center">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>Incomplete
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Create your health profile to help healthcare providers better assist you.</p>
+                        <a href="{{ route('patient.health-profile.create') }}" 
+                           class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105">
+                            <i class="fas fa-plus mr-2"></i>Create Profile
+                        </a>
+                    </div>
+                @endif
             </div>
         </div>
 

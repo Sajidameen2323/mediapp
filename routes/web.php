@@ -92,6 +92,14 @@ Route::middleware(['auth'])->group(function () {
     // Patient routes
     Route::middleware(['user.type:patient'])->group(function () {
         Route::get('/patient/dashboard', [DashboardController::class, 'patientDashboard'])->name('patient.dashboard');
+        
+        // Health Profile Management
+        Route::get('/patient/health-profile', [\App\Http\Controllers\Patient\HealthProfileController::class, 'index'])->name('patient.health-profile.index');
+        Route::get('/patient/health-profile/create', [\App\Http\Controllers\Patient\HealthProfileController::class, 'create'])->name('patient.health-profile.create');
+        Route::post('/patient/health-profile', [\App\Http\Controllers\Patient\HealthProfileController::class, 'store'])->name('patient.health-profile.store');
+        Route::get('/patient/health-profile/edit', [\App\Http\Controllers\Patient\HealthProfileController::class, 'edit'])->name('patient.health-profile.edit');
+        Route::put('/patient/health-profile', [\App\Http\Controllers\Patient\HealthProfileController::class, 'update'])->name('patient.health-profile.update');
+        Route::delete('/patient/health-profile', [\App\Http\Controllers\Patient\HealthProfileController::class, 'destroy'])->name('patient.health-profile.destroy');
     });
     
     // Laboratory staff routes
