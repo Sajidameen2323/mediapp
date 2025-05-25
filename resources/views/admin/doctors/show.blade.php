@@ -43,17 +43,36 @@
                     <p class="text-sm text-gray-500 dark:text-gray-400">License: {{ $doctor->license_number }}</p>
                     
                     <div class="mt-4">
-                        @if($doctor->is_available)
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                                <i class="fas fa-check-circle mr-1"></i>
-                                Available
-                            </span>
-                        @else
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                                <i class="fas fa-times-circle mr-1"></i>
-                                Unavailable
-                            </span>
-                        @endif
+                        <!-- Availability Toggle -->
+                        <div class="flex items-center justify-center space-x-3">
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Availability:</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" 
+                                       id="availability-toggle" 
+                                       class="sr-only peer" 
+                                       {{ $doctor->is_available ? 'checked' : '' }}
+                                       data-doctor-id="{{ $doctor->id }}">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                <span id="availability-status" class="ml-3 text-sm font-medium {{ $doctor->is_available ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
+                                    {{ $doctor->is_available ? 'Available' : 'Unavailable' }}
+                                </span>
+                            </label>
+                        </div>
+                        
+                        <!-- Status Badge (backup display) -->
+                        <div id="status-badge" class="mt-2 hidden">
+                            @if($doctor->is_available)
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                    <i class="fas fa-check-circle mr-1"></i>
+                                    Available
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                    <i class="fas fa-times-circle mr-1"></i>
+                                    Unavailable
+                                </span>
+                            @endif
+                        </div>
                     </div>
                     
                     <div class="mt-6 text-center">
@@ -250,4 +269,108 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggle = document.getElementById('availability-toggle');
+    const statusText = document.getElementById('availability-status');
+    
+    if (toggle) {
+        toggle.addEventListener('change', function() {
+            const doctorId = this.dataset.doctorId;
+            const isChecked = this.checked;
+            
+            // Show loading state
+            this.disabled = true;
+            statusText.textContent = 'Updating...';
+            statusText.className = 'ml-3 text-sm font-medium text-gray-500';
+            
+            // Make AJAX request
+            fetch(`/admin/doctors/${doctorId}/toggle-availability`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the toggle state to match server response
+                    this.checked = data.is_available;
+                    
+                    // Update status text and color
+                    statusText.textContent = data.is_available ? 'Available' : 'Unavailable';
+                    statusText.className = `ml-3 text-sm font-medium ${data.is_available ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`;
+                    
+                    // Show success message
+                    showNotification('success', data.message);
+                } else {
+                    // Revert toggle on error
+                    this.checked = !isChecked;
+                    statusText.textContent = !isChecked ? 'Available' : 'Unavailable';
+                    statusText.className = `ml-3 text-sm font-medium ${!isChecked ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`;
+                    
+                    showNotification('error', data.message || 'Failed to update availability status');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                
+                // Revert toggle on error
+                this.checked = !isChecked;
+                statusText.textContent = !isChecked ? 'Available' : 'Unavailable';
+                statusText.className = `ml-3 text-sm font-medium ${!isChecked ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`;
+                
+                showNotification('error', 'An error occurred while updating availability status');
+            })
+            .finally(() => {
+                // Re-enable toggle
+                this.disabled = false;
+            });
+        });
+    }
+    
+    function showNotification(type, message) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full ${
+            type === 'success' 
+                ? 'bg-green-500 text-white' 
+                : 'bg-red-500 text-white'
+        }`;
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-2"></i>
+                <span>${message}</span>
+                <button class="ml-4 text-white hover:text-gray-200" onclick="this.parentElement.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        
+        // Add to page
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => {
+            notification.classList.remove('translate-x-full');
+        }, 100);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 300);
+        }, 5000);
+    }
+});
+</script>
+@endpush
+
 @endsection

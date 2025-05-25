@@ -4,10 +4,18 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DoctorController;
 
 // Public routes
 Route::get('/', function () {
     return view('welcome');
+});
+
+// Public doctor search routes
+Route::prefix('api')->group(function () {
+    Route::get('/doctors/available', [DoctorController::class, 'getAvailableDoctors'])->name('api.doctors.available');
+    Route::get('/doctors/search', [DoctorController::class, 'searchDoctors'])->name('api.doctors.search');
+    Route::get('/doctors/specializations', [DoctorController::class, 'getSpecializations'])->name('api.doctors.specializations');
 });
 
 // Authentication routes
@@ -59,6 +67,10 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('/admin/doctors', \App\Http\Controllers\Admin\DoctorController::class, [
             'as' => 'admin'
         ]);
+        
+        // Doctor availability toggle
+        Route::patch('/admin/doctors/{doctor}/toggle-availability', [\App\Http\Controllers\Admin\DoctorController::class, 'toggleAvailability'])
+            ->name('admin.doctors.toggle-availability');
         
         // Service Management
         Route::resource('/admin/services', \App\Http\Controllers\Admin\ServiceController::class, [

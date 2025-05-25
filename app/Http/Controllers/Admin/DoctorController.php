@@ -83,7 +83,7 @@ class DoctorController extends Controller
                 'consultation_fee' => $request->consultation_fee,
                 'bio' => $request->bio,
                 'profile_image' => $profileImage,
-                'is_available' => $request->boolean('is_available', true),
+                'is_available' => $request->boolean('is_available', false),
             ];
 
             $doctor = Doctor::create($doctorData);
@@ -191,7 +191,7 @@ class DoctorController extends Controller
                 'consultation_fee' => $request->consultation_fee,
                 'bio' => $request->bio,
                 'profile_image' => $profileImage,
-                'is_available' => $request->boolean('is_available', true),
+                'is_available' => $request->boolean('is_available', false),
             ];
 
             $doctor->update($doctorData);
@@ -256,6 +256,32 @@ class DoctorController extends Controller
             DB::rollBack();
             
             return back()->with('error', 'Failed to delete doctor: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Toggle the availability status of the specified doctor.
+     */
+    public function toggleAvailability(Request $request, Doctor $doctor)
+    {
+        $this->authorize('admin-access');
+        
+        try {
+            $doctor->update([
+                'is_available' => !$doctor->is_available
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'is_available' => $doctor->is_available,
+                'message' => 'Doctor availability status updated successfully.'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update availability status: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

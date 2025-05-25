@@ -47,20 +47,22 @@
             <p class="mt-2 text-gray-600 dark:text-gray-400">Register a new doctor in the platform</p>
         </div>
 
+        @if ($errors->any())
+            <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+                <div class="flex items-center mb-2">
+                    <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400 mr-2"></i>
+                    <h4 class="text-sm font-semibold text-red-800 dark:text-red-200">Please fix the following errors:</h4>
+                </div>
+                <ul class="text-sm text-red-700 dark:text-red-300 list-disc list-inside space-y-1">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+ 
         <form action="{{ route('admin.doctors.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
             @csrf
-
-            {{-- Error area --}}
-            @if ($errors->any())
-                <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
-                    <h3 class="text-sm font-medium text-red-800">Please fix the following errors:</h3>
-                    <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
 
             <!-- Personal Information -->
             <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl border dark:border-gray-700 overflow-hidden">
@@ -265,7 +267,7 @@
 
                     <div class="flex items-center">
                         <input type="checkbox" name="is_available" id="is_available" value="1"
-                            {{ old('is_available', true) ? 'checked' : '' }}
+                            {{ old('is_available', old() ? null : '1') ? 'checked' : '' }}
                             class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                         <label for="is_available" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
                             Doctor is available for appointments
@@ -303,73 +305,83 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" id="services-grid">
                             @foreach ($services as $service)
                                 <div
-                                    class="service-card group relative overflow-hidden rounded-xl border border-gray-200 dark:border-gray-600 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 hover:shadow-lg hover:scale-[1.02] transition-all duration-300 cursor-pointer">
-                                    <div class="p-4">
-                                        <div class="flex items-start justify-between mb-3">
-                                            <div class="flex items-center space-x-3">
-                                                <div
-                                                    class="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900 flex items-center justify-center">
-                                                    <i
-                                                        class="fas fa-stethoscope text-purple-600 dark:text-purple-400 text-sm"></i>
-                                                </div>
-                                                <div class="flex-1">
-                                                    <h4
-                                                        class="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200">
-                                                        {{ $service->name }}
-                                                    </h4>
-                                                    @if ($service->category)
-                                                        <span
-                                                            class="inline-block px-2 py-1 mt-1 text-xs font-medium bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 rounded-full">
-                                                            {{ $service->category }}
-                                                        </span>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                            <div class="service-checkbox-container">
-                                                <input hidden type="checkbox" name="services[]"
-                                                    id="service_{{ $service->id }}" value="{{ $service->id }}"
-                                                    {{ in_array($service->id, old('services', [])) ? 'checked' : '' }}
-                                                    class="service-checkbox h-5 w-5 text-purple-600 focus:ring-purple-500 border-gray-300 dark:border-gray-600 rounded transition-all duration-200">
-                                                <label for="service_{{ $service->id }}" class="sr-only">Select
-                                                    {{ $service->name }}</label>
-                                            </div>
-                                        </div>
-
-                                        <div class="space-y-2">
-                                            @if ($service->description)
-                                                <p class="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">
-                                                    {{ $service->description }}</p>
-                                            @endif
-
+                                    class="service-card group relative p-5 overflow-hidden rounded-xl border border-gray-200 dark:border-gray-600 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 hover:shadow-lg hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+                                    <!-- Header Section -->
+                                    <div class="flex items-start space-x-4 mb-4">
+                                        <!-- Service Icon -->
+                                        <div class="flex-shrink-0">
                                             <div
-                                                class="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-600">
-                                                @if ($service->price)
-                                                    <div class="flex items-center space-x-1">
-                                                        <i
-                                                            class="fas fa-dollar-sign text-xs text-green-600 dark:text-green-400"></i>
-                                                        <span
-                                                            class="text-sm font-bold text-green-600 dark:text-green-400">${{ number_format($service->price, 2) }}</span>
-                                                    </div>
-                                                @endif
-
-                                                @if ($service->duration)
-                                                    <div class="flex items-center space-x-1">
-                                                        <i
-                                                            class="fas fa-clock text-xs text-blue-600 dark:text-blue-400"></i>
-                                                        <span
-                                                            class="text-xs text-gray-600 dark:text-gray-400">{{ $service->duration }}
-                                                            min</span>
-                                                    </div>
-                                                @endif
+                                                class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900 flex items-center justify-center shadow-sm">
+                                                <i
+                                                    class="fas fa-stethoscope text-purple-600 dark:text-purple-400 text-lg"></i>
                                             </div>
                                         </div>
+
+                                        <!-- Service Title & Category -->
+                                        <div class="flex-1 min-w-0">
+                                            <h4
+                                                class="text-base font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200 mb-2">
+                                                {{ $service->name }}
+                                            </h4>
+                                            @if ($service->category)
+                                                <span
+                                                    class="inline-flex items-center px-3 py-1 text-xs font-medium bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 rounded-full">
+                                                    <i class="fas fa-tag text-xs mr-1.5"></i>
+                                                    {{ $service->category }}
+                                                </span>
+                                            @endif
+                                        </div>
+
+                                        <!-- Checkbox -->
+                                        <div class="flex-shrink-0 service-checkbox-container">
+                                            <input type="checkbox" name="services[]" id="service_{{ $service->id }}"
+                                                value="{{ $service->id }}"
+                                                {{ in_array($service->id, old('services', [])) ? 'checked' : '' }}
+                                                class="service-checkbox hidden">
+                                            <label for="service_{{ $service->id }}" class="sr-only">Select
+                                                {{ $service->name }}</label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Description Section -->
+                                    @if ($service->description)
+                                        <div class="mb-4">
+                                            <p
+                                                class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed">
+                                                {{ $service->description }}
+                                            </p>
+                                        </div>
+                                    @endif
+
+                                    <!-- Footer Section -->
+                                    <div
+                                        class="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-600">
+                                        @if ($service->price)
+                                            <div class="flex items-center space-x-2">
+                                                <i
+                                                    class="fas fa-dollar-sign text-sm text-green-600 dark:text-green-400"></i>
+                                                <span
+                                                    class="service-price-span text-base font-bold text-green-600 dark:text-green-400">
+                                                    ${{ number_format($service->price, 2) }}
+                                                </span>
+                                            </div>
+                                        @endif
+
+                                        @if ($service->duration)
+                                            <div class="flex items-center space-x-2">
+                                                <i class="fas fa-clock text-sm text-blue-600 dark:text-blue-400"></i>
+                                                <span class="text-sm font-medium text-gray-600 dark:text-gray-400">
+                                                    {{ $service->duration }} min
+                                                </span>
+                                            </div>
+                                        @endif
                                     </div>
 
                                     <!-- Selection Indicator -->
                                     <div
-                                        class="absolute top-2 right-2 w-6 h-6 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center transition-all duration-200 service-indicator">
+                                        class="absolute top-3 right-3 w-7 h-7 rounded-full bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 flex items-center justify-center transition-all duration-200 service-indicator shadow-sm">
                                         <i
-                                            class="fas fa-check text-xs text-green-600 dark:text-green-400 opacity-0 service-check-icon transition-opacity duration-200"></i>
+                                            class="fas fa-check text-sm text-white dark:text-green-400 opacity-0 service-check-icon transition-opacity duration-200"></i>
                                     </div>
                                 </div>
                             @endforeach
@@ -416,6 +428,15 @@
                             </h3>
                             <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Configure doctor's availability for
                                 appointments</p>
+                            @if ($errors->hasAny(['schedules']))
+                                <div
+                                    class="mt-2 p-2 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg">
+                                    <p class="text-xs text-red-700 dark:text-red-300">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>
+                                        Please fix schedule validation errors below.
+                                    </p>
+                                </div>
+                            @endif
                         </div>
                         <div class="flex items-center space-x-3">
                             <button type="button" id="quick-preset-weekdays"
@@ -448,16 +469,21 @@
                                 ];
                                 $color = $dayColors[$day];
                             @endphp
-                            <div class="schedule-day-container group hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-600 rounded-xl overflow-hidden">
-                                <div class="flex items-center p-4 bg-gradient-to-r from-{{ $color }}-50 to-{{ $color }}-100 dark:from-gray-700 dark:to-gray-600">
+                            <div
+                                class="schedule-day-container group hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-600 rounded-xl overflow-hidden">
+                                <div
+                                    class="flex items-center p-4 bg-gradient-to-r from-{{ $color }}-50 to-{{ $color }}-100 dark:from-gray-700 dark:to-gray-600">
                                     <div class="flex items-center space-x-4 flex-1">
                                         <!-- Day Name -->
                                         <div class="flex items-center space-x-3">
-                                            <div class="w-10 h-10 rounded-full bg-{{ $color }}-100 dark:bg-{{ $color }}-900 flex items-center justify-center">
-                                                <i class="fas fa-calendar-day text-{{ $color }}-600 dark:text-{{ $color }}-400 text-sm"></i>
+                                            <div
+                                                class="w-10 h-10 rounded-full bg-{{ $color }}-100 dark:bg-{{ $color }}-900 flex items-center justify-center">
+                                                <i
+                                                    class="fas fa-calendar-day text-{{ $color }}-600 dark:text-{{ $color }}-400 text-sm"></i>
                                             </div>
                                             <div>
-                                                <span class="text-base font-semibold text-gray-900 dark:text-white capitalize">{{ $day }}</span>
+                                                <span
+                                                    class="text-base font-semibold text-gray-900 dark:text-white capitalize">{{ $day }}</span>
                                                 <div class="text-xs text-gray-500 dark:text-gray-400">
                                                     {{ date('M j', strtotime('next ' . $day)) }}
                                                 </div>
@@ -465,53 +491,88 @@
                                         </div>
                                         <!-- Availability Toggle -->
                                         <div class="flex items-center ml-auto">
+
                                             <label class="relative inline-flex items-center cursor-pointer">
+                                                         <input type="hidden" name="schedules[{{ $loop->index }}][is_available]"
+                                                    value="0">
                                                 <input type="checkbox"
                                                     name="schedules[{{ $loop->index }}][is_available]"
                                                     id="schedule_{{ $day }}_available" value="1"
-                                                    class="sr-only schedule-checkbox" data-day="{{ $day }}">
-                                                <input type="hidden" name="schedules[{{ $loop->index }}][is_available]" value="0">
-                                                <div class="relative w-14 h-7 bg-gray-200 dark:bg-gray-600 rounded-full transition-colors duration-300 ease-in-out toggle-switch">
-                                                    <div class="absolute top-0.5 left-[4px] bg-white border border-gray-300 rounded-full h-6 w-6 transition-transform duration-300 ease-in-out shadow-lg toggle-thumb">
-                                                        <i class="fas fa-check text-xs text-green-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 transition-opacity duration-300 check-icon"></i>
+                                                    class="sr-only schedule-checkbox" data-day="{{ $day }}"
+                                                    {{ old('schedules.' . $loop->index . '.is_available') ? 'checked' : '' }}>
+                                       
+                                                @php
+                                                    $isAvailable = old('schedules.' . $loop->index . '.is_available')
+                                                        ? true
+                                                        : false;
+                                                @endphp
+                                                <div
+                                                    class="relative w-14 h-7 bg-gray-200 dark:bg-gray-600 rounded-full transition-colors duration-300 ease-in-out toggle-switch {{ $isAvailable ? 'bg-green-500' : '' }}">
+                                                    <div class="absolute top-0.5 left-[4px] bg-white border border-gray-300 rounded-full h-6 w-6 transition-transform duration-300 ease-in-out shadow-lg toggle-thumb"
+                                                        style="transform: translateX({{ $isAvailable ? '28px' : '4px' }})">
+                                                        <i
+                                                            class="fas fa-check text-xs text-green-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 {{ $isAvailable ? 'opacity-100' : 'opacity-0' }} transition-opacity duration-300 check-icon"></i>
                                                     </div>
                                                 </div>
                                                 <span class="ml-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                    <span class="availability-text">Unavailable</span>
+                                                    <span
+                                                        class="availability-text {{ $isAvailable ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400' }}">{{ $isAvailable ? 'Available' : 'Unavailable' }}</span>
                                                 </span>
                                             </label>
+
                                         </div>
                                     </div>
+                                    @error('schedules.' . $loop->index . '.is_available')
+                                        <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                                    @enderror
+
+
                                 </div>
 
                                 <!-- Time Selection Panel -->
-                                <div class="schedule-times bg-white dark:bg-gray-800 p-4 border-t border-gray-100 dark:border-gray-700" style="display: none;">
-                                    <input type="hidden" name="schedules[{{ $loop->index }}][day_of_week]" value="{{ $day }}">
+                                <div class="schedule-times bg-white dark:bg-gray-800 p-4 border-t border-gray-100 dark:border-gray-700"
+                                    style="display: {{ $isAvailable ? 'block' : 'none' }};">
+                                    <input type="hidden" name="schedules[{{ $loop->index }}][day_of_week]"
+                                        value="{{ $day }}">
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div class="space-y-3">
-                                            <label class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            <label
+                                                class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
                                                 <i class="fas fa-clock mr-2 text-green-500"></i>
                                                 Start Time
                                             </label>
                                             <div class="relative">
-                                                <input type="time" name="schedules[{{ $loop->index }}][start_time]" class="block w-full px-4 py-3 pl-10 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:ring-2 focus:ring-{{ $color }}-500 focus:border-{{ $color }}-500 dark:bg-gray-700 dark:text-white transition-all duration-200 text-sm font-medium">
-                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <i class="fas fa-moon text-blue-500 text-sm"></i>
+                                                <input type="time" name="schedules[{{ $loop->index }}][start_time]"
+                                                    value="{{ old('schedules.' . $loop->index . '.start_time', '09:00') }}"
+                                                    class="block w-full px-4 py-3 pl-10 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:ring-2 focus:ring-{{ $color }}-500 focus:border-{{ $color }}-500 dark:bg-gray-700 dark:text-white transition-all duration-200 text-sm font-medium {{ $errors->has('schedules.' . $loop->index . '.start_time') ? 'border-red-500 focus:ring-red-500' : '' }}">
+                                                <div
+                                                    class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <i class="fas fa-sun text-yellow-500 text-sm"></i>
                                                 </div>
                                             </div>
+                                            @error('schedules.' . $loop->index . '.start_time')
+                                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                                            @enderror
                                         </div>
 
                                         <div class="space-y-3">
-                                            <label class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            <label
+                                                class="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300">
                                                 <i class="fas fa-clock mr-2 text-red-500"></i>
                                                 End Time
                                             </label>
                                             <div class="relative">
-                                                <input type="time" name="schedules[{{ $loop->index }}][end_time]" class="block w-full px-4 py-3 pl-10 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:ring-2 focus:ring-{{ $color }}-500 focus:border-{{ $color }}-500 dark:bg-gray-700 dark:text-white transition-all duration-200 text-sm font-medium">
-                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <i class="fas fa-sun text-yellow-500 text-sm"></i>
+                                                <input type="time" name="schedules[{{ $loop->index }}][end_time]"
+                                                    value="{{ old('schedules.' . $loop->index . '.end_time', '17:00') }}"
+                                                    class="block w-full px-4 py-3 pl-10 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:ring-2 focus:ring-{{ $color }}-500 focus:border-{{ $color }}-500 dark:bg-gray-700 dark:text-white transition-all duration-200 text-sm font-medium {{ $errors->has('schedules.' . $loop->index . '.end_time') ? 'border-red-500 focus:ring-red-500' : '' }}">
+                                                <div
+                                                    class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <i class="fas fa-moon text-blue-500 text-sm"></i>
                                                 </div>
                                             </div>
+                                            @error('schedules.' . $loop->index . '.end_time')
+                                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                                            @enderror
                                         </div>
                                     </div>
 
@@ -519,10 +580,18 @@
                                     <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
                                         <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Quick presets:</p>
                                         <div class="flex flex-wrap gap-2">
-                                            <button type="button" class="time-preset text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200" data-start="09:00" data-end="17:00">9 AM - 5 PM</button>
-                                            <button type="button" class="time-preset text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200" data-start="08:00" data-end="16:00">8 AM - 4 PM</button>
-                                            <button type="button" class="time-preset text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200" data-start="10:00" data-end="18:00">10 AM - 6 PM</button>
-                                            <button type="button" class="time-preset text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200" data-start="14:00" data-end="22:00">2 PM - 10 PM</button>
+                                            <button type="button"
+                                                class="time-preset text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+                                                data-start="09:00" data-end="17:00">9 AM - 5 PM</button>
+                                            <button type="button"
+                                                class="time-preset text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+                                                data-start="08:00" data-end="16:00">8 AM - 4 PM</button>
+                                            <button type="button"
+                                                class="time-preset text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+                                                data-start="10:00" data-end="18:00">10 AM - 6 PM</button>
+                                            <button type="button"
+                                                class="time-preset text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+                                                data-start="14:00" data-end="22:00">2 PM - 10 PM</button>
                                         </div>
                                     </div>
                                 </div>
@@ -549,6 +618,23 @@
                             </div>
                         </div>
                     </div>
+
+                    @if ($errors->hasAny(['schedules.*']))
+                        <div
+                            class="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+                            <h4 class="text-sm font-semibold text-red-800 dark:text-red-200 flex items-center mb-2">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                Schedule Validation Errors
+                            </h4>
+                            <ul class="text-sm text-red-700 dark:text-red-300 list-disc list-inside space-y-1">
+                                @foreach ($errors->all() as $error)
+                                    @if (str_contains($error, 'schedule'))
+                                        <li>{{ $error }}</li>
+                                    @endif
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -567,7 +653,8 @@
 
             <!-- Debug Button (Temporary) -->
             <div class="flex justify-end mt-4">
-                <button type="button" id="debug-log-form" class="px-4 py-2 bg-yellow-400 text-black rounded-xl font-semibold hover:bg-yellow-500 transition-all duration-200 mr-2">
+                <button type="button" id="debug-log-form"
+                    class="px-4 py-2 bg-yellow-400 text-black rounded-xl font-semibold hover:bg-yellow-500 transition-all duration-200 mr-2">
                     <i class="fas fa-bug mr-1"></i> Log Form Data
                 </button>
             </div>
@@ -580,6 +667,39 @@
             const scheduleCheckboxes = document.querySelectorAll('.schedule-checkbox');
             const availableDaysCount = document.getElementById('available-days-count');
             const totalHoursElement = document.getElementById('total-hours');
+
+            // Initialize existing schedule state from old() values
+            scheduleCheckboxes.forEach(checkbox => {
+                const container = checkbox.closest('.schedule-day-container');
+                const toggleSwitch = container.querySelector('.toggle-switch');
+                const toggleThumb = container.querySelector('.toggle-thumb');
+                const checkIcon = container.querySelector('.check-icon');
+                const availabilityText = container.querySelector('.availability-text');
+                const timesContainer = container.querySelector('.schedule-times');
+
+                // Initialize state based on checkbox checked status (from old() values)
+                if (checkbox.checked) {
+                    toggleSwitch.classList.add('bg-green-500');
+                    toggleSwitch.classList.remove('bg-gray-200', 'dark:bg-gray-600');
+                    toggleThumb.style.transform = 'translateX(28px)';
+                    checkIcon.classList.remove('opacity-0');
+                    checkIcon.classList.add('opacity-100');
+                    timesContainer.style.display = 'block';
+                    availabilityText.textContent = 'Available';
+                    availabilityText.classList.add('text-green-600', 'dark:text-green-400');
+                    availabilityText.classList.remove('text-gray-600', 'dark:text-gray-400');
+                } else {
+                    toggleSwitch.classList.remove('bg-green-500');
+                    toggleSwitch.classList.add('bg-gray-200', 'dark:bg-gray-600');
+                    toggleThumb.style.transform = 'translateX(4px)';
+                    checkIcon.classList.add('opacity-0');
+                    checkIcon.classList.remove('opacity-100');
+                    timesContainer.style.display = 'none';
+                    availabilityText.textContent = 'Unavailable';
+                    availabilityText.classList.remove('text-green-600', 'dark:text-green-400');
+                    availabilityText.classList.add('text-gray-600', 'dark:text-gray-400');
+                }
+            });
 
             // Toggle switch animation
             scheduleCheckboxes.forEach(checkbox => {
@@ -672,7 +792,7 @@
                 if (e.target.classList.contains('time-preset')) {
                     const container = e.target.closest('.schedule-times');
                     const startTime = container.querySelector('input[type="time"]:first-of-type');
-                    const endTime = container.querySelector('input[type="time"]:last-of-type');
+                    const endTime = container.querySelectorAll('input[type="time"]')[1];
 
                     startTime.value = e.target.dataset.start;
                     endTime.value = e.target.dataset.end;
@@ -698,7 +818,7 @@
 
                         const container = checkbox.closest('.schedule-day-container');
                         const startTime = container.querySelector('input[type="time"]:first-of-type');
-                        const endTime = container.querySelector('input[type="time"]:last-of-type');
+                        const endTime = container.querySelectorAll('input[type="time"]')[1];
 
                         if (startTime.value && endTime.value) {
                             const start = new Date('2000-01-01 ' + startTime.value);
@@ -720,6 +840,24 @@
             const serviceCards = document.querySelectorAll('.service-card');
             const selectedServicesCount = document.getElementById('selected-services-count');
             const totalRevenueElement = document.getElementById('total-revenue');
+
+            // Initialize existing service selections from old() values
+            serviceCheckboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    const card = checkbox.closest('.service-card');
+                    const indicator = card.querySelector('.service-indicator');
+                    const checkIcon = card.querySelector('.service-check-icon');
+
+                    card.classList.add('ring-2', 'ring-purple-500', 'bg-gradient-to-br',
+                        'from-purple-50', 'to-pink-50', 'dark:from-purple-900',
+                        'dark:to-pink-900');
+                    indicator.classList.add('bg-green-500', 'border-green-500');
+                    indicator.classList.remove('bg-white', 'dark:bg-gray-800',
+                        'border-gray-300', 'dark:border-gray-600');
+                    checkIcon.classList.remove('opacity-0');
+                    checkIcon.classList.add('opacity-100');
+                }
+            });
 
             // Service card click handling
             serviceCards.forEach(card => {
@@ -788,9 +926,10 @@
 
                         // Extract price from the card (if available)
                         const card = checkbox.closest('.service-card');
-                        const priceElement = card.querySelector('.text-green-600');
+                        const priceElement = card.querySelector('.service-price-span');
                         if (priceElement) {
                             const priceText = priceElement.textContent.replace('$', '').replace(',', '');
+                            console.log('Price text:', priceText); // Debugging line
                             const price = parseFloat(priceText);
                             if (!isNaN(price)) {
                                 totalRevenue += price;

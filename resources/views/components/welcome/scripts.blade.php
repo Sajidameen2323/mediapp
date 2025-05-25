@@ -1,0 +1,450 @@
+<!-- Enhanced JavaScript for interactivity -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mobile menu toggle functionality
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+        const closeIcon = document.getElementById('close-icon');
+        
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+                menuIcon.classList.toggle('hidden');
+                closeIcon.classList.toggle('hidden');
+            });
+
+            // Close mobile menu when clicking on a link
+            mobileMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', function() {
+                    mobileMenu.classList.add('hidden');
+                    menuIcon.classList.remove('hidden');
+                    closeIcon.classList.add('hidden');
+                });
+            });
+        }
+
+        // Add smooth scrolling to anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Enhanced star rating interaction for feedback form
+        document.querySelectorAll('.text-3xl').forEach((star, index) => {
+            star.addEventListener('click', function() {
+                const stars = Array.from(this.parentElement.children);
+                stars.forEach((s, i) => {
+                    if (i <= index) {
+                        s.classList.remove('text-gray-300');
+                        s.classList.add('text-yellow-400');
+                    } else {
+                        s.classList.remove('text-yellow-400');
+                        s.classList.add('text-gray-300');
+                    }
+                });
+            });
+
+            star.addEventListener('mouseover', function() {
+                const stars = Array.from(this.parentElement.children);
+                stars.forEach((s, i) => {
+                    if (i <= index) {
+                        s.style.transform = 'scale(1.1)';
+                    } else {
+                        s.style.transform = 'scale(1)';
+                    }
+                });
+            });
+
+            star.addEventListener('mouseout', function() {
+                const stars = Array.from(this.parentElement.children);
+                stars.forEach(s => {
+                    s.style.transform = 'scale(1)';
+                });
+            });
+        });
+
+        // Add animation to feature cards on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe service cards for animation
+        document.querySelectorAll('.group').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+
+        // Add typing animation to AI chat
+        const aiMessages = document.querySelectorAll('.bg-white\\/30');
+        if (aiMessages.length > 0) {
+            let delay = 0;
+            aiMessages.forEach(message => {
+                setTimeout(() => {
+                    message.style.opacity = '0';
+                    message.style.transform = 'translateY(10px)';
+                    message.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    
+                    setTimeout(() => {
+                        message.style.opacity = '1';
+                        message.style.transform = 'translateY(0)';
+                    }, 100);
+                }, delay);
+                delay += 1000;
+            });
+        }
+
+        // Add floating animation to statistics cards
+        const statsCards = document.querySelectorAll('.bg-white\\/10');
+        statsCards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.2}s`;
+            card.classList.add('animate-float');
+        });
+
+        // Add hover effects to service buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.15)';
+            });
+
+            button.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '';
+            });
+        });
+
+        // Add simple form validation for feedback form
+        const feedbackForm = document.querySelector('form');
+        if (feedbackForm) {
+            feedbackForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const name = this.querySelector('input[type="text"]').value;
+                const feedback = this.querySelector('textarea').value;
+                const selectedStars = this.querySelectorAll('.text-yellow-400').length;
+                
+                if (!name || !feedback || selectedStars === 0) {
+                    alert('Please fill in all fields and provide a rating.');
+                    return;
+                }
+                
+                // Simulate form submission
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.textContent;
+                submitBtn.textContent = 'Submitting...';
+                submitBtn.disabled = true;
+                
+                setTimeout(() => {
+                    alert('Thank you for your feedback!');
+                    this.reset();
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                    
+                    // Reset stars
+                    this.querySelectorAll('.text-3xl').forEach(star => {
+                        star.classList.remove('text-yellow-400');
+                        star.classList.add('text-gray-300');
+                    });
+                }, 2000);
+            });
+        }
+
+        // Add scroll to top functionality
+        const scrollToTopBtn = document.createElement('button');
+        scrollToTopBtn.innerHTML = '↑';
+        scrollToTopBtn.className = 'fixed bottom-8 right-8 bg-blue-600 text-white w-12 h-12 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 opacity-0 pointer-events-none z-50';
+        scrollToTopBtn.style.fontSize = '20px';
+        scrollToTopBtn.style.fontWeight = 'bold';
+        document.body.appendChild(scrollToTopBtn);
+
+        scrollToTopBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Show/hide scroll to top button
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.style.opacity = '1';
+                scrollToTopBtn.style.pointerEvents = 'auto';
+            } else {
+                scrollToTopBtn.style.opacity = '0';
+                scrollToTopBtn.style.pointerEvents = 'none';
+            }
+        });
+
+        // Add loading animation for buttons
+        document.querySelectorAll('button').forEach(button => {
+            if (button.textContent.includes('Book') || button.textContent.includes('Schedule') || button.textContent.includes('Order')) {
+                button.addEventListener('click', function(e) {
+                    if (this.getAttribute('type') !== 'submit') {
+                        e.preventDefault();
+                        const originalText = this.textContent;
+                        this.innerHTML = '<span class="inline-block animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span>Loading...';
+                        this.disabled = true;
+                        
+                        setTimeout(() => {
+                            this.textContent = originalText;
+                            this.disabled = false;
+                            alert('Feature coming soon! This will redirect to the booking system.');
+                        }, 1500);
+                    }
+                });
+            }
+        });
+
+        // Add navigation highlight on scroll
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('nav a[href^="#"]');
+        
+        window.addEventListener('scroll', function() {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('text-blue-600');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('text-blue-600');
+                }
+            });
+        });
+
+        // Add search functionality for doctors
+        const searchForm = document.getElementById('doctorSearchForm');
+        const nameFilter = document.getElementById('nameFilter');
+        const specialtyFilter = document.getElementById('specialtyFilter');
+        const locationFilter = document.getElementById('locationFilter');
+        const doctorsGrid = document.getElementById('doctorsGrid');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const noResultsMessage = document.getElementById('noResultsMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        const resetSearchBtn = document.getElementById('resetSearchBtn');
+        const retrySearchBtn = document.getElementById('retrySearchBtn');
+
+        // Color palettes for doctor cards
+        const colorPalettes = [
+            { gradient: 'from-blue-500 to-purple-600', color: 'blue-600' },
+            { gradient: 'from-green-500 to-blue-600', color: 'green-600' },
+            { gradient: 'from-purple-500 to-pink-600', color: 'purple-600' },
+            { gradient: 'from-red-500 to-orange-600', color: 'red-600' },
+            { gradient: 'from-indigo-500 to-purple-600', color: 'indigo-600' },
+            { gradient: 'from-teal-500 to-blue-600', color: 'teal-600' }
+        ];
+
+        // Initialize specialties dropdown
+        async function loadSpecialties() {
+            try {
+                const response = await fetch('/api/doctors/specializations');
+                const data = await response.json();
+                
+                if (data.success && data.specializations) {
+                    specialtyFilter.innerHTML = '<option value="">All Specialties</option>';
+                    data.specializations.forEach(specialty => {
+                        const option = document.createElement('option');
+                        option.value = specialty;
+                        option.textContent = specialty;
+                        specialtyFilter.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading specialties:', error);
+            }
+        }
+
+        // Show/hide UI elements
+        function showElement(element) {
+            element.classList.remove('hidden');
+        }
+
+        function hideElement(element) {
+            element.classList.add('hidden');
+        }
+
+        function showLoading() {
+            hideElement(doctorsGrid);
+            hideElement(noResultsMessage);
+            hideElement(errorMessage);
+            showElement(loadingIndicator);
+        }
+
+        function hideLoading() {
+            hideElement(loadingIndicator);
+        }
+
+        function showError(message) {
+            hideLoading();
+            hideElement(doctorsGrid);
+            hideElement(noResultsMessage);
+            errorText.textContent = message;
+            showElement(errorMessage);
+        }
+
+        function showNoResults() {
+            hideLoading();
+            hideElement(doctorsGrid);
+            hideElement(errorMessage);
+            showElement(noResultsMessage);
+        }
+
+        function showResults() {
+            hideLoading();
+            hideElement(noResultsMessage);
+            hideElement(errorMessage);
+            showElement(doctorsGrid);
+        }
+
+        // Create doctor card HTML
+        function createDoctorCard(doctor, index) {
+            const palette = colorPalettes[index % colorPalettes.length];
+            const availability = doctor.is_available ? 'Available Now' : 'Next available: Soon';
+            const rating = (4.5 + Math.random() * 0.4).toFixed(1); // Random rating between 4.5-4.9
+            const reviewCount = Math.floor(Math.random() * 200) + 50; // Random review count
+            
+            return `
+                <div class="bg-white dark:bg-gray-900 rounded-xl shadow-lg hover:shadow-xl transition-shadow overflow-hidden">
+                    <div class="bg-gradient-to-r ${palette.gradient} h-32"></div>
+                    <div class="p-6 -mt-16">
+                        <div class="bg-white dark:bg-gray-800 w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
+                            <span class="text-2xl font-bold text-${palette.color}">${doctor.initials}</span>
+                        </div>
+                        <div class="text-center">
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">${doctor.name}</h3>
+                            <p class="text-${palette.color} dark:text-${palette.color.replace('600', '400')} font-medium">${doctor.specialization}</p>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">${doctor.experience_years} years experience</p>
+                            <div class="flex items-center justify-center mt-2">
+                                <span class="text-yellow-400">⭐⭐⭐⭐⭐</span>
+                                <span class="text-gray-600 dark:text-gray-400 text-sm ml-2">${rating} (${reviewCount} reviews)</span>
+                            </div>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">${availability}</p>
+                            ${doctor.consultation_fee ? `<p class="text-gray-600 dark:text-gray-400 text-sm">Consultation: $${doctor.consultation_fee}</p>` : ''}
+                            <button class="mt-4 w-full bg-${palette.color} text-white py-2 rounded-lg hover:bg-${palette.color.replace('600', '700')} transition-colors">
+                                Book Appointment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Load doctors
+        async function loadDoctors(filters = {}) {
+            showLoading();
+            
+            try {
+                const params = new URLSearchParams();
+                if (filters.search) {
+                    params.append('search', filters.search);
+                }
+                if (filters.specialty && filters.specialty !== 'All Specialties') {
+                    params.append('specialty', filters.specialty);
+                }
+                if (filters.location) {
+                    params.append('location', filters.location);
+                }
+
+                const response = await fetch(`/api/doctors/available?${params.toString()}`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to load doctors');
+                }
+
+                if (data.success && data.doctors) {
+                    if (data.doctors.length === 0) {
+                        showNoResults();
+                    } else {
+                        doctorsGrid.innerHTML = data.doctors
+                            .map((doctor, index) => createDoctorCard(doctor, index))
+                            .join('');
+                        showResults();
+                    }
+                } else {
+                    throw new Error('Invalid response format');
+                }
+            } catch (error) {
+                console.error('Error loading doctors:', error);
+                showError('Unable to load doctors. Please try again.');
+            }
+        }
+
+        // Search form submission
+        if (searchForm) {
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const filters = {
+                    search: nameFilter.value.trim(),
+                    specialty: specialtyFilter.value,
+                    location: locationFilter.value.trim()
+                };
+                
+                loadDoctors(filters);
+            });
+        }
+
+        // Reset search
+        if (resetSearchBtn) {
+            resetSearchBtn.addEventListener('click', function() {
+                nameFilter.value = '';
+                specialtyFilter.value = '';
+                locationFilter.value = '';
+                loadDoctors();
+            });
+        }
+
+        // Retry search
+        if (retrySearchBtn) {
+            retrySearchBtn.addEventListener('click', function() {
+                loadDoctors();
+            });
+        }
+
+        // Real-time search on specialty change
+        if (specialtyFilter) {
+            specialtyFilter.addEventListener('change', function() {
+                const filters = {
+                    search: nameFilter.value.trim(),
+                    specialty: this.value,
+                    location: locationFilter.value.trim()
+                };
+                loadDoctors(filters);
+            });
+        }
+
+        // Initialize the page
+        loadSpecialties();
+        loadDoctors(); // Load all available doctors initially
+
+        console.log('🏥 MediCare platform loaded successfully!');
+    });
+</script>

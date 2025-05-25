@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'MediCare - Healthcare Management Platform')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.tailwindcss.com"></script>
@@ -24,7 +25,7 @@
         }
     </style>
     
-    <script>
+    {{-- <script>
         // Dark mode toggle functionality
         function toggleDarkMode() {
             const html = document.documentElement;
@@ -46,7 +47,7 @@
                 document.documentElement.classList.add('dark');
             }
         });
-    </script>
+    </script> --}}
 </head>
 
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen antialiased">
@@ -103,11 +104,11 @@
                         @endswitch
 
                         <!-- Dark Mode Toggle -->
-                        <button onclick="toggleDarkMode()" 
+                        {{-- <button onclick="toggleDarkMode()" 
                             class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200">
                             <i class="fas fa-moon dark:hidden text-lg"></i>
                             <i class="fas fa-sun hidden dark:block text-lg"></i>
-                        </button>
+                        </button> --}}
 
                         <!-- User Profile Section -->
                         <div class="flex items-center space-x-3">
@@ -136,11 +137,11 @@
                     <!-- Guest Navigation -->
                     <div class="flex items-center space-x-3">
                         <!-- Dark Mode Toggle for guests -->
-                        <button onclick="toggleDarkMode()" 
+                        {{-- <button onclick="toggleDarkMode()" 
                             class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200">
                             <i class="fas fa-moon dark:hidden text-lg"></i>
                             <i class="fas fa-sun hidden dark:block text-lg"></i>
-                        </button>
+                        </button> --}}
                         
                         <a href="{{ route('login') }}"
                             class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 font-medium">
@@ -176,6 +177,8 @@
 
         @yield('content')
     </main>
+    
+    @stack('scripts')
 </body>
 
 </html>
