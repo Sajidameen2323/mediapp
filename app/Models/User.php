@@ -69,6 +69,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the laboratory profile for the user.
+     */
+    public function laboratory(): HasOne
+    {
+        return $this->hasOne(Laboratory::class);
+    }
+
+    /**
+     * Get the pharmacy profile for the user.
+     */
+    public function pharmacy(): HasOne
+    {
+        return $this->hasOne(Pharmacy::class);
+    }
+
+    /**
      * Get the health profile for the user.
      */
     public function healthProfile(): HasOne

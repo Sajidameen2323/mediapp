@@ -87,7 +87,7 @@ This document tracks the implementation phases and details for the appointment b
 - **Booking Flow:**
   1. Patient selects service and doctor
   2. Selects date from calendar
-  3. Time slots shown dynamically (filter unavailable slots: appointments, breaks, blocked slots)
+  3. Time slots shown dynamically adhere to Appoinment configurations (filter unavailable slots: appointments, breaks, blocked slots)
   4. Slot start/end based on doctor availability and service duration
   5. Efficient slot mapping (no overlap, correct duration)
   6. Review & payment (or delay payment)

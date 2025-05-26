@@ -8,7 +8,7 @@
         <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
         <p class="mt-2 text-gray-600">Manage the medical application system</p>
     </div>    <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
         <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border dark:border-gray-700">
             <div class="p-5">
                 <div class="flex items-center">
@@ -50,31 +50,67 @@
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
                         <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-                            <span class="text-white text-sm font-bold">D</span>
+                            <i class="fas fa-user-md text-white text-xs"></i>
                         </div>
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Doctors</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ \App\Models\User::where('user_type', 'doctor')->count() }}</dd>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Doctors</dt>
+                            <dd class="text-lg font-medium text-gray-900 dark:text-white">{{ \App\Models\User::where('user_type', 'doctor')->count() }}</dd>
                         </dl>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border dark:border-gray-700">
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
                         <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
-                            <span class="text-white text-sm font-bold">P</span>
+                            <i class="fas fa-user text-white text-xs"></i>
                         </div>
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Patients</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ \App\Models\User::where('user_type', 'patient')->count() }}</dd>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Patients</dt>
+                            <dd class="text-lg font-medium text-gray-900 dark:text-white">{{ \App\Models\User::where('user_type', 'patient')->count() }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border dark:border-gray-700">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-flask text-white text-xs"></i>
+                        </div>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Laboratories</dt>
+                            <dd class="text-lg font-medium text-gray-900 dark:text-white">{{ \App\Models\Laboratory::count() }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border dark:border-gray-700">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-pills text-white text-xs"></i>
+                        </div>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">Pharmacies</dt>
+                            <dd class="text-lg font-medium text-gray-900 dark:text-white">{{ \App\Models\Pharmacy::count() }}</dd>
                         </dl>
                     </div>
                 </div>
@@ -101,10 +137,40 @@
 
         <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border dark:border-gray-700">
             <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Laboratory Management</h3>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Register and manage partner laboratories</p>
+                <div class="mt-4 space-y-2">
+                    <a href="{{ route('admin.laboratories.index') }}" class="block w-full bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded transition-colors duration-200 text-center">
+                        <i class="fas fa-flask mr-2"></i>Manage Laboratories
+                    </a>
+                    <a href="{{ route('admin.laboratories.create') }}" class="block w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition-colors duration-200 text-center">
+                        <i class="fas fa-plus mr-2"></i>Add New Laboratory
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border dark:border-gray-700">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Pharmacy Management</h3>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Register and manage partner pharmacies</p>
+                <div class="mt-4 space-y-2">
+                    <a href="{{ route('admin.pharmacies.index') }}" class="block w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded transition-colors duration-200 text-center">
+                        <i class="fas fa-pills mr-2"></i>Manage Pharmacies
+                    </a>
+                    <a href="{{ route('admin.pharmacies.create') }}" class="block w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition-colors duration-200 text-center">
+                        <i class="fas fa-plus mr-2"></i>Add New Pharmacy
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border dark:border-gray-700">
+            <div class="px-4 py-5 sm:p-6">
                 <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Service Management</h3>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Manage medical services</p>
                 <div class="mt-4 space-y-2">
-                    <a href="{{ route('admin.services.index') }}" class="block w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded transition-colors duration-200 text-center">
+                    <a href="{{ route('admin.services.index') }}" class="block w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded transition-colors duration-200 text-center">
                         <i class="fas fa-briefcase-medical mr-2"></i>Manage Services
                     </a>
                     <a href="{{ route('admin.services.create') }}" class="block w-full bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded transition-colors duration-200 text-center">

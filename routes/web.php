@@ -83,6 +83,24 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/admin/services/{service}/doctor-assignments', [\App\Http\Controllers\Admin\ServiceController::class, 'updateDoctorAssignments'])
             ->name('admin.services.update-doctor-assignments');
         
+        // Laboratory Management
+        Route::resource('/admin/laboratories', \App\Http\Controllers\Admin\LaboratoryController::class, [
+            'as' => 'admin'
+        ]);
+        
+        // Laboratory availability toggle
+        Route::patch('/admin/laboratories/{laboratory}/toggle-availability', [\App\Http\Controllers\Admin\LaboratoryController::class, 'toggleAvailability'])
+            ->name('admin.laboratories.toggle-availability');
+        
+        // Pharmacy Management
+        Route::resource('/admin/pharmacies', \App\Http\Controllers\Admin\PharmacyController::class, [
+            'as' => 'admin'
+        ]);
+        
+        // Pharmacy availability toggle
+        Route::patch('/admin/pharmacies/{pharmacy}/toggle-availability', [\App\Http\Controllers\Admin\PharmacyController::class, 'toggleAvailability'])
+            ->name('admin.pharmacies.toggle-availability');
+        
         // Appointment Configuration Management
         Route::prefix('admin/appointment-config')->name('admin.appointment-config.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Admin\AppointmentConfigController::class, 'index'])->name('index');
