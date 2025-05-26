@@ -116,6 +116,21 @@
 
         <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border dark:border-gray-700">
             <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Appointment Configuration</h3>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Configure appointment settings and policies</p>
+                <div class="mt-4 space-y-2">
+                    <a href="{{ route('admin.appointment-config.index') }}" class="block w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-4 py-2 rounded transition-colors duration-200 text-center">
+                        <i class="fas fa-calendar-cog mr-2"></i>Appointment Settings
+                    </a>
+                    <a href="{{ route('admin.appointment-config.edit') }}" class="block w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2 rounded transition-colors duration-200 text-center">
+                        <i class="fas fa-cog mr-2"></i>Configure System
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border dark:border-gray-700">
+            <div class="px-4 py-5 sm:p-6">
                 <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">User Management</h3>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Manage all users in the system</p>
                 <div class="mt-4">
@@ -126,24 +141,24 @@
             </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border dark:border-gray-700">
             <div class="px-4 py-5 sm:p-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">System Settings</h3>
-                <p class="mt-2 text-sm text-gray-600">Configure system-wide settings</p>
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">System Settings</h3>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Configure system-wide settings</p>
                 <div class="mt-4">
-                    <button class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
+                    <button class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors duration-200">
                         Settings
                     </button>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border dark:border-gray-700">
             <div class="px-4 py-5 sm:p-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Reports</h3>
-                <p class="mt-2 text-sm text-gray-600">View system reports and analytics</p>
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Reports</h3>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">View system reports and analytics</p>
                 <div class="mt-4">
-                    <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                    <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors duration-200">
                         View Reports
                     </button>
                 </div>

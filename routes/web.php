@@ -82,6 +82,23 @@ Route::middleware(['auth'])->group(function () {
             ->name('admin.services.assign-doctors');
         Route::put('/admin/services/{service}/doctor-assignments', [\App\Http\Controllers\Admin\ServiceController::class, 'updateDoctorAssignments'])
             ->name('admin.services.update-doctor-assignments');
+        
+        // Appointment Configuration Management
+        Route::prefix('admin/appointment-config')->name('admin.appointment-config.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\AppointmentConfigController::class, 'index'])->name('index');
+            Route::get('/edit', [\App\Http\Controllers\Admin\AppointmentConfigController::class, 'edit'])->name('edit');
+            Route::put('/update', [\App\Http\Controllers\Admin\AppointmentConfigController::class, 'update'])->name('update');
+            
+            // Holiday Management
+            Route::get('/holidays', [\App\Http\Controllers\Admin\AppointmentConfigController::class, 'holidays'])->name('holidays');
+            Route::post('/holidays', [\App\Http\Controllers\Admin\AppointmentConfigController::class, 'storeHoliday'])->name('holidays.store');
+            Route::delete('/holidays/{holiday}', [\App\Http\Controllers\Admin\AppointmentConfigController::class, 'destroyHoliday'])->name('holidays.destroy');
+            
+            // Blocked Time Slots Management
+            Route::get('/blocked-slots', [\App\Http\Controllers\Admin\AppointmentConfigController::class, 'blockedSlots'])->name('blocked-slots');
+            Route::post('/blocked-slots', [\App\Http\Controllers\Admin\AppointmentConfigController::class, 'storeBlockedSlot'])->name('blocked-slots.store');
+            Route::delete('/blocked-slots/{blockedSlot}', [\App\Http\Controllers\Admin\AppointmentConfigController::class, 'destroyBlockedSlot'])->name('blocked-slots.destroy');
+        });
     });
     
     // Doctor routes
