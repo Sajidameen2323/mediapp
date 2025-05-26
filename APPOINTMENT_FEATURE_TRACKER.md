@@ -4,7 +4,7 @@ This document tracks the implementation phases and details for the appointment b
 
 ---
 
-## Phase 1: Appointment Configuration (Admin Only)
+## Phase 1: Appointment Configuration (Admin Only) ✅ Completed
 - **Access:** Admin panel > Appointment Settings
 - **Configurable Options:**
   - Buffer before first bookable date
@@ -27,7 +27,7 @@ This document tracks the implementation phases and details for the appointment b
 
 ---
 
-## Phase 2: Laboratory & Pharmacy Management (Admin)
+## Phase 2: Laboratory & Pharmacy Management (Admin) ✅ Completed
 - **Features:**
   - Admin manages laboratories and pharmacies (register, update, remove).
   - Admin can register partner organizations (labs, pharmacies) and provide login credentials.
