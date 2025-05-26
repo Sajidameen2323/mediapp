@@ -48,6 +48,9 @@
             }
         });
     </script> --}}
+    
+    @stack('head')
+    @stack('styles')
 </head>
 
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen antialiased">

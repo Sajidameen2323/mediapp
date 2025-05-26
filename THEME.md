@@ -14,7 +14,7 @@ The application supports a class-based dark mode. This is configured in the `tai
 
 ## Application Color Palette
 
-The application primarily utilizes the **default Tailwind CSS color palette**. The following list details the specific color names and shades that have been identified in use across the application's UI components. For a comprehensive list of all default colors and their shades, please refer to the official [Tailwind CSS Default Color Palette documentation](https://tailwindcss.com/docs/customizing-colors#default-color-palette).
+The application primarily utilizes the **default Tailwind CSS color palette**. The following list details the specific color names and shades that have been identified in use across the application's UI components.
 
 ### Amber
 - **Shades:** 300
