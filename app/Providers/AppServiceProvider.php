@@ -19,6 +19,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Register the test command
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \App\Console\Commands\TestDoctorBreakUpdate::class,
+            ]);
+        }
     }
 }

@@ -27,40 +27,38 @@ class DatabaseSeeder extends Seeder
         ]);
         $admin->assignRole('admin');
 
-        $doctor = User::create([
-            'name' => 'Dr. John Doe',
-            'email' => 'doctor@mediapp.com',
-            'password' => bcrypt('password'),
-            'user_type' => 'doctor',
-            'is_active' => true,
-        ]);
-        $doctor->assignRole('doctor');
 
-        $patient = User::create([
-            'name' => 'Patient User',
-            'email' => 'patient@mediapp.com',
-            'password' => bcrypt('password'),
-            'user_type' => 'patient',
+        // Create AppointmentConfig for doctor
+        \App\Models\AppointmentConfig::create([
+            'buffer_time_before' => 10,
+            'buffer_time_after' => 10,
+            'max_booking_days_ahead' => 30,
+            'min_booking_hours_ahead' => 2,
+            'tax_rate' => 0.05,
+            'tax_enabled' => true,
+            'cancellation_hours_limit' => 24,
+            'reschedule_hours_limit' => 24,
+            'allow_cancellation' => true,
+            'allow_rescheduling' => true,
+            'max_appointments_per_patient_per_day' => 2,
+            'max_appointments_per_doctor_per_day' => 20,
+            'accepted_payment_methods' => ['cash', 'card'],
+            'require_payment_on_booking' => false,
+            'booking_deposit_percentage' => 0,
+            'auto_approve_appointments' => true,
+            'require_admin_approval' => false,
+            'send_confirmation_email' => true,
+            'send_reminder_email' => true,
+            'reminder_hours_before' => 2,
+            'default_start_time' => '09:00',
+            'default_end_time' => '17:00',
+            'default_slot_duration' => 30,
+            'allow_emergency_bookings' => false,
+            'emergency_booking_hours_limit' => 0,
             'is_active' => true,
+            'timezone' => 'Asia/Kolkata',
         ]);
-        $patient->assignRole('patient');
 
-        $labStaff = User::create([
-            'name' => 'Lab Staff',
-            'email' => 'lab@mediapp.com',
-            'password' => bcrypt('password'),
-            'user_type' => 'laboratory_staff',
-            'is_active' => true,
-        ]);
-        $labStaff->assignRole('laboratory_staff');
 
-        $pharmacist = User::create([
-            'name' => 'Pharmacist User',
-            'email' => 'pharmacist@mediapp.com',
-            'password' => bcrypt('password'),
-            'user_type' => 'pharmacist',
-            'is_active' => true,
-        ]);
-        $pharmacist->assignRole('pharmacist');
     }
 }

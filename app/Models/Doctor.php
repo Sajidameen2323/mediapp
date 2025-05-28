@@ -51,6 +51,30 @@ class Doctor extends Model
     }
 
     /**
+     * Get the breaks for the doctor.
+     */
+    public function breaks(): HasMany
+    {
+        return $this->hasMany(DoctorBreak::class);
+    }
+
+    /**
+     * Get the holidays for the doctor.
+     */
+    public function holidays(): HasMany
+    {
+        return $this->hasMany(DoctorHoliday::class);
+    }
+
+    /**
+     * Get the medical reports created by the doctor.
+     */
+    public function medicalReports(): HasMany
+    {
+        return $this->hasMany(MedicalReport::class);
+    }
+
+    /**
      * Scope to get available doctors.
      */
     public function scopeAvailable($query)

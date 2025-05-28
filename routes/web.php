@@ -121,7 +121,57 @@ Route::middleware(['auth'])->group(function () {
     
     // Doctor routes
     Route::middleware(['user.type:doctor'])->group(function () {
-        Route::get('/doctor/dashboard', [DashboardController::class, 'doctorDashboard'])->name('doctor.dashboard');
+        Route::get('/doctor/dashboard', [\App\Http\Controllers\Doctor\DoctorDashboardController::class, 'index'])->name('doctor.dashboard');
+        
+        // Doctor Dashboard Features
+        Route::get('/doctor/schedule', [\App\Http\Controllers\Doctor\DoctorDashboardController::class, 'schedule'])->name('doctor.schedule');
+        
+        // Break Management
+        Route::resource('/doctor/manage-breaks', \App\Http\Controllers\Doctor\BreakController::class, [
+            'as' => 'doctor',
+            'parameters' => ['manage-breaks' => 'break'],
+            'names' => [
+                'index' => 'breaks.index',
+                'create' => 'breaks.create',
+                'store' => 'breaks.store',
+                'show' => 'breaks.show',
+                'edit' => 'breaks.edit',
+                'update' => 'breaks.update',
+                'destroy' => 'breaks.destroy'
+            ]
+        ]);
+        
+        // Holiday Management
+        Route::resource('/doctor/manage-holidays', \App\Http\Controllers\Doctor\HolidayController::class, [
+            'as' => 'doctor',
+            'names' => [
+                'index' => 'holidays.index',
+                'create' => 'holidays.create',
+                'store' => 'holidays.store',
+                'show' => 'holidays.show',
+                'edit' => 'holidays.edit',
+                'update' => 'holidays.update',
+                'destroy' => 'holidays.destroy'
+            ]
+        ]);
+        
+        // Medical Report Management
+        Route::resource('/doctor/manage-reports', \App\Http\Controllers\Doctor\MedicalReportController::class, [
+            'as' => 'doctor',
+            'names' => [
+                'index' => 'reports.index',
+                'create' => 'reports.create',
+                'store' => 'reports.store',
+                'show' => 'reports.show',
+                'edit' => 'reports.edit',
+                'update' => 'reports.update',
+                'destroy' => 'reports.destroy'
+            ]
+        ]);
+        
+        // Medical Report PDF Export
+        Route::get('/doctor/manage-reports/{medicalReport}/pdf', [\App\Http\Controllers\Doctor\MedicalReportController::class, 'exportPdf'])
+            ->name('doctor.reports.pdf');
     });
     
     // Patient routes
