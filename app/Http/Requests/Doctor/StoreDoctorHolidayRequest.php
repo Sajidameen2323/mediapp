@@ -18,10 +18,10 @@ class StoreDoctorHolidayRequest extends FormRequest
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
-    public function rules(): array
+     */    public function rules(): array
     {
         return [
+            'title' => 'required|string|max:255',
             'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after_or_equal:start_date',
             'reason' => 'required|string|max:500',
@@ -31,10 +31,10 @@ class StoreDoctorHolidayRequest extends FormRequest
 
     /**
      * Get custom messages for validator errors.
-     */
-    public function messages(): array
+     */    public function messages(): array
     {
         return [
+            'title.required' => 'Holiday title is required.',
             'start_date.after_or_equal' => 'Holiday start date cannot be in the past.',
             'end_date.after_or_equal' => 'Holiday end date must be after or equal to start date.',
             'reason.required' => 'Please provide a reason for the holiday request.',

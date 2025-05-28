@@ -10,7 +10,7 @@
                     <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Edit Holiday Request</h1>
                     <p class="mt-2 text-gray-600 dark:text-gray-400">Update your holiday request details</p>
                 </div>
-                <a href="{{ route('doctor.dashboard.holidays') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
+                <a href="{{ route('doctor.holidays.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
                     <i class="fas fa-arrow-left mr-2"></i>
                     Back to Holidays
                 </a>
@@ -31,10 +31,22 @@
         @endif
 
         <!-- Form -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-            <form id="holiday-form" class="p-6 space-y-6" {{ $holiday->status !== 'pending' ? 'style=pointer-events:none;opacity:0.6;' : '' }}>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">            <form id="holiday-form" class="p-6 space-y-6" {{ $holiday->status !== 'pending' ? 'style=pointer-events:none;opacity:0.6;' : '' }}>
                 @csrf
                 @method('PUT')
+                
+                <!-- Title -->
+                <div>
+                    <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Holiday Title <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="title" name="title" required 
+                           value="{{ $holiday->title }}"
+                           {{ $holiday->status !== 'pending' ? 'disabled' : '' }}
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                           placeholder="e.g., Annual Leave, Medical Leave, Conference Attendance">
+                    <div class="text-red-500 text-sm mt-1 hidden" id="title-error"></div>
+                </div>
                 
                 <!-- Date Range -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -260,7 +272,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     showNotification('Holiday request updated successfully!', 'success');
                     setTimeout(() => {
-                        window.location.href = '{{ route("doctor.dashboard.holidays") }}';
+                        window.location.href = '{{ route("doctor.holidays.index") }}';
                     }, 1500);
                 } else {
                     throw new Error(data.message || 'An error occurred');

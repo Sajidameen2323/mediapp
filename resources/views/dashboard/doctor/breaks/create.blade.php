@@ -10,7 +10,7 @@
                     <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Add New Break</h1>
                     <p class="mt-2 text-gray-600 dark:text-gray-400">Schedule a break in your availability</p>
                 </div>
-                <a href="{{ route('breaks.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
+                <a href="{{ route('doctor.breaks.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
                     <i class="fas fa-arrow-left mr-2"></i>
                     Back to Breaks
                 </a>
@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const formData = new FormData(form);
         
-        fetch('{{ route("breaks.store") }}', {
+        fetch('{{ route("doctor.breaks.store") }}', {
             method: 'POST',
             body: formData,
             headers: {
@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 showNotification('Break created successfully!', 'success');
                 setTimeout(() => {
-                    window.location.href = '{{ route("breaks.index") }}';
+                    window.location.href = '{{ route("doctor.breaks.index") }}';
                 }, 1500);
             } else {
                 throw new Error(data.message || 'An error occurred');

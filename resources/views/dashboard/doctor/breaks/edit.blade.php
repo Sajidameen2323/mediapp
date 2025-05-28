@@ -10,7 +10,7 @@
                     <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Edit Break</h1>
                     <p class="mt-2 text-gray-600 dark:text-gray-400">Update your break interval</p>
                 </div>
-                <a href="{{ route('breaks.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
+                <a href="{{ route('doctor.breaks.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
                     <i class="fas fa-arrow-left mr-2"></i>
                     Back to Breaks
                 </a>
@@ -19,7 +19,7 @@
 
         <!-- Form -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-            <form id="break-edit-form" action="{{ route('breaks.update', $break) }}" method="POST" class="p-6 space-y-6">
+            <form id="break-edit-form" action="{{ route('doctor.breaks.update', $break) }}" method="POST" class="p-6 space-y-6">
                 @csrf
                 @method('PUT')
                 

@@ -15,7 +15,7 @@
             </p>
         </div>
         <div class="mt-4 flex md:ml-4 md:mt-0">
-            <a href="{{ route('holidays.create') }}" 
+            <a href="{{ route('doctor.holidays.create') }}" 
                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center">
                 <i class="fas fa-plus mr-2"></i>Request Holiday
             </a>
@@ -26,19 +26,19 @@
     <div class="mb-6">
         <div class="border-b border-gray-200 dark:border-gray-700">
             <nav class="-mb-px flex space-x-8">
-                <a href="{{ route('holidays.index') }}" 
+                <a href="{{ route('doctor.holidays.index') }}" 
                    class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
                     All Requests
                 </a>
-                <a href="{{ route('holidays.index', ['status' => 'pending']) }}" 
+                <a href="{{ route('doctor.holidays.index', ['status' => 'pending']) }}" 
                    class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
                     Pending
                 </a>
-                <a href="{{ route('holidays.index', ['status' => 'approved']) }}" 
+                <a href="{{ route('doctor.holidays.index', ['status' => 'approved']) }}" 
                    class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
                     Approved
                 </a>
-                <a href="{{ route('holidays.index', ['status' => 'rejected']) }}" 
+                <a href="{{ route('doctor.holidays.index', ['status' => 'rejected']) }}" 
                    class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
                     Rejected
                 </a>
@@ -129,18 +129,18 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div class="flex items-center justify-end space-x-2">
-                                            <a href="{{ route('holidays.show', $holiday) }}" 
+                                            <a href="{{ route('doctor.holidays.show', $holiday) }}" 
                                                class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200"
                                                title="View Details">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             @if($holiday->status === 'pending')
-                                                <a href="{{ route('holidays.edit', $holiday) }}" 
+                                                <a href="{{ route('doctor.holidays.edit', $holiday) }}" 
                                                    class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors duration-200"
                                                    title="Edit Request">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <form method="POST" action="{{ route('holidays.destroy', $holiday) }}" 
+                                                <form method="POST" action="{{ route('doctor.holidays.destroy', $holiday) }}" 
                                                       class="inline"
                                                       onsubmit="return confirm('Are you sure you want to cancel this holiday request?')">
                                                     @csrf
@@ -167,7 +167,7 @@
                     <p class="text-gray-600 dark:text-gray-400 mb-6">
                         You haven't submitted any holiday requests yet. Start planning your time off!
                     </p>
-                    <a href="{{ route('holidays.create') }}" 
+                    <a href="{{ route('doctor.holidays.create') }}" 
                        class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md text-sm font-medium transition-colors duration-200 inline-flex items-center">
                         <i class="fas fa-plus mr-2"></i>Request Your First Holiday
                     </a>

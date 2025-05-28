@@ -212,7 +212,7 @@ class BreakController extends Controller
             // Refresh the model to get updated data
             $break = $break->fresh();
             
-            return redirect()->route('breaks.index')
+            return redirect()->route('doctor.breaks.index')
                 ->with('success', 'Break updated successfully!');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to update break: ' . $e->getMessage()]);
@@ -245,7 +245,7 @@ class BreakController extends Controller
             $break->delete();
             Log::info('Doctor break deleted successfully', $breakDetails);
             
-            return redirect()->route('breaks.index')
+            return redirect()->route('doctor.breaks.index')
                 ->with('success', 'Break deleted successfully!');
         } catch (\Exception $e) {
             Log::error('Failed to delete doctor break', [
@@ -255,7 +255,7 @@ class BreakController extends Controller
                 'line' => $e->getLine()
             ]);
             
-            return redirect()->route('breaks.index')
+            return redirect()->route('doctor.breaks.index')
                 ->with('error', 'Failed to delete break: ' . $e->getMessage());
         }
     }

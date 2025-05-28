@@ -131,27 +131,28 @@ Route::middleware(['auth'])->group(function () {
             'as' => 'doctor',
             'parameters' => ['manage-breaks' => 'break'],
             'names' => [
-                'index' => 'breaks.index',
-                'create' => 'breaks.create',
-                'store' => 'breaks.store',
-                'show' => 'breaks.show',
-                'edit' => 'breaks.edit',
-                'update' => 'breaks.update',
-                'destroy' => 'breaks.destroy'
+                'index' => 'doctor.breaks.index',
+                'create' => 'doctor.breaks.create',
+                'store' => 'doctor.breaks.store',
+                'show' => 'doctor.breaks.show',
+                'edit' => 'doctor.breaks.edit',
+                'update' => 'doctor.breaks.update',
+                'destroy' => 'doctor.breaks.destroy'
             ]
         ]);
         
         // Holiday Management
         Route::resource('/doctor/manage-holidays', \App\Http\Controllers\Doctor\HolidayController::class, [
             'as' => 'doctor',
+            'parameters' => ['manage-holidays' => 'holiday'],
             'names' => [
-                'index' => 'holidays.index',
-                'create' => 'holidays.create',
-                'store' => 'holidays.store',
-                'show' => 'holidays.show',
-                'edit' => 'holidays.edit',
-                'update' => 'holidays.update',
-                'destroy' => 'holidays.destroy'
+                'index' => 'doctor.holidays.index',
+                'create' => 'doctor.holidays.create',
+                'store' => 'doctor.holidays.store',
+                'show' => 'doctor.holidays.show',
+                'edit' => 'doctor.holidays.edit',
+                'update' => 'doctor.holidays.update',
+                'destroy' => 'doctor.holidays.destroy'
             ]
         ]);
         
@@ -159,13 +160,13 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('/doctor/manage-reports', \App\Http\Controllers\Doctor\MedicalReportController::class, [
             'as' => 'doctor',
             'names' => [
-                'index' => 'reports.index',
-                'create' => 'reports.create',
-                'store' => 'reports.store',
-                'show' => 'reports.show',
-                'edit' => 'reports.edit',
-                'update' => 'reports.update',
-                'destroy' => 'reports.destroy'
+                'index' => 'doctor.medical-reports.index',
+                'create' => 'doctor.medical-reports.create',
+                'store' => 'doctor.medical-reports.store',
+                'show' => 'doctor.medical-reports.show',
+                'edit' => 'doctor.medical-reports.edit',
+                'update' => 'doctor.medical-reports.update',
+                'destroy' => 'doctor.medical-reports.destroy'
             ]
         ]);
         

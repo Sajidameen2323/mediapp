@@ -114,7 +114,7 @@
                 </div>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Set lunch breaks and personal time slots</p>
                 <div class="mt-4">
-                    <a href="{{ route('breaks.index') }}" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+                    <a href="{{ route('doctor.breaks.index') }}" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
                         <i class="fas fa-pause mr-2"></i>Manage Breaks
                     </a>
                 </div>
@@ -130,7 +130,7 @@
                 </div>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Request time off and manage holidays</p>
                 <div class="mt-4">
-                    <a href="{{ route('holidays.index') }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+                    <a href="{{ route('doctor.holidays.index') }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
                         <i class="fas fa-calendar-plus mr-2"></i>Manage Holidays
                     </a>
                 </div>
@@ -146,10 +146,10 @@
                 </div>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Create and manage patient medical reports</p>
                 <div class="mt-4 flex space-x-2">
-                    <a href="{{ route('reports.index') }}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+                    <a href="{{ route('doctor.medical-reports.index') }}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
                         <i class="fas fa-list mr-2"></i>View Reports
                     </a>
-                    <a href="{{ route('reports.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+                    <a href="{{ route('doctor.medical-reports.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">
                         <i class="fas fa-plus mr-1"></i>New
                     </a>
                 </div>

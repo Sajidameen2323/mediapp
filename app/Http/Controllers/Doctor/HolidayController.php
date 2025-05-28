@@ -79,9 +79,7 @@ class HolidayController extends Controller
                 'status_badge_class' => $this->getStatusBadgeClass($holiday->status),
             ]
         ]);
-    }
-
-    /**
+    }    /**
      * Display the specified resource.
      */
     public function show(DoctorHoliday $holiday)
@@ -93,20 +91,7 @@ class HolidayController extends Controller
             abort(403);
         }
         
-        return response()->json([
-            'holiday' => [
-                'id' => $holiday->id,
-                'start_date' => $holiday->start_date,
-                'end_date' => $holiday->end_date,
-                'reason' => $holiday->reason,
-                'notes' => $holiday->notes,
-                'status' => $holiday->status,
-                'admin_notes' => $holiday->admin_notes,
-                'formatted_dates' => $holiday->start_date->format('M d, Y') . ' - ' . $holiday->end_date->format('M d, Y'),
-                'duration_days' => $holiday->start_date->diffInDays($holiday->end_date) + 1,
-                'status_badge_class' => $this->getStatusBadgeClass($holiday->status),
-            ]
-        ]);
+        return view('dashboard.doctor.holidays.show', compact('holiday'));
     }
 
     /**
@@ -190,13 +175,10 @@ class HolidayController extends Controller
                 'message' => 'You can only delete holiday requests that are pending approval.'
             ], 403);
         }
+          $holiday->delete();
         
-        $holiday->delete();
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Holiday request deleted successfully.'
-        ]);
+        return redirect()->route('doctor.holidays.index')
+            ->with('success', 'Holiday request deleted successfully.');
     }
 
     /**
