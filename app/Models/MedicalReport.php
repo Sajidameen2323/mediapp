@@ -21,6 +21,10 @@ class MedicalReport extends Model
         'follow_up_instructions',
         'additional_notes',
         'vital_signs',
+        'lab_tests_ordered',
+        'imaging_studies',
+        'priority_level',
+        'follow_up_required',
         'status',
         'completed_at',
     ];

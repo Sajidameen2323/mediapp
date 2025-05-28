@@ -18,14 +18,13 @@
                        class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
                         <i class="fas fa-edit mr-2"></i>
                         Edit Report
-                    </a>
-                    <a href="{{ route('doctor.medical-reports.export-pdf', $medicalReport) }}" 
+                    </a>                    <a href="{{ route('doctor.reports.pdf', $medicalReport) }}" 
                        target="_blank"
                        class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
                         <i class="fas fa-file-pdf mr-2"></i>
                         Export PDF
                     </a>
-                    <a href="{{ route('doctor.dashboard.medical-reports') }}" 
+                    <a href="{{ route('doctor.medical-reports.index') }}" 
                        class="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
                         <i class="fas fa-arrow-left mr-2"></i>
                         Back to Reports
@@ -135,7 +134,9 @@
                 <div>
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Vital Signs</h3>
                     @php
-                        $vitalSigns = json_decode($medicalReport->vital_signs, true);
+                        $vitalSigns = is_array($medicalReport->vital_signs)
+                            ? $medicalReport->vital_signs
+                            : json_decode($medicalReport->vital_signs, true);
                     @endphp
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         @if(isset($vitalSigns['blood_pressure']) && $vitalSigns['blood_pressure'])
@@ -211,7 +212,7 @@
                 <div>
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Diagnosis</h3>
                     <div class="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded-md p-4">
-                        <p class="text-green-800 dark:text-green-200 whitespace-pre-wrap">{{ $medicalReport->diagnosis }}</p>
+                        <p class="text-green-800 dark:text-green-200 whitespace-pre-wrap">{{ $medicalReport->assessment_diagnosis }}</p>
                     </div>
                 </div>
 
@@ -250,12 +251,76 @@
                 </div>
                 @endif
 
+                <!-- Report Type -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Report Type</h3>
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-md p-4">
+                        <p class="text-gray-700 dark:text-gray-300">{{ $medicalReport->report_type }}</p>
+                    </div>
+                </div>
+
+                <!-- Lab Tests Ordered -->
+                @if($medicalReport->lab_tests_ordered)
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Lab Tests Ordered</h3>
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-md p-4">
+                        <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{{ $medicalReport->lab_tests_ordered }}</p>
+                    </div>
+                </div>
+                @endif
+
+                <!-- Imaging Studies -->
+                @if($medicalReport->imaging_studies)
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Imaging Studies</h3>
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-md p-4">
+                        <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{{ $medicalReport->imaging_studies }}</p>
+                    </div>
+                </div>
+                @endif
+
+                <!-- Priority Level -->
+                @if($medicalReport->priority_level)
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Priority Level</h3>
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-md p-4">
+                        <p class="text-gray-700 dark:text-gray-300">{{ ucfirst($medicalReport->priority_level) }}</p>
+                    </div>
+                </div>
+                @endif
+
+                <!-- Follow Up Required -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Follow Up Required</h3>
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-md p-4">
+                        <p class="text-gray-700 dark:text-gray-300">{{ $medicalReport->follow_up_required ? 'Yes' : 'No' }}</p>
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Status</h3>
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-md p-4">
+                        <p class="text-gray-700 dark:text-gray-300">{{ ucfirst($medicalReport->status) }}</p>
+                    </div>
+                </div>
+
+                <!-- Completed At -->
+                @if($medicalReport->completed_at)
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Completed At</h3>
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-md p-4">
+                        <p class="text-gray-700 dark:text-gray-300">{{ $medicalReport->completed_at->format('M d, Y g:i A') }}</p>
+                    </div>
+                </div>
+                @endif
+
                 <!-- Additional Notes -->
-                @if($medicalReport->notes)
+                @if($medicalReport->additional_notes)
                 <div>
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Additional Notes</h3>
                     <div class="bg-gray-50 dark:bg-gray-700 rounded-md p-4">
-                        <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{{ $medicalReport->notes }}</p>
+                        <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{{ $medicalReport->additional_notes }}</p>
                     </div>
                 </div>
                 @endif

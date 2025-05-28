@@ -23,23 +23,22 @@ class UpdateMedicalReportRequest extends FormRequest
     {
         return [
             'patient_id' => 'required|exists:users,id',
-            'appointment_id' => 'nullable|exists:appointments,id',
+            'report_type' => 'required|string',
             'consultation_date' => 'required|date',
             'chief_complaint' => 'required|string',
             'history_of_present_illness' => 'nullable|string',
-            'past_medical_history' => 'nullable|string',
-            'medications' => 'nullable|string',
-            'allergies' => 'nullable|string',
-            'social_history' => 'nullable|string',
-            'family_history' => 'nullable|string',
             'physical_examination' => 'nullable|string',
-            'vital_signs' => 'nullable|json',
-            'diagnosis' => 'required|string',
+            'vital_signs' => 'nullable|array',
+            'assessment_diagnosis' => 'required|string',
             'treatment_plan' => 'required|string',
             'medications_prescribed' => 'nullable|string',
             'follow_up_instructions' => 'nullable|string',
-            'follow_up_date' => 'nullable|date|after:consultation_date',
-            'notes' => 'nullable|string',
+            'additional_notes' => 'nullable|string',
+            'lab_tests_ordered' => 'nullable|string',
+            'imaging_studies' => 'nullable|string',
+            'priority_level' => 'nullable|string|in:routine,urgent,emergency',
+            'follow_up_required' => 'nullable|string',
+            'status' => 'nullable|string|in:draft,completed',
         ];
     }
 
@@ -51,11 +50,12 @@ class UpdateMedicalReportRequest extends FormRequest
         return [
             'patient_id.required' => 'Please select a patient.',
             'patient_id.exists' => 'Selected patient does not exist.',
+            'report_type.required' => 'Report type is required.',
             'consultation_date.required' => 'Consultation date is required.',
             'chief_complaint.required' => 'Chief complaint is required.',
-            'diagnosis.required' => 'Diagnosis is required.',
+            'assessment_diagnosis.required' => 'Assessment/Diagnosis is required.',
             'treatment_plan.required' => 'Treatment plan is required.',
-            'follow_up_date.after' => 'Follow-up date must be after consultation date.',
+            'priority_level.in' => 'Priority level must be routine, urgent, or emergency.',
         ];
     }
 
@@ -64,31 +64,30 @@ class UpdateMedicalReportRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        if ($this->has('vital_signs') || $this->hasAny(['blood_pressure', 'heart_rate', 'temperature', 'respiratory_rate', 'oxygen_saturation', 'weight', 'height'])) {
-            $vitalSigns = [];
-            if ($this->input('blood_pressure')) {
-                $vitalSigns['blood_pressure'] = $this->input('blood_pressure');
+        // Handle vital signs array
+        $vitalSigns = [];
+
+        // Collect vital signs from individual fields
+        $vitalFields = [
+            'blood_pressure',
+            'heart_rate',
+            'temperature',
+            'respiratory_rate',
+            'oxygen_saturation',
+            'weight',
+            'height'
+        ];
+
+        foreach ($vitalFields as $field) {
+            $value = $this->input("vital_signs.{$field}");
+            if ($value) {
+                $vitalSigns[$field] = $value;
             }
-            if ($this->input('heart_rate')) {
-                $vitalSigns['heart_rate'] = $this->input('heart_rate');
-            }
-            if ($this->input('temperature')) {
-                $vitalSigns['temperature'] = $this->input('temperature');
-            }
-            if ($this->input('respiratory_rate')) {
-                $vitalSigns['respiratory_rate'] = $this->input('respiratory_rate');
-            }
-            if ($this->input('oxygen_saturation')) {
-                $vitalSigns['oxygen_saturation'] = $this->input('oxygen_saturation');
-            }
-            if ($this->input('weight')) {
-                $vitalSigns['weight'] = $this->input('weight');
-            }
-            if ($this->input('height')) {
-                $vitalSigns['height'] = $this->input('height');
-            }
-            
-            $this->merge(['vital_signs' => json_encode($vitalSigns)]);
+        }
+
+        // If we have vital signs, merge them as an array (not JSON string)
+        if (!empty($vitalSigns)) {
+            $this->merge(['vital_signs' => $vitalSigns]);
         }
     }
 }

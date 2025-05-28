@@ -6,163 +6,140 @@
     <title>Medical Report - {{ $medicalReport->patient->name }}</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: Arial, sans-serif;
             line-height: 1.6;
             color: #333;
-            margin: 0;
+            max-width: 800px;
+            margin: 0 auto;
             padding: 20px;
-            background-color: #fff;
         }
         .header {
             text-align: center;
-            border-bottom: 3px solid #2563eb;
+            border-bottom: 2px solid #2563eb;
             padding-bottom: 20px;
             margin-bottom: 30px;
         }
         .clinic-name {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: bold;
-            color: #1f2937;
+            color: #2563eb;
             margin-bottom: 5px;
         }
         .report-title {
             font-size: 20px;
-            color: #6b7280;
-            font-weight: 500;
+            color: #374151;
+            margin-bottom: 20px;
         }
         .info-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 20px;
             margin-bottom: 30px;
-            padding: 20px;
-            background-color: #f9fafb;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
         }
         .info-section {
-            text-align: center;
+            border: 1px solid #e5e7eb;
+            padding: 15px;
+            border-radius: 5px;
         }
         .info-label {
             font-size: 12px;
-            font-weight: 600;
             color: #6b7280;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
+            font-weight: bold;
+            margin-bottom: 5px;
         }
         .info-value {
-            font-size: 16px;
-            font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #111827;
         }
         .info-sub {
-            font-size: 14px;
+            font-size: 12px;
             color: #6b7280;
         }
         .section {
             margin-bottom: 25px;
-            page-break-inside: avoid;
         }
         .section-title {
-            font-size: 18px;
-            font-weight: 600;
+            font-size: 16px;
+            font-weight: bold;
             color: #1f2937;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #e5e7eb;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
         }
         .content-box {
-            padding: 15px;
-            border-radius: 6px;
-            border: 1px solid #d1d5db;
             background-color: #f9fafb;
-            white-space: pre-wrap;
-            word-wrap: break-word;
+            border: 1px solid #e5e7eb;
+            padding: 15px;
+            border-radius: 5px;
         }
         .chief-complaint {
             background-color: #dbeafe;
             border-color: #93c5fd;
-            color: #1e40af;
         }
         .diagnosis {
-            background-color: #dcfce7;
-            border-color: #86efac;
-            color: #166534;
+            background-color: #d1fae5;
+            border-color: #6ee7b7;
         }
         .treatment {
             background-color: #dbeafe;
             border-color: #93c5fd;
-            color: #1e40af;
         }
         .allergies {
             background-color: #fee2e2;
             border-color: #fca5a5;
-            color: #dc2626;
         }
         .medications {
             background-color: #fef3c7;
             border-color: #fcd34d;
-            color: #92400e;
         }
         .follow-up {
-            background-color: #ede9fe;
-            border-color: #c4b5fd;
-            color: #7c3aed;
+            background-color: #e0e7ff;
+            border-color: #c7d2fe;
         }
         .vitals-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-top: 15px;
+            gap: 10px;
+            margin-bottom: 15px;
         }
         .vital-box {
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #d1d5db;
+            border: 1px solid #e5e7eb;
+            padding: 10px;
             text-align: center;
+            border-radius: 5px;
             background-color: #f9fafb;
         }
         .vital-label {
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 10px;
             color: #6b7280;
-            margin-bottom: 4px;
+            text-transform: uppercase;
+            font-weight: bold;
         }
         .vital-value {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
-            color: #1f2937;
-        }
-        .two-column {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 25px;
+            color: #111827;
         }
         .footer {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 20px;
+            margin-top: 40px;
             text-align: center;
             font-size: 12px;
             color: #6b7280;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #e5e7eb;
         }
         @media print {
             body {
                 margin: 0;
-                padding: 15px;
+                padding: 10px;
             }
             .header {
-                margin-bottom: 20px;
-            }
-            .section {
-                margin-bottom: 20px;
                 page-break-inside: avoid;
             }
-            .vitals-grid {
-                grid-template-columns: repeat(2, 1fr);
+            .section {
+                page-break-inside: avoid;
             }
         }
     </style>
@@ -211,64 +188,14 @@
     </div>
     @endif
 
-    <!-- Medical History Grid -->
-    <div class="two-column">
-        @if($medicalReport->past_medical_history)
-        <div class="section">
-            <div class="section-title">Past Medical History</div>
-            <div class="content-box">
-                {{ $medicalReport->past_medical_history }}
-            </div>
-        </div>
-        @endif
-
-        @if($medicalReport->medications)
-        <div class="section">
-            <div class="section-title">Current Medications</div>
-            <div class="content-box">
-                {{ $medicalReport->medications }}
-            </div>
-        </div>
-        @endif
-    </div>
-
-    <div class="two-column">
-        @if($medicalReport->allergies)
-        <div class="section">
-            <div class="section-title">Allergies</div>
-            <div class="content-box allergies">
-                {{ $medicalReport->allergies }}
-            </div>
-        </div>
-        @endif
-
-        @if($medicalReport->social_history)
-        <div class="section">
-            <div class="section-title">Social History</div>
-            <div class="content-box">
-                {{ $medicalReport->social_history }}
-            </div>
-        </div>
-        @endif
-    </div>
-
-    @if($medicalReport->family_history)
-    <div class="section">
-        <div class="section-title">Family History</div>
-        <div class="content-box">
-            {{ $medicalReport->family_history }}
-        </div>
-    </div>
-    @endif
-
     <!-- Vital Signs -->
     @if($medicalReport->vital_signs)
     <div class="section">
         <div class="section-title">Vital Signs</div>
         @php
-            $vitalSigns = is_array($medicalReport->vital_signs)
-                ? $medicalReport->vital_signs
-                : json_decode($medicalReport->vital_signs, true);
+            $vitalSigns = is_string($medicalReport->vital_signs)
+                ? json_decode($medicalReport->vital_signs, true)
+                : (is_array($medicalReport->vital_signs) ? $medicalReport->vital_signs : []);
         @endphp
         <div class="vitals-grid">
             @if(isset($vitalSigns['blood_pressure']) && $vitalSigns['blood_pressure'])
@@ -323,6 +250,36 @@
     </div>
     @endif
 
+    <!-- Past Medical History -->
+    @if($medicalReport->past_medical_history)
+    <div class="section">
+        <div class="section-title">Past Medical History</div>
+        <div class="content-box">
+            {{ $medicalReport->past_medical_history }}
+        </div>
+    </div>
+    @endif
+
+    <!-- Current Medications -->
+    @if($medicalReport->medications)
+    <div class="section">
+        <div class="section-title">Current Medications</div>
+        <div class="content-box">
+            {{ $medicalReport->medications }}
+        </div>
+    </div>
+    @endif
+
+    <!-- Allergies -->
+    @if($medicalReport->allergies)
+    <div class="section">
+        <div class="section-title">Allergies</div>
+        <div class="content-box allergies">
+            {{ $medicalReport->allergies }}
+        </div>
+    </div>
+    @endif
+
     <!-- Physical Examination -->
     @if($medicalReport->physical_examination)
     <div class="section">
@@ -337,7 +294,7 @@
     <div class="section">
         <div class="section-title">Diagnosis</div>
         <div class="content-box diagnosis">
-            {{ $medicalReport->assessment_diagnosis }}
+            {{ $medicalReport->diagnosis }}
         </div>
     </div>
 
@@ -366,95 +323,35 @@
         <div class="content-box follow-up">
             {{ $medicalReport->follow_up_instructions }}
             @if($medicalReport->follow_up_date)
-                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #c4b5fd;">
-                    <strong>Next appointment: {{ $medicalReport->follow_up_date->format('M d, Y') }}</strong>
-                </div>
+                <br><br><strong>Next appointment: {{ $medicalReport->follow_up_date->format('M d, Y') }}</strong>
             @endif
         </div>
     </div>
     @endif
 
-    <!-- Report Type -->
-    <div class="section">
-        <div class="section-title">Report Type</div>
-        <div class="content-box">
-            {{ $medicalReport->report_type }}
-        </div>
-    </div>
-
-    <!-- Lab Tests Ordered -->
-    @if($medicalReport->lab_tests_ordered)
-    <div class="section">
-        <div class="section-title">Lab Tests Ordered</div>
-        <div class="content-box">
-            {{ $medicalReport->lab_tests_ordered }}
-        </div>
-    </div>
-    @endif
-
-    <!-- Imaging Studies -->
-    @if($medicalReport->imaging_studies)
-    <div class="section">
-        <div class="section-title">Imaging Studies</div>
-        <div class="content-box">
-            {{ $medicalReport->imaging_studies }}
-        </div>
-    </div>
-    @endif
-
-    <!-- Priority Level -->
-    @if($medicalReport->priority_level)
-    <div class="section">
-        <div class="section-title">Priority Level</div>
-        <div class="content-box">
-            {{ ucfirst($medicalReport->priority_level) }}
-        </div>
-    </div>
-    @endif
-
-    <!-- Follow Up Required -->
-    <div class="section">
-        <div class="section-title">Follow Up Required</div>
-        <div class="content-box">
-            {{ $medicalReport->follow_up_required ? 'Yes' : 'No' }}
-        </div>
-    </div>
-
-    <!-- Status -->
-    <div class="section">
-        <div class="section-title">Status</div>
-        <div class="content-box">
-            {{ ucfirst($medicalReport->status) }}
-        </div>
-    </div>
-
-    <!-- Completed At -->
-    @if($medicalReport->completed_at)
-    <div class="section">
-        <div class="section-title">Completed At</div>
-        <div class="content-box">
-            {{ $medicalReport->completed_at->format('M d, Y g:i A') }}
-        </div>
-    </div>
-    @endif
-
     <!-- Additional Notes -->
-    @if($medicalReport->additional_notes)
+    @if($medicalReport->notes)
     <div class="section">
         <div class="section-title">Additional Notes</div>
         <div class="content-box">
-            {{ $medicalReport->additional_notes }}
+            {{ $medicalReport->notes }}
         </div>
     </div>
     @endif
 
     <!-- Footer -->
     <div class="footer">
-        <p><strong>Report created on:</strong> {{ $medicalReport->created_at->format('M d, Y \a\t g:i A') }}</p>
-        @if($medicalReport->updated_at != $medicalReport->created_at)
-            <p><strong>Last updated on:</strong> {{ $medicalReport->updated_at->format('M d, Y \a\t g:i A') }}</p>
-        @endif
-        <p style="margin-top: 15px;">This is an official medical document. Please keep it for your records.</p>
+        <p>Report generated on {{ now()->format('M d, Y \a\t g:i A') }}</p>
+        <p>This is an official medical document. Please keep it for your records.</p>
     </div>
+
+    <script>
+        // Auto-print when page loads (for PDF generation)
+        window.onload = function() {
+            if (window.location.search.includes('print=1')) {
+                window.print();
+            }
+        };
+    </script>
 </body>
 </html>

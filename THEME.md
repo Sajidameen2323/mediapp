@@ -128,15 +128,12 @@ Button styling is implemented using Tailwind CSS utility classes directly in the
 **1. Primary Action Buttons:**
    - **Use:** Main calls to action.
    - **Styling:**
-     - Background: Often use gradients of 'Blue' with 'Indigo', 'Green' with 'Blue', or 'Purple' with 'Indigo' (e.g., `from-blue-600 to-indigo-600`). Refer to these color definitions in the Application Color Palette.
-     - Text: Typically 'White'.
-     - Effects: Hover states often use darker shades of the gradient colors (e.g., `hover:from-blue-700`). Focus states use 'Blue-500' for rings.
+     - Background: support primary color for both light and dark mode prefix `dark:` for dark mode
 
 **2. Secondary/Cancel Buttons:**
    - **Use:** Alternative actions like "Cancel" or "Back".
    - **Styling:**
-     - Background: Typically transparent or light, with hover states using light 'Gray' shades (e.g., `hover:bg-gray-50`). Some variations use solid 'Gray' backgrounds (e.g., `bg-gray-600`).
-     - Text: Uses 'Gray' shades, or 'White' on darker backgrounds.
+     - Background: appropriate styling
      - Border: Solid 'Gray' borders (e.g., `border-gray-300`).
 
 **3. Tertiary/Link-style Buttons:**

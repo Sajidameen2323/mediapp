@@ -7,6 +7,7 @@ use App\Http\Requests\Doctor\StoreMedicalReportRequest;
 use App\Http\Requests\Doctor\UpdateMedicalReportRequest;
 use App\Models\MedicalReport;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -17,31 +18,37 @@ class MedicalReportController extends Controller
      */    public function index(Request $request)
     {
         Gate::authorize('doctor-access');
-        
         $doctor = auth()->user()->doctor;
-        
         if (!$doctor) {
             return redirect()->route('dashboard')->with('error', 'Doctor profile not found.');
         }
-        
         $query = $doctor->medicalReports()->with('patient')->orderBy('consultation_date', 'desc');
-        
+
         // Filter by patient if provided
         if ($request->has('patient_id') && $request->patient_id) {
             $query->where('patient_id', $request->patient_id);
         }
-        
-        // Filter by date range if provided
-        if ($request->has('from_date') && $request->from_date) {
-            $query->where('consultation_date', '>=', $request->from_date);
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
         }
-        
-        if ($request->has('to_date') && $request->to_date) {
-            $query->where('consultation_date', '<=', $request->to_date);
+
+        // Filter by report type
+        if ($request->filled('report_type')) {
+            $query->where('report_type', $request->report_type);
         }
-        
+
+        // Filter by date range (date_from, date_to)
+        if ($request->filled('date_from')) {
+            $query->where('consultation_date', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->where('consultation_date', '<=', $request->date_to);
+        }
+
         // Search by diagnosis or chief complaint
-        if ($request->has('search') && $request->search) {
+        if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('diagnosis', 'like', "%{$search}%")
@@ -49,12 +56,9 @@ class MedicalReportController extends Controller
                   ->orWhere('treatment_plan', 'like', "%{$search}%");
             });
         }
-        
-        $reports = $query->paginate(15);
-        
-        // Get patients for the filter dropdown
+
+        $reports = $query->paginate(15)->appends($request->except('page'));
         $patients = User::role('patient')->select('id', 'name')->orderBy('name')->get();
-        
         return view('dashboard.doctor.medical-reports.index', compact('reports', 'patients'));
     }
 
@@ -79,8 +83,7 @@ class MedicalReportController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     */
-    public function store(StoreMedicalReportRequest $request)
+     */    public function store(StoreMedicalReportRequest $request)
     {
         Gate::authorize('doctor-access');
         
@@ -89,20 +92,29 @@ class MedicalReportController extends Controller
         $data = $request->validated();
         $data['doctor_id'] = $doctor->id;
         
-        $report = MedicalReport::create($data);
+        // Set status from button clicked (draft or completed)
+        $status = $request->input('status', 'draft');
+        $data['status'] = $status;
         
-        return response()->json([
-            'success' => true,
-            'message' => 'Medical report created successfully.',
-            'report' => [
-                'id' => $report->id,
+        // Set completed_at if status is completed
+        if ($status === 'completed') {
+            $data['completed_at'] = now();
+        }
+          $report = MedicalReport::create($data);
+        
+        // Prepare success message based on status
+        $successMessage = $status === 'completed' 
+            ? 'Medical report completed successfully!' 
+            : 'Medical report saved as draft successfully!';
+        
+        // Redirect to medical reports index with success message
+        return redirect()->route('doctor.medical-reports.index')
+            ->with('success', $successMessage)
+            ->with('report_details', [
                 'patient_name' => $report->patient->name,
                 'consultation_date' => $report->consultation_date->format('M d, Y'),
-                'chief_complaint' => $report->chief_complaint,
-                'diagnosis' => $report->diagnosis,
-            ],
-            'redirect_url' => route('doctor.medical-reports.show', $report)
-        ]);
+                'status' => $report->status,
+            ]);
     }
 
     /**
@@ -142,8 +154,7 @@ class MedicalReportController extends Controller
 
     /**
      * Update the specified resource in storage.
-     */
-    public function update(UpdateMedicalReportRequest $request, MedicalReport $medicalReport)
+     */    public function update(UpdateMedicalReportRequest $request, MedicalReport $medicalReport)
     {
         Gate::authorize('doctor-access');
         
@@ -153,20 +164,33 @@ class MedicalReportController extends Controller
         }
         
         $data = $request->validated();
+        
+        // Set status from button clicked (draft or completed)
+        $status = $request->input('status', $medicalReport->status);
+        $data['status'] = $status;
+        
+        // Set completed_at if status is completed
+        if ($status === 'completed' && $medicalReport->status !== 'completed') {
+            $data['completed_at'] = now();
+        } elseif ($status === 'draft') {
+            $data['completed_at'] = null;
+        }
+        
         $medicalReport->update($data);
         
-        return response()->json([
-            'success' => true,
-            'message' => 'Medical report updated successfully.',
-            'report' => [
-                'id' => $medicalReport->id,
+        // Prepare success message based on status
+        $successMessage = $status === 'completed' 
+            ? 'Medical report updated and completed successfully!' 
+            : 'Medical report updated successfully!';
+        
+        // Redirect to medical reports index with success message
+        return redirect()->route('doctor.medical-reports.index')
+            ->with('success', $successMessage)
+            ->with('report_details', [
                 'patient_name' => $medicalReport->patient->name,
                 'consultation_date' => $medicalReport->consultation_date->format('M d, Y'),
-                'chief_complaint' => $medicalReport->chief_complaint,
-                'diagnosis' => $medicalReport->diagnosis,
-            ],
-            'redirect_url' => route('doctor.medical-reports.show', $medicalReport)
-        ]);
+                'status' => $medicalReport->status,
+            ]);
     }
 
     /**
@@ -203,9 +227,9 @@ class MedicalReportController extends Controller
         
         $medicalReport->load('patient', 'doctor.user');
         
-        // This would typically use a PDF library like dompdf or wkhtmltopdf
-        // For now, return a simple view that can be printed
-        return view('dashboard.doctor.medical-reports.pdf', compact('medicalReport'));
+        $pdf = Pdf::loadView('dashboard.doctor.medical-reports.pdf', compact('medicalReport'));
+        $filename = 'Medical_Report_' . $medicalReport->patient->name . '_' . $medicalReport->consultation_date->format('Ymd') . '.pdf';
+        return $pdf->download($filename);
     }
 
     /**

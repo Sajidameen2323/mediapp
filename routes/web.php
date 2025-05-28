@@ -159,6 +159,7 @@ Route::middleware(['auth'])->group(function () {
         // Medical Report Management
         Route::resource('/doctor/manage-reports', \App\Http\Controllers\Doctor\MedicalReportController::class, [
             'as' => 'doctor',
+            'parameters' => ['manage-reports' => 'medicalReport'],
             'names' => [
                 'index' => 'doctor.medical-reports.index',
                 'create' => 'doctor.medical-reports.create',

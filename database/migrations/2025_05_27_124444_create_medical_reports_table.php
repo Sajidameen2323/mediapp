@@ -26,6 +26,10 @@ return new class extends Migration
             $table->text('follow_up_instructions')->nullable();
             $table->text('additional_notes')->nullable();
             $table->json('vital_signs')->nullable(); // blood pressure, temperature, etc.
+            $table->text('lab_tests_ordered')->nullable();
+            $table->text('imaging_studies')->nullable();
+            $table->string('priority_level')->default('routine'); // routine, urgent, emergency
+            $table->string('follow_up_required')->nullable();
             $table->string('status')->default('draft'); // draft, completed, sent
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();

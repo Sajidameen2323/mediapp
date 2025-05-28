@@ -19,8 +19,45 @@
                     <i class="fas fa-plus mr-2"></i>New Report
                 </a>
             </div>
+        </div>    </div>
+
+    <!-- Success Message -->
+    @if (session('success'))
+        <div class="mb-8 bg-green-50 dark:bg-green-900/20 border-l-4 border-green-400 dark:border-green-600 p-6 rounded-r-xl shadow-lg">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <div class="bg-green-500 p-2 rounded-lg">
+                        <i class="fas fa-check-circle text-white"></i>
+                    </div>
+                </div>
+                <div class="ml-4 flex-1">
+                    <h3 class="text-lg font-semibold text-green-800 dark:text-green-300 mb-2">
+                        <i class="fas fa-thumbs-up mr-2"></i>Success!
+                    </h3>
+                    <div class="text-green-700 dark:text-green-400">
+                        <p class="mb-2">{{ session('success') }}</p>
+                        @if(session('report_details'))
+                            <div class="mt-3 text-sm bg-green-100 dark:bg-green-800/30 p-3 rounded-lg">
+                                <p><strong>Patient:</strong> {{ session('report_details.patient_name') }}</p>
+                                <p><strong>Date:</strong> {{ session('report_details.consultation_date') }}</p>
+                                <p><strong>Status:</strong> 
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                        {{ session('report_details.status') === 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200' }}">
+                                        {{ ucfirst(session('report_details.status')) }}
+                                    </span>
+                                </p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+                <div class="flex-shrink-0">
+                    <button type="button" onclick="this.parentElement.parentElement.parentElement.style.display='none'" class="text-green-400 hover:text-green-600 dark:text-green-500 dark:hover:text-green-300 transition-colors">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
+            </div>
         </div>
-    </div>
+    @endif
 
     <!-- Report Statistics -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -96,40 +133,42 @@
     </div>
 
     <!-- Filters -->
-    <div class="mb-6">
-        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-4">
-            <div class="flex flex-wrap items-center space-x-4">
-                <div class="flex items-center">
-                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mr-2">Status:</label>
-                    <select class="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-1 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                        <option value="">All</option>
-                        <option value="draft">Draft</option>
-                        <option value="completed">Completed</option>
-                        <option value="sent">Sent</option>
-                    </select>
+    <form method="GET" action="{{ route('doctor.medical-reports.index') }}">
+        <div class="mb-6">
+            <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-4">
+                <div class="flex flex-wrap items-center space-x-4">
+                    <div class="flex items-center">
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mr-2">Status:</label>
+                        <select name="status" class="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-1 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="" {{ request('status') == '' ? 'selected' : '' }}>All</option>
+                            <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
+                            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                            <option value="sent" {{ request('status') == 'sent' ? 'selected' : '' }}>Sent</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center">
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mr-2">Report Type:</label>
+                        <select name="report_type" class="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-1 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="" {{ request('report_type') == '' ? 'selected' : '' }}>All</option>
+                            <option value="Consultation" {{ request('report_type') == 'Consultation' ? 'selected' : '' }}>Consultation</option>
+                            <option value="Follow-up" {{ request('report_type') == 'Follow-up' ? 'selected' : '' }}>Follow-up</option>
+                            <option value="Diagnosis" {{ request('report_type') == 'Diagnosis' ? 'selected' : '' }}>Diagnosis</option>
+                            <option value="Treatment" {{ request('report_type') == 'Treatment' ? 'selected' : '' }}>Treatment</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center">
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mr-2">Date Range:</label>
+                        <input type="date" name="date_from" value="{{ request('date_from') }}" class="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-1 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white mr-2">
+                        <span class="text-gray-500">to</span>
+                        <input type="date" name="date_to" value="{{ request('date_to') }}" class="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-1 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white ml-2">
+                    </div>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded-md text-sm transition-colors duration-200">
+                        <i class="fas fa-filter mr-1"></i>Filter
+                    </button>
                 </div>
-                <div class="flex items-center">
-                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mr-2">Report Type:</label>
-                    <select class="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-1 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                        <option value="">All</option>
-                        <option value="Consultation">Consultation</option>
-                        <option value="Follow-up">Follow-up</option>
-                        <option value="Diagnosis">Diagnosis</option>
-                        <option value="Treatment">Treatment</option>
-                    </select>
-                </div>
-                <div class="flex items-center">
-                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mr-2">Date Range:</label>
-                    <input type="date" class="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-1 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white mr-2">
-                    <span class="text-gray-500">to</span>
-                    <input type="date" class="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-1 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white ml-2">
-                </div>
-                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded-md text-sm transition-colors duration-200">
-                    <i class="fas fa-filter mr-1"></i>Filter
-                </button>
             </div>
         </div>
-    </div>
+    </form>
 
     <!-- Reports List -->
     <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
@@ -209,22 +248,21 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex items-center space-x-2">
-                                        <a href="{{ route('doctor.reports.show', $report) }}" class="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400" title="View Report">
+                                        <a href="{{ route('doctor.medical-reports.show', $report) }}" class="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400" title="View Report">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         @if($report->status == 'draft')
-                                            <a href="{{ route('doctor.reports.edit', $report) }}" class="text-orange-600 hover:text-orange-900 dark:hover:text-orange-400" title="Edit Report">
+                                            <a href="{{ route('doctor.medical-reports.edit', $report) }}" class="text-orange-600 hover:text-orange-900 dark:hover:text-orange-400" title="Edit Report">
                                                 <i class="fas fa-edit"></i>
-                                            </a>
-                                        @endif
-                                        <button class="text-green-600 hover:text-green-900 dark:hover:text-green-400" title="Print Report">
-                                            <i class="fas fa-print"></i>
-                                        </button>
+                                            </a>                                        @endif
+                                        <a href="{{ route('doctor.reports.pdf', $report) }}" target="_blank" class="text-green-600 hover:text-green-900 dark:hover:text-green-400" title="Export PDF">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </a>
                                         <button class="text-purple-600 hover:text-purple-900 dark:hover:text-purple-400" title="Send to Patient">
                                             <i class="fas fa-paper-plane"></i>
                                         </button>
                                         @if($report->status == 'draft')
-                                            <form method="POST" action="{{ route('doctor.reports.destroy', $report) }}" class="inline">
+                                            <form method="POST" action="{{ route('doctor.medical-reports.destroy', $report) }}" class="inline">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="text-red-600 hover:text-red-900 dark:hover:text-red-400" title="Delete Report" onclick="return confirm('Are you sure?')">

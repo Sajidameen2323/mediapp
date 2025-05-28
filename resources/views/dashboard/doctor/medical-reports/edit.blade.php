@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Create Medical Report - Doctor Dashboard')
+@section('title', 'Edit Medical Report - Doctor Dashboard')
 
 @push('styles')
 <style>
@@ -64,28 +64,28 @@
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-4">
-                        <div class="bg-gray-900 dark:bg-gray-700 to-purple-600 p-3 rounded-xl">
-                            <i class="fas fa-file-medical text-white text-2xl"></i>
+                        <div class="bg-gradient-to-r from-purple-500 to-indigo-600 p-3 rounded-xl">
+                            <i class="fas fa-edit text-white text-2xl"></i>
                         </div>
                         <div>
-                            <h1 class="text-4xl font-bold bg-gray-600 dark:bg-gray-300 bg-clip-text text-transparent">
-                                Create Medical Report
+                            <h1 class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                                Edit Medical Report
                             </h1>
-                            <p class="mt-2 text-gray-600 dark:text-gray-400 text-lg">Document patient consultation and treatment with comprehensive details</p>
+                            <p class="mt-2 text-gray-600 dark:text-gray-400 text-lg">Update patient consultation and treatment details for report #{{ $medicalReport->id }}</p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <button type="button" onclick="showQuickTips()" class="bg-gray-900 dark:bg-gray-700 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                        <button type="button" onclick="showQuickTips()" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                             <i class="fas fa-lightbulb mr-2"></i>Quick Tips
                         </button>
-                        <a href="{{ route('doctor.medical-reports.index') }}" class="bg-gray-900 dark:bg-gray-700 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                        <a href="{{ route('doctor.medical-reports.index') }}" class="bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                             <i class="fas fa-arrow-left mr-2"></i>Back to Reports
                         </a>
                     </div>
                 </div>
             </div>        </div>
 
-        <!-- Form Submission Error Logging Section -->
+        <!-- Form Submission Error Logging Section (JavaScript controlled) -->
         <div id="form-errors-section" class="hidden mb-8">
             <div class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-6 rounded-r-xl shadow-lg">
                 <div class="flex items-start">
@@ -111,93 +111,52 @@
         </div>
 
         <!-- Enhanced Form -->
-        <form method="POST" action="{{ route('doctor.medical-reports.store') }}" class="space-y-8">
+        <form method="POST" action="{{ route('doctor.medical-reports.update', $medicalReport->id) }}" class="space-y-8">
             @csrf
+            @method('PUT')
             
-            <!-- Patient Quick Lookup & Basic Information -->
+            <!-- Patient Information (Read-only for edit) -->
             <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl border border-gray-100 dark:border-gray-700 form-section-transition">
                 <div class="px-8 py-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 rounded-t-2xl">
                     <div class="flex items-center space-x-3">
                         <div class="bg-blue-500 p-2 rounded-lg">
                             <i class="fas fa-user-md text-white"></i>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Patient Information & Quick Lookup</h3>
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Patient Information</h3>
                     </div>
                 </div>
-                <div class="p-8 space-y-8">
-                    <!-- Enhanced Patient Quick Search -->
-                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-xl border border-blue-200 dark:border-gray-600">
+                <div class="p-8 space-y-6">
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-200 dark:border-green-700 rounded-xl p-6">
                         <div class="flex items-center space-x-3 mb-4">
-                            <i class="fas fa-search text-blue-600 dark:text-blue-400"></i>
-                            <h4 class="text-lg font-medium text-gray-900 dark:text-white">Quick Patient Search</h4>
-                        </div>
-                        <div class="relative">
-                            <input type="text" id="patient-search" placeholder="Search by name, email, phone, or patient ID..." 
-                                class="w-full pl-12 pr-4 py-4 border-2 border-blue-300 dark:border-gray-600 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-lg transition-all duration-200">
-                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <i class="fas fa-search text-blue-500 text-lg"></i>
+                            <div class="bg-green-500 p-2 rounded-lg">
+                                <i class="fas fa-user-check text-white"></i>
                             </div>
-                            <div class="absolute inset-y-0 right-0 pr-4 flex items-center">
-                                <div id="search-loading" class="hidden">
-                                    <i class="fas fa-spinner fa-spin text-blue-500"></i>
-                                </div>
-                            </div>
+                            <h4 class="text-lg font-semibold text-green-800 dark:text-green-300">Selected Patient</h4>
                         </div>
-                        
-                        <!-- Search Results Dropdown -->
-                        <div id="patient-search-results" class="hidden absolute z-50 w-full mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl shadow-2xl patient-search-dropdown">
-                            <!-- Results will be populated here -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                            <div class="space-y-1">
+                                <div class="font-medium text-gray-600 dark:text-gray-400">Name:</div>
+                                <div class="text-gray-900 dark:text-white font-semibold">{{ $medicalReport->patient->name }}</div>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="font-medium text-gray-600 dark:text-gray-400">Email:</div>
+                                <div class="text-gray-900 dark:text-white">{{ $medicalReport->patient->email }}</div>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="font-medium text-gray-600 dark:text-gray-400">Patient ID:</div>
+                                <div class="text-gray-900 dark:text-white">#{{ $medicalReport->patient->id }}</div>
+                            </div>
                         </div>
                     </div>
+                    <input type="hidden" name="patient_id" value="{{ $medicalReport->patient_id }}">
 
-                    <!-- Selected Patient Preview Card -->
-                    <div id="selected-patient-card" class="hidden patient-card-preview">
-                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-200 dark:border-green-700 rounded-xl p-6">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="flex items-center space-x-3">
-                                    <div class="bg-green-500 p-2 rounded-lg">
-                                        <i class="fas fa-user-check text-white"></i>
-                                    </div>
-                                    <h4 class="text-lg font-semibold text-green-800 dark:text-green-300">Selected Patient</h4>
-                                </div>
-                                <button type="button" onclick="clearSelectedPatient()" class="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                            <div id="patient-preview-content" class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                                <!-- Patient details will be populated here -->
-                            </div>
-                        </div>
-                    </div>                    <!-- Traditional Patient Selection (Fallback) -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <div>
-                            <label for="patient_id" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                <i class="fas fa-user mr-2 text-blue-500"></i>Select Patient
-                            </label>
-                            <select name="patient_id" id="patient_id" required 
-                                class="w-full border-2 @error('patient_id') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4 transition-all duration-200">
-                                <option value="">Choose from dropdown...</option>
-                                @foreach($patients as $patient)
-                                    <option value="{{ $patient->id }}" data-patient='@json($patient)' 
-                                        {{ old('patient_id') == $patient->id ? 'selected' : '' }}>
-                                        {{ $patient->name }} ({{ $patient->email }})
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('patient_id')
-                                <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
-                                    <i class="fas fa-exclamation-circle mr-2"></i>
-                                    <span>{{ $message }}</span>
-                                </div>
-                            @enderror
-                        </div>
-                        
                         <div>
                             <label for="consultation_date" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                 <i class="fas fa-calendar mr-2 text-purple-500"></i>Consultation Date
                             </label>
                             <input type="date" name="consultation_date" id="consultation_date" 
-                                value="{{ old('consultation_date', today()->format('Y-m-d')) }}" required 
+                                value="{{ old('consultation_date', $medicalReport->consultation_date->format('Y-m-d')) }}" required 
                                 class="w-full border-2 @error('consultation_date') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4 transition-all duration-200">
                             @error('consultation_date')
                                 <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
@@ -206,34 +165,34 @@
                                 </div>
                             @enderror
                         </div>
-                    </div>
-                    
-                    <div>
-                        <label for="report_type" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                            <i class="fas fa-file-alt mr-2 text-indigo-500"></i>Report Type
-                        </label>
-                        <select name="report_type" id="report_type" required 
-                            class="w-full border-2 @error('report_type') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4 transition-all duration-200">
-                            <option value="">Select report type</option>
-                            <option value="Consultation" {{ old('report_type') == 'Consultation' ? 'selected' : '' }}>
-                                <i class="fas fa-stethoscope"></i> Initial Consultation
-                            </option>
-                            <option value="Follow-up" {{ old('report_type') == 'Follow-up' ? 'selected' : '' }}>Follow-up Visit</option>
-                            <option value="Diagnosis" {{ old('report_type') == 'Diagnosis' ? 'selected' : '' }}>Diagnosis Report</option>
-                            <option value="Treatment" {{ old('report_type') == 'Treatment' ? 'selected' : '' }}>Treatment Report</option>
-                            <option value="Prescription" {{ old('report_type') == 'Prescription' ? 'selected' : '' }}>Prescription Report</option>
-                            <option value="Emergency" {{ old('report_type') == 'Emergency' ? 'selected' : '' }}>Emergency Visit</option>
-                            <option value="Other" {{ old('report_type') == 'Other' ? 'selected' : '' }}>Other</option>
-                        </select>
-                        @error('report_type')
-                            <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
-                                <i class="fas fa-exclamation-circle mr-2"></i>
-                                <span>{{ $message }}</span>
-                            </div>
-                        @enderror
+                        
+                        <div>
+                            <label for="report_type" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-file-alt mr-2 text-indigo-500"></i>Report Type
+                            </label>
+                            <select name="report_type" id="report_type" required 
+                                class="w-full border-2 @error('report_type') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4 transition-all duration-200">
+                                <option value="">Select report type</option>
+                                <option value="Consultation" {{ old('report_type', $medicalReport->report_type) == 'Consultation' ? 'selected' : '' }}>Initial Consultation</option>
+                                <option value="Follow-up" {{ old('report_type', $medicalReport->report_type) == 'Follow-up' ? 'selected' : '' }}>Follow-up Visit</option>
+                                <option value="Diagnosis" {{ old('report_type', $medicalReport->report_type) == 'Diagnosis' ? 'selected' : '' }}>Diagnosis Report</option>
+                                <option value="Treatment" {{ old('report_type', $medicalReport->report_type) == 'Treatment' ? 'selected' : '' }}>Treatment Report</option>
+                                <option value="Prescription" {{ old('report_type', $medicalReport->report_type) == 'Prescription' ? 'selected' : '' }}>Prescription Report</option>
+                                <option value="Emergency" {{ old('report_type', $medicalReport->report_type) == 'Emergency' ? 'selected' : '' }}>Emergency Visit</option>
+                                <option value="Other" {{ old('report_type', $medicalReport->report_type) == 'Other' ? 'selected' : '' }}>Other</option>
+                            </select>
+                            @error('report_type')
+                                <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
+                                    <i class="fas fa-exclamation-circle mr-2"></i>
+                                    <span>{{ $message }}</span>
+                                </div>
+                            @enderror
+                        </div>
                     </div>
                 </div>
-            </div>            <!-- Enhanced Vital Signs -->
+            </div>
+
+            <!-- Enhanced Vital Signs -->
             <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl border border-gray-100 dark:border-gray-700 form-section-transition">
                 <div class="px-8 py-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-gray-700 dark:to-gray-600 rounded-t-2xl">
                     <div class="flex items-center justify-between">
@@ -248,13 +207,14 @@
                         </button>
                     </div>
                 </div>
-                <div class="p-8">                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="vital-signs">
+                <div class="p-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="vital-signs">
                         <div class="bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 p-4 rounded-xl border border-red-200 dark:border-red-700">
                             <label class="block text-sm font-semibold text-red-700 dark:text-red-300 mb-2">
                                 <i class="fas fa-tint mr-2"></i>Blood Pressure
                             </label>
                             <input type="text" name="vital_signs[blood_pressure]" placeholder="120/80 mmHg" 
-                                value="{{ old('vital_signs.blood_pressure') }}"
+                                value="{{ old('vital_signs.blood_pressure', $medicalReport->vital_signs['blood_pressure'] ?? '') }}"
                                 class="vital-input w-full border-2 @error('vital_signs.blood_pressure') border-red-500 dark:border-red-400 @else border-red-300 dark:border-red-600 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4">
                             @error('vital_signs.blood_pressure')
                                 <div class="mt-1 text-red-600 dark:text-red-400 text-xs">{{ $message }}</div>
@@ -265,7 +225,7 @@
                                 <i class="fas fa-thermometer-half mr-2"></i>Temperature
                             </label>
                             <input type="text" name="vital_signs[temperature]" placeholder="98.6°F" 
-                                value="{{ old('vital_signs.temperature') }}"
+                                value="{{ old('vital_signs.temperature', $medicalReport->vital_signs['temperature'] ?? '') }}"
                                 class="vital-input w-full border-2 @error('vital_signs.temperature') border-red-500 dark:border-red-400 @else border-orange-300 dark:border-orange-600 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4">
                             @error('vital_signs.temperature')
                                 <div class="mt-1 text-red-600 dark:text-red-400 text-xs">{{ $message }}</div>
@@ -276,7 +236,7 @@
                                 <i class="fas fa-heartbeat mr-2"></i>Heart Rate
                             </label>
                             <input type="text" name="vital_signs[heart_rate]" placeholder="70 bpm" 
-                                value="{{ old('vital_signs.heart_rate') }}"
+                                value="{{ old('vital_signs.heart_rate', $medicalReport->vital_signs['heart_rate'] ?? '') }}"
                                 class="vital-input w-full border-2 @error('vital_signs.heart_rate') border-red-500 dark:border-red-400 @else border-blue-300 dark:border-blue-600 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4">
                             @error('vital_signs.heart_rate')
                                 <div class="mt-1 text-red-600 dark:text-red-400 text-xs">{{ $message }}</div>
@@ -287,7 +247,7 @@
                                 <i class="fas fa-weight mr-2"></i>Weight
                             </label>
                             <input type="text" name="vital_signs[weight]" placeholder="70 kg" 
-                                value="{{ old('vital_signs.weight') }}"
+                                value="{{ old('vital_signs.weight', $medicalReport->vital_signs['weight'] ?? '') }}"
                                 class="vital-input w-full border-2 @error('vital_signs.weight') border-red-500 dark:border-red-400 @else border-purple-300 dark:border-purple-600 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4">
                             @error('vital_signs.weight')
                                 <div class="mt-1 text-red-600 dark:text-red-400 text-xs">{{ $message }}</div>
@@ -295,14 +255,13 @@
                         </div>
                     </div>
                     
-                    <!-- Additional Vital Signs -->
                     <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                 <i class="fas fa-lungs mr-2 text-teal-500"></i>Respiratory Rate
                             </label>
                             <input type="text" name="vital_signs[respiratory_rate]" placeholder="16 breaths/min" 
-                                value="{{ old('vital_signs.respiratory_rate') }}"
+                                value="{{ old('vital_signs.respiratory_rate', $medicalReport->vital_signs['respiratory_rate'] ?? '') }}"
                                 class="w-full border-2 @error('vital_signs.respiratory_rate') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4">
                             @error('vital_signs.respiratory_rate')
                                 <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
@@ -316,7 +275,7 @@
                                 <i class="fas fa-percentage mr-2 text-blue-500"></i>Oxygen Saturation
                             </label>
                             <input type="text" name="vital_signs[oxygen_saturation]" placeholder="98%" 
-                                value="{{ old('vital_signs.oxygen_saturation') }}"
+                                value="{{ old('vital_signs.oxygen_saturation', $medicalReport->vital_signs['oxygen_saturation'] ?? '') }}"
                                 class="w-full border-2 @error('vital_signs.oxygen_saturation') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4">
                             @error('vital_signs.oxygen_saturation')
                                 <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
@@ -330,7 +289,7 @@
                                 <i class="fas fa-ruler-vertical mr-2 text-green-500"></i>Height
                             </label>
                             <input type="text" name="vital_signs[height]" placeholder="170 cm" 
-                                value="{{ old('vital_signs.height') }}"
+                                value="{{ old('vital_signs.height', $medicalReport->vital_signs['height'] ?? '') }}"
                                 class="w-full border-2 @error('vital_signs.height') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4">
                             @error('vital_signs.height')
                                 <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
@@ -341,7 +300,9 @@
                         </div>
                     </div>
                 </div>
-            </div>            <!-- Enhanced Clinical Assessment -->
+            </div>
+
+            <!-- Enhanced Clinical Assessment -->
             <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl border border-gray-100 dark:border-gray-700 form-section-transition">
                 <div class="px-8 py-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-gray-700 dark:to-gray-600 rounded-t-2xl">
                     <div class="flex items-center space-x-3">
@@ -351,14 +312,15 @@
                         <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Clinical Assessment</h3>
                     </div>
                 </div>
-                <div class="p-8 space-y-8">                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="p-8 space-y-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div>
                             <label for="chief_complaint" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                 <i class="fas fa-comment-medical mr-2 text-red-500"></i>Chief Complaint
                             </label>
                             <textarea name="chief_complaint" id="chief_complaint" rows="4" 
                                 placeholder="Patient's primary concern or reason for visit..." 
-                                class="w-full border-2 @error('chief_complaint') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-4 resize-none transition-all duration-200">{{ old('chief_complaint') }}</textarea>
+                                class="w-full border-2 @error('chief_complaint') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-4 resize-none transition-all duration-200">{{ old('chief_complaint', $medicalReport->chief_complaint) }}</textarea>
                             @error('chief_complaint')
                                 <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
                                     <i class="fas fa-exclamation-circle mr-2"></i>
@@ -373,7 +335,7 @@
                             </label>
                             <textarea name="history_of_present_illness" id="history_of_present_illness" rows="4" 
                                 placeholder="Detailed description of the current condition..." 
-                                class="w-full border-2 @error('history_of_present_illness') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-4 resize-none transition-all duration-200">{{ old('history_of_present_illness') }}</textarea>
+                                class="w-full border-2 @error('history_of_present_illness') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-4 resize-none transition-all duration-200">{{ old('history_of_present_illness', $medicalReport->history_of_present_illness) }}</textarea>
                             @error('history_of_present_illness')
                                 <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
                                     <i class="fas fa-exclamation-circle mr-2"></i>
@@ -389,7 +351,7 @@
                         </label>
                         <textarea name="physical_examination" id="physical_examination" rows="5" 
                             placeholder="Detailed findings from physical examination..." 
-                            class="w-full border-2 @error('physical_examination') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-4 resize-none transition-all duration-200">{{ old('physical_examination') }}</textarea>
+                            class="w-full border-2 @error('physical_examination') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-4 resize-none transition-all duration-200">{{ old('physical_examination', $medicalReport->physical_examination) }}</textarea>
                         @error('physical_examination')
                             <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
                                 <i class="fas fa-exclamation-circle mr-2"></i>
@@ -398,7 +360,6 @@
                         @enderror
                     </div>
 
-                    <!-- Systems Review -->
                     <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl">
                         <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                             <i class="fas fa-clipboard-list mr-2 text-purple-500"></i>Systems Review (Optional)
@@ -407,7 +368,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cardiovascular</label>
                                 <input type="text" name="systems_review[cardiovascular]" placeholder="Normal, abnormal findings..." 
-                                    value="{{ old('systems_review.cardiovascular') }}"
+                                    value="{{ old('systems_review.cardiovascular', $medicalReport->systems_review['cardiovascular'] ?? '') }}"
                                     class="w-full border @error('systems_review.cardiovascular') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white">
                                 @error('systems_review.cardiovascular')
                                     <div class="mt-1 text-red-600 dark:text-red-400 text-xs">{{ $message }}</div>
@@ -416,7 +377,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Respiratory</label>
                                 <input type="text" name="systems_review[respiratory]" placeholder="Normal, abnormal findings..." 
-                                    value="{{ old('systems_review.respiratory') }}"
+                                    value="{{ old('systems_review.respiratory', $medicalReport->systems_review['respiratory'] ?? '') }}"
                                     class="w-full border @error('systems_review.respiratory') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white">
                                 @error('systems_review.respiratory')
                                     <div class="mt-1 text-red-600 dark:text-red-400 text-xs">{{ $message }}</div>
@@ -425,7 +386,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Gastrointestinal</label>
                                 <input type="text" name="systems_review[gastrointestinal]" placeholder="Normal, abnormal findings..." 
-                                    value="{{ old('systems_review.gastrointestinal') }}"
+                                    value="{{ old('systems_review.gastrointestinal', $medicalReport->systems_review['gastrointestinal'] ?? '') }}"
                                     class="w-full border @error('systems_review.gastrointestinal') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white">
                                 @error('systems_review.gastrointestinal')
                                     <div class="mt-1 text-red-600 dark:text-red-400 text-xs">{{ $message }}</div>
@@ -434,7 +395,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Neurological</label>
                                 <input type="text" name="systems_review[neurological]" placeholder="Normal, abnormal findings..." 
-                                    value="{{ old('systems_review.neurological') }}"
+                                    value="{{ old('systems_review.neurological', $medicalReport->systems_review['neurological'] ?? '') }}"
                                     class="w-full border @error('systems_review.neurological') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white">
                                 @error('systems_review.neurological')
                                     <div class="mt-1 text-red-600 dark:text-red-400 text-xs">{{ $message }}</div>
@@ -443,7 +404,9 @@
                         </div>
                     </div>
                 </div>
-            </div>            <!-- Enhanced Diagnosis and Treatment -->
+            </div>
+
+            <!-- Enhanced Diagnosis and Treatment -->
             <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl border border-gray-100 dark:border-gray-700 form-section-transition">
                 <div class="px-8 py-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-gray-700 dark:to-gray-600 rounded-t-2xl">
                     <div class="flex items-center space-x-3">
@@ -453,14 +416,15 @@
                         <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Diagnosis & Treatment</h3>
                     </div>
                 </div>
-                <div class="p-8 space-y-8">                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="p-8 space-y-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div>
                             <label for="assessment_diagnosis" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                 <i class="fas fa-microscope mr-2 text-purple-500"></i>Assessment & Diagnosis
                             </label>
                             <textarea name="assessment_diagnosis" id="assessment_diagnosis" rows="5" 
                                 placeholder="Clinical diagnosis and assessment..." 
-                                class="w-full border-2 @error('assessment_diagnosis') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-4 resize-none transition-all duration-200">{{ old('assessment_diagnosis') }}</textarea>
+                                class="w-full border-2 @error('assessment_diagnosis') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-4 resize-none transition-all duration-200">{{ old('assessment_diagnosis', $medicalReport->assessment_diagnosis) }}</textarea>
                             @error('assessment_diagnosis')
                                 <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
                                     <i class="fas fa-exclamation-circle mr-2"></i>
@@ -475,7 +439,7 @@
                             </label>
                             <textarea name="treatment_plan" id="treatment_plan" rows="5" 
                                 placeholder="Recommended treatment and care plan..." 
-                                class="w-full border-2 @error('treatment_plan') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-4 resize-none transition-all duration-200">{{ old('treatment_plan') }}</textarea>
+                                class="w-full border-2 @error('treatment_plan') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-4 resize-none transition-all duration-200">{{ old('treatment_plan', $medicalReport->treatment_plan) }}</textarea>
                             @error('treatment_plan')
                                 <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
                                     <i class="fas fa-exclamation-circle mr-2"></i>
@@ -491,7 +455,7 @@
                         </label>
                         <textarea name="medications_prescribed" id="medications_prescribed" rows="4" 
                             placeholder="List of prescribed medications with dosage and instructions..." 
-                            class="w-full border-2 @error('medications_prescribed') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-4 resize-none transition-all duration-200">{{ old('medications_prescribed') }}</textarea>
+                            class="w-full border-2 @error('medications_prescribed') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-4 resize-none transition-all duration-200">{{ old('medications_prescribed', $medicalReport->medications_prescribed) }}</textarea>
                         @error('medications_prescribed')
                             <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
                                 <i class="fas fa-exclamation-circle mr-2"></i>
@@ -504,7 +468,6 @@
                         </div>
                     </div>
 
-                    <!-- Lab Tests and Investigations -->
                     <div class="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-700">
                         <h4 class="text-lg font-semibold text-blue-800 dark:text-blue-300 mb-4">
                             <i class="fas fa-flask mr-2"></i>Lab Tests & Investigations
@@ -514,7 +477,7 @@
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tests Ordered</label>
                                 <textarea name="lab_tests_ordered" rows="3" 
                                     placeholder="List any lab tests or investigations ordered..." 
-                                    class="w-full border @error('lab_tests_ordered') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white">{{ old('lab_tests_ordered') }}</textarea>
+                                    class="w-full border @error('lab_tests_ordered') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white">{{ old('lab_tests_ordered', $medicalReport->lab_tests_ordered) }}</textarea>
                                 @error('lab_tests_ordered')
                                     <div class="mt-1 text-red-600 dark:text-red-400 text-xs">{{ $message }}</div>
                                 @enderror
@@ -523,7 +486,7 @@
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Imaging Studies</label>
                                 <textarea name="imaging_studies" rows="3" 
                                     placeholder="X-rays, CT scans, MRI, etc..." 
-                                    class="w-full border @error('imaging_studies') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white">{{ old('imaging_studies') }}</textarea>
+                                    class="w-full border @error('imaging_studies') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white">{{ old('imaging_studies', $medicalReport->imaging_studies) }}</textarea>
                                 @error('imaging_studies')
                                     <div class="mt-1 text-red-600 dark:text-red-400 text-xs">{{ $message }}</div>
                                 @enderror
@@ -543,14 +506,15 @@
                         <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Follow-up & Additional Notes</h3>
                     </div>
                 </div>
-                <div class="p-8 space-y-8">                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="p-8 space-y-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div>
                             <label for="follow_up_instructions" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                 <i class="fas fa-calendar-alt mr-2 text-teal-500"></i>Follow-up Instructions
                             </label>
                             <textarea name="follow_up_instructions" id="follow_up_instructions" rows="4" 
                                 placeholder="Instructions for next visit, timeline, etc..." 
-                                class="w-full border-2 @error('follow_up_instructions') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-4 resize-none transition-all duration-200">{{ old('follow_up_instructions') }}</textarea>
+                                class="w-full border-2 @error('follow_up_instructions') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-4 resize-none transition-all duration-200">{{ old('follow_up_instructions', $medicalReport->follow_up_instructions) }}</textarea>
                             @error('follow_up_instructions')
                                 <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
                                     <i class="fas fa-exclamation-circle mr-2"></i>
@@ -565,7 +529,7 @@
                             </label>
                             <textarea name="additional_notes" id="additional_notes" rows="4" 
                                 placeholder="Any additional observations or notes..." 
-                                class="w-full border-2 @error('additional_notes') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-4 resize-none transition-all duration-200">{{ old('additional_notes') }}</textarea>
+                                class="w-full border-2 @error('additional_notes') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-4 resize-none transition-all duration-200">{{ old('additional_notes', $medicalReport->additional_notes) }}</textarea>
                             @error('additional_notes')
                                 <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
                                     <i class="fas fa-exclamation-circle mr-2"></i>
@@ -575,7 +539,6 @@
                         </div>
                     </div>
 
-                    <!-- Priority and Urgency -->
                     <div class="bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-xl border border-yellow-200 dark:border-yellow-700">
                         <h4 class="text-lg font-semibold text-yellow-800 dark:text-yellow-300 mb-4">
                             <i class="fas fa-exclamation-triangle mr-2"></i>Priority & Urgency
@@ -585,9 +548,9 @@
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Priority Level</label>
                                 <select name="priority_level" 
                                     class="w-full border @error('priority_level') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white">
-                                    <option value="routine" {{ old('priority_level') == 'routine' ? 'selected' : '' }}>Routine</option>
-                                    <option value="urgent" {{ old('priority_level') == 'urgent' ? 'selected' : '' }}>Urgent</option>
-                                    <option value="emergency" {{ old('priority_level') == 'emergency' ? 'selected' : '' }}>Emergency</option>
+                                    <option value="routine" {{ old('priority_level', $medicalReport->priority_level) == 'routine' ? 'selected' : '' }}>Routine</option>
+                                    <option value="urgent" {{ old('priority_level', $medicalReport->priority_level) == 'urgent' ? 'selected' : '' }}>Urgent</option>
+                                    <option value="emergency" {{ old('priority_level', $medicalReport->priority_level) == 'emergency' ? 'selected' : '' }}>Emergency</option>
                                 </select>
                                 @error('priority_level')
                                     <div class="mt-1 text-red-600 dark:text-red-400 text-xs">{{ $message }}</div>
@@ -597,14 +560,14 @@
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Follow-up Required</label>
                                 <select name="follow_up_required" 
                                     class="w-full border @error('follow_up_required') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white">
-                                    <option value="no" {{ old('follow_up_required') == 'no' ? 'selected' : '' }}>No Follow-up Needed</option>
-                                    <option value="1_week" {{ old('follow_up_required') == '1_week' ? 'selected' : '' }}>1 Week</option>
-                                    <option value="2_weeks" {{ old('follow_up_required') == '2_weeks' ? 'selected' : '' }}>2 Weeks</option>
-                                    <option value="1_month" {{ old('follow_up_required') == '1_month' ? 'selected' : '' }}>1 Month</option>
-                                    <option value="3_months" {{ old('follow_up_required') == '3_months' ? 'selected' : '' }}>3 Months</option>
-                                    <option value="6_months" {{ old('follow_up_required') == '6_months' ? 'selected' : '' }}>6 Months</option>
-                                    <option value="1_year" {{ old('follow_up_required') == '1_year' ? 'selected' : '' }}>1 Year</option>
-                                    <option value="as_needed" {{ old('follow_up_required') == 'as_needed' ? 'selected' : '' }}>As Needed</option>
+                                    <option value="no" {{ old('follow_up_required', $medicalReport->follow_up_required) == 'no' ? 'selected' : '' }}>No Follow-up Needed</option>
+                                    <option value="1_week" {{ old('follow_up_required', $medicalReport->follow_up_required) == '1_week' ? 'selected' : '' }}>1 Week</option>
+                                    <option value="2_weeks" {{ old('follow_up_required', $medicalReport->follow_up_required) == '2_weeks' ? 'selected' : '' }}>2 Weeks</option>
+                                    <option value="1_month" {{ old('follow_up_required', $medicalReport->follow_up_required) == '1_month' ? 'selected' : '' }}>1 Month</option>
+                                    <option value="3_months" {{ old('follow_up_required', $medicalReport->follow_up_required) == '3_months' ? 'selected' : '' }}>3 Months</option>
+                                    <option value="6_months" {{ old('follow_up_required', $medicalReport->follow_up_required) == '6_months' ? 'selected' : '' }}>6 Months</option>
+                                    <option value="1_year" {{ old('follow_up_required', $medicalReport->follow_up_required) == '1_year' ? 'selected' : '' }}>1 Year</option>
+                                    <option value="as_needed" {{ old('follow_up_required', $medicalReport->follow_up_required) == 'as_needed' ? 'selected' : '' }}>As Needed</option>
                                 </select>
                                 @error('follow_up_required')
                                     <div class="mt-1 text-red-600 dark:text-red-400 text-xs">{{ $message }}</div>
@@ -617,10 +580,11 @@
 
             <!-- Enhanced Form Actions -->
             <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl border border-gray-100 dark:border-gray-700 p-8">
-                <div class="flex flex-col lg:flex-row items-center justify-between space-y-4 lg:space-y-0">                    <div class="flex items-center space-x-4">
+                <div class="flex flex-col lg:flex-row items-center justify-between space-y-4 lg:space-y-0">
+                    <div class="flex items-center space-x-4">
                         <div class="flex items-center">
                             <input type="checkbox" name="save_as_template" id="save_as_template" 
-                                {{ old('save_as_template') ? 'checked' : '' }}
+                                {{ old('save_as_template', $medicalReport->save_as_template) ? 'checked' : '' }}
                                 class="h-5 w-5 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
                             <label for="save_as_template" class="ml-3 block text-sm font-medium text-gray-700 dark:text-gray-300">
                                 <i class="fas fa-bookmark mr-1"></i>Save as template for future use
@@ -628,27 +592,29 @@
                         </div>
                         <div class="flex items-center">
                             <input type="checkbox" name="send_notification" id="send_notification" 
-                                {{ old('send_notification') ? 'checked' : '' }}
+                                {{ old('send_notification', $medicalReport->send_notification) ? 'checked' : '' }}
                                 class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                             <label for="send_notification" class="ml-3 block text-sm font-medium text-gray-700 dark:text-gray-300">
                                 <i class="fas fa-bell mr-1"></i>Notify patient
                             </label>
                         </div>
                     </div>
-                      <div class="flex items-center space-x-4">
-                        <button type="button" onclick="previewReport()" class="bg-gray-900 dark:bg-gray-700 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    <div class="flex items-center space-x-4">
+                        <button type="button" onclick="previewReport()" class="bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                             <i class="fas fa-eye mr-2"></i>Preview Report
                         </button>
-                        <button type="submit" name="status" value="draft" class="bg-gray-900 dark:bg-gray-700 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                        <button type="submit" name="status" value="draft" class="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                             <i class="fas fa-save mr-2"></i>Save as Draft
                         </button>
-                        <button type="submit" name="status" value="completed" class="bg-gray-900 dark:bg-gray-700 text-white px-8 py-3 rounded-xl text-sm font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                            <i class="fas fa-check-circle mr-2"></i>Complete Report
+                        <button type="submit" name="status" value="completed" class="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-8 py-3 rounded-xl text-sm font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                            <i class="fas fa-check-circle mr-2"></i>Update Report
                         </button>
                     </div>
                 </div>
             </div>
-        </form>        <!-- Enhanced Quick Insert Templates -->
+        </form>
+
+        <!-- Enhanced Quick Insert Templates -->
         <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl border border-gray-100 dark:border-gray-700 form-section-transition">
             <div class="px-8 py-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-cyan-50 to-teal-50 dark:from-gray-700 dark:to-gray-600 rounded-t-2xl">
                 <div class="flex items-center space-x-3">
@@ -747,15 +713,6 @@
         <div class="p-8">
             <div class="space-y-6">
                 <div class="flex items-start space-x-3">
-                    <div class="bg-green-100 dark:bg-green-800 p-2 rounded-lg">
-                        <i class="fas fa-search text-green-600 dark:text-green-300"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900 dark:text-white">Patient Quick Search</h4>
-                        <p class="text-gray-600 dark:text-gray-400 text-sm">Use the search box to quickly find patients by name, email, phone, or ID. Click on a result to auto-fill patient information.</p>
-                    </div>
-                </div>
-                <div class="flex items-start space-x-3">
                     <div class="bg-blue-100 dark:bg-blue-800 p-2 rounded-lg">
                         <i class="fas fa-magic text-blue-600 dark:text-blue-300"></i>
                     </div>
@@ -789,201 +746,39 @@
 
 @push('scripts')
 <script>
-// Enhanced Patient Search and Form Management
-let searchTimeout;
-let selectedPatient = null;
 let autoSaveInterval;
 
 document.addEventListener('DOMContentLoaded', function() {
-    initializePatientSearch();
     setupAutoSave();
     setupKeyboardShortcuts();
     setupFormErrorHandling();
+    // Patient search is not initialized here as patient is fixed for edit.
+    // If patient selection needs to be changeable on edit, uncomment initializePatientSearch()
+    // and ensure the patient search HTML section is present.
 });
 
-// Setup form error handling
 function setupFormErrorHandling() {
     const form = document.querySelector('form');
     if (!form) return;
     
-    // Clear errors when user starts interacting with form
     const formInputs = form.querySelectorAll('input, textarea, select');
     formInputs.forEach(input => {
         input.addEventListener('input', function() {
-            // Clear field-specific error styling
             this.classList.remove('border-red-500', 'dark:border-red-400');
-            
-            // Hide form errors section after user starts fixing issues
             const errorSection = document.getElementById('form-errors-section');
             if (!errorSection.classList.contains('hidden')) {
                 setTimeout(() => {
                     hideFormErrors();
-                }, 2000); // Hide after 2 seconds of user activity
+                }, 2000);
             }
         });
         
         input.addEventListener('focus', function() {
-            // Clear field-specific error styling when focused
             this.classList.remove('border-red-500', 'dark:border-red-400');
         });
     });
 }
 
-// Patient Search Functionality
-function initializePatientSearch() {
-    const searchInput = document.getElementById('patient-search');
-    const resultsDiv = document.getElementById('patient-search-results');
-    const patientSelect = document.getElementById('patient_id');
-    
-    if (!searchInput) return;
-    
-    searchInput.addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        const query = this.value.trim();
-        
-        if (query.length < 2) {
-            resultsDiv.classList.add('hidden');
-            return;
-        }
-        
-        document.getElementById('search-loading').classList.remove('hidden');
-        
-        searchTimeout = setTimeout(() => {
-            searchPatients(query);
-        }, 300);
-    });
-    
-    // Handle traditional select change
-    patientSelect.addEventListener('change', function() {
-        if (this.value) {
-            const option = this.querySelector(`option[value="${this.value}"]`);
-            if (option) {
-                try {
-                    const patientData = JSON.parse(option.getAttribute('data-patient'));
-                    showSelectedPatient(patientData);
-                } catch (e) {
-                    console.error('Error parsing patient data:', e);
-                }
-            }
-        }
-    });
-    
-    // Hide results when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!searchInput.contains(e.target) && !resultsDiv.contains(e.target)) {
-            resultsDiv.classList.add('hidden');
-        }
-    });
-}
-
-function searchPatients(query) {
-    const patients = @json($patients ?? []);
-    
-    const filteredPatients = patients.filter(patient => {
-        const searchFields = [
-            patient.name?.toLowerCase() || '',
-            patient.email?.toLowerCase() || '',
-            patient.phone?.toLowerCase() || '',
-            patient.id?.toString() || ''
-        ];
-        
-        return searchFields.some(field => 
-            field.includes(query.toLowerCase())
-        );
-    });
-    
-    displaySearchResults(filteredPatients, query);
-    document.getElementById('search-loading').classList.add('hidden');
-}
-
-function displaySearchResults(patients, query) {
-    const resultsDiv = document.getElementById('patient-search-results');
-    
-    if (patients.length === 0) {
-        resultsDiv.innerHTML = `
-            <div class="p-4 text-center text-gray-500 dark:text-gray-400">
-                <i class="fas fa-search text-2xl mb-2"></i>
-                <p>No patients found for "${query}"</p>
-            </div>
-        `;
-    } else {
-        resultsDiv.innerHTML = patients.map(patient => `
-            <div class="patient-result p-4 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer border-b border-gray-100 dark:border-gray-600 last:border-b-0" 
-                 onclick="selectPatient(${patient.id}, '${encodeURIComponent(JSON.stringify(patient))}')">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-blue-500 p-2 rounded-full">
-                        <i class="fas fa-user text-white text-sm"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="font-semibold text-gray-900 dark:text-white">${patient.name}</div>
-                        <div class="text-sm text-gray-600 dark:text-gray-400">${patient.email}</div>
-                        ${patient.phone ? `<div class="text-sm text-gray-500 dark:text-gray-500">${patient.phone}</div>` : ''}
-                    </div>
-                    <div class="text-xs text-gray-400 dark:text-gray-500">ID: ${patient.id}</div>
-                </div>
-            </div>
-        `).join('');
-    }
-    
-    resultsDiv.classList.remove('hidden');
-}
-
-function selectPatient(patientId, encodedPatientData) {
-    try {
-        const patientData = JSON.parse(decodeURIComponent(encodedPatientData));
-        
-        // Update form fields
-        document.getElementById('patient_id').value = patientId;
-        document.getElementById('patient-search').value = patientData.name;
-        
-        // Show patient preview
-        showSelectedPatient(patientData);
-        
-        // Hide search results
-        document.getElementById('patient-search-results').classList.add('hidden');
-        
-        selectedPatient = patientData;
-        
-        // Show success message
-        showNotification('Patient selected successfully!', 'success');
-        
-    } catch (error) {
-        console.error('Error selecting patient:', error);
-        showNotification('Error selecting patient', 'error');
-    }
-}
-
-function showSelectedPatient(patient) {
-    const card = document.getElementById('selected-patient-card');
-    const content = document.getElementById('patient-preview-content');
-    
-    content.innerHTML = `
-        <div class="space-y-2">
-            <div class="font-semibold text-green-800 dark:text-green-300">Name</div>
-            <div class="text-green-700 dark:text-green-400">${patient.name}</div>
-        </div>
-        <div class="space-y-2">
-            <div class="font-semibold text-green-800 dark:text-green-300">Email</div>
-            <div class="text-green-700 dark:text-green-400">${patient.email}</div>
-        </div>
-        <div class="space-y-2">
-            <div class="font-semibold text-green-800 dark:text-green-300">Patient ID</div>
-            <div class="text-green-700 dark:text-green-400">#${patient.id}</div>
-        </div>
-    `;
-    
-    card.classList.remove('hidden');
-}
-
-function clearSelectedPatient() {
-    document.getElementById('selected-patient-card').classList.add('hidden');
-    document.getElementById('patient_id').value = '';
-    document.getElementById('patient-search').value = '';
-    selectedPatient = null;
-    showNotification('Patient selection cleared', 'info');
-}
-
-// Enhanced Template System
 function insertTemplate(templateType) {
     const templates = {
         normal_vitals: {
@@ -999,99 +794,91 @@ function insertTemplate(templateType) {
             'chief_complaint': 'Routine health checkup and wellness visit',
             'physical_examination': 'General appearance: Alert and oriented, appears well\nVital signs: Within normal limits\nHEENT: Normocephalic, atraumatic. PERRLA. No lymphadenopathy\nCardiovascular: Regular rate and rhythm, no murmurs\nRespiratory: Clear to auscultation bilaterally, no wheezes or rales\nAbdomen: Soft, non-tender, non-distended, bowel sounds present\nExtremities: No edema, normal range of motion',
             'assessment_diagnosis': 'Routine health maintenance visit\nNo acute concerns identified\nOverall health status: Good',
-            'treatment_plan': 'Continue current healthy lifestyle\nMaintain regular exercise routine\nBalanced diet and adequate hydration',
-            'follow_up_instructions': 'Return for routine checkup in 12 months\nContact office if any health concerns arise\nContinue preventive care as recommended'
+            'treatment_plan': 'Continue current lifestyle. Follow up in 1 year or as needed.',
+            'follow_up_instructions': 'Return in 1 year for routine checkup, or sooner if any new concerns arise.'
         },
         follow_up: {
-            'chief_complaint': 'Follow-up visit for previously diagnosed condition',
-            'history_of_present_illness': 'Patient returns for scheduled follow-up of previously diagnosed condition. Reports good compliance with treatment plan. Symptoms have been stable/improving since last visit.',
-            'assessment_diagnosis': 'Previously diagnosed condition - stable\nGood response to current treatment regimen\nNo new concerning symptoms',
-            'treatment_plan': 'Continue current treatment plan\nMonitor symptoms and response to therapy',
-            'follow_up_instructions': 'Continue current medications as prescribed\nReturn for follow-up in [specify timeframe]\nContact if symptoms worsen or new concerns arise'
+            'chief_complaint': 'Follow-up visit regarding [Previous Condition/Concern]',
+            'history_of_present_illness': 'Patient returns for scheduled follow-up. Reports [Improvement/No Change/Worsening] of symptoms. Currently [Taking/Not Taking] prescribed medications.',
+            'assessment_diagnosis': 'Status post [Previous Diagnosis]. Condition is [Improved/Stable/Worsening].',
+            'treatment_plan': 'Continue current treatment plan / Adjust medication as follows: [Details] / Refer to specialist if no improvement.',
+            'follow_up_instructions': 'Return in [Timeframe] for further evaluation.'
         },
         emergency: {
-            'chief_complaint': 'Emergency presentation with acute symptoms',
-            'history_of_present_illness': 'Patient presents to emergency department with acute onset of symptoms requiring immediate evaluation and treatment.',
-            'physical_examination': 'Patient appears acutely ill/in distress\nVital signs: [Document specific findings]\nFocused examination reveals: [Document pertinent findings]',
-            'assessment_diagnosis': 'Acute condition requiring immediate intervention\n[Specify primary diagnosis]\n[List differential diagnoses]',
-            'treatment_plan': 'Immediate stabilization and treatment\n[Specify interventions]\nClose monitoring required',
-            'follow_up_instructions': 'Hospital admission recommended vs. close outpatient follow-up\nReturn immediately if symptoms worsen\nSpecific discharge instructions provided',
-            'priority_level': 'emergency'
+            'report_type': 'Emergency',
+            'priority_level': 'emergency',
+            'chief_complaint': '[Describe emergency situation, e.g., Acute chest pain, Difficulty breathing, Trauma]',
+            'history_of_present_illness': 'Onset: [Time]. Severity: [Scale 1-10]. Associated symptoms: [Symptoms]. Events leading to presentation: [Details].',
+            'physical_examination': '[Focused emergency physical exam findings]',
+            'assessment_diagnosis': '[Provisional diagnosis based on emergency presentation]',
+            'treatment_plan': '[Immediate interventions, e.g., Oxygen administered, IV access established, Medications given]. Plan for admission / transfer / further urgent investigation.'
         },
         physical_exam: {
-            'physical_examination': 'Constitutional: Alert, oriented, well-appearing, no acute distress\nHEENT: Normocephalic, atraumatic. PERRLA 3mm→2mm. EOMI. TMs clear. Throat non-erythematous\nNeck: Supple, no lymphadenopathy, no thyromegaly\nCardiovascular: Regular rate and rhythm, no murmurs, rubs, or gallops\nRespiratory: Clear to auscultation bilaterally, good air movement, no wheezes, rales, or rhonchi\nAbdomen: Soft, non-tender, non-distended, bowel sounds present in all quadrants\nExtremities: No clubbing, cyanosis, or edema. Pulses 2+ throughout\nSkin: Warm, dry, intact, no rashes or lesions\nNeurological: Alert and oriented x3, speech clear, gait steady'
+            'physical_examination': 'General: Well-developed, well-nourished, in no acute distress.\nSkin: Warm, dry, intact. No rashes or lesions.\nHEENT: Head normocephalic, atraumatic. Eyes: PERRLA, EOMI. Ears: TMs clear. Nose: No discharge. Throat: Clear.\nNeck: Supple, no lymphadenopathy, no thyromegaly.\nChest/Lungs: Clear to auscultation bilaterally. No wheezes, rales, or rhonchi.\nHeart: Regular rate and rhythm. S1, S2 normal. No murmurs, gallops, or rubs.\nAbdomen: Soft, non-tender, non-distended. Bowel sounds normal. No hepatosplenomegaly.\nExtremities: No cyanosis, clubbing, or edema. Full range of motion. Pulses 2+ throughout.\nNeurological: Alert and oriented x3. Cranial nerves II-XII intact. Motor strength 5/5 throughout. Sensation intact. Reflexes 2+ symmetric.'
         }
     };
-    
-    const template = templates[templateType];
-    if (template) {
-        Object.keys(template).forEach(fieldName => {
-            const field = document.querySelector(`[name="${fieldName}"]`);
-            if (field) {
-                field.value = template[fieldName];
-                // Add visual feedback
-                field.classList.add('bg-green-50', 'dark:bg-green-900/20', 'border-green-300', 'dark:border-green-600');
-                setTimeout(() => {
-                    field.classList.remove('bg-green-50', 'dark:bg-green-900/20', 'border-green-300', 'dark:border-green-600');
-                }, 2000);
-            }
-        });
-        
-        showNotification(`${templateType.replace('_', ' ').toUpperCase()} template applied!`, 'success');
+
+    const currentTemplate = templates[templateType];
+    if (!currentTemplate) {
+        showNotification(`Template "${templateType}" not found.`, 'error');
+        return;
     }
+
+    for (const fieldName in currentTemplate) {
+        const field = document.querySelector(`[name="${fieldName}"]`);
+        if (field) {
+            field.value = currentTemplate[fieldName];
+            // Trigger input event for any listeners
+            field.dispatchEvent(new Event('input'));
+        } else {
+            console.warn(`Field "${fieldName}" not found for template insertion.`);
+        }
+    }
+    showNotification(`Template "${templateType}" applied.`, 'success');
 }
 
 function clearAllFields() {
-    if (confirm('Are you sure you want to clear all form fields? This action cannot be undone.')) {
-        const form = document.querySelector('form');
-        const inputs = form.querySelectorAll('input[type="text"], input[type="date"], textarea, select');
-        
-        inputs.forEach(input => {
-            if (input.type === 'checkbox') {
-                input.checked = false;
-            } else {
-                input.value = '';
-            }
-        });
-        
-        clearSelectedPatient();
-        showNotification('All fields cleared', 'info');
-    }
+    const form = document.querySelector('form');
+    form.querySelectorAll('input[type="text"], input[type="date"], textarea').forEach(input => {
+        if (input.name !== '_token' && input.name !== '_method' && input.name !== 'patient_id') { // Don't clear hidden fields or patient_id
+            input.value = '';
+        }
+    });
+    form.querySelectorAll('select').forEach(select => {
+        if (select.name !== 'patient_id') { // Don't clear patient_id select
+            select.selectedIndex = 0; 
+        }
+    });
+    form.querySelectorAll('input[type="checkbox"]').forEach(checkbox => checkbox.checked = false);
+    showNotification('All fields cleared.', 'info');
 }
 
-// Auto-save functionality
 function setupAutoSave() {
+    const form = document.querySelector('form');
+    if (!form) return;
+
     autoSaveInterval = setInterval(() => {
-        autoSaveForm();
+        // This is a placeholder for actual auto-save logic (e.g., to localStorage or backend)
+        // For now, it just shows a notification.
+        // console.log('Form data auto-saved (simulated).');
+        // showNotification('Progress auto-saved!', 'info', 2000); // Short notification
     }, 30000); // Auto-save every 30 seconds
 }
 
-function autoSaveForm() {
-    const formData = new FormData(document.querySelector('form'));
-    const data = Object.fromEntries(formData.entries());
-    
-    // Store in localStorage
-    localStorage.setItem('medicalReportDraft', JSON.stringify(data));
-    
-    // Show subtle notification
-    showNotification('Draft auto-saved', 'info', 2000);
-}
-
-// Keyboard shortcuts
 function setupKeyboardShortcuts() {
-    document.addEventListener('keydown', function(e) {
-        if (e.ctrlKey || e.metaKey) {
-            switch(e.key) {
-                case 's':
-                    e.preventDefault();
+    document.addEventListener('keydown', function(event) {
+        if (event.ctrlKey) {
+            switch (event.key) {
+                case 's': // Ctrl+S
+                    event.preventDefault();
                     document.querySelector('button[name="status"][value="draft"]').click();
                     break;
-                case 'Enter':
-                    e.preventDefault();
+                case 'Enter': // Ctrl+Enter
+                    event.preventDefault();
                     document.querySelector('button[name="status"][value="completed"]').click();
                     break;
-                case 'p':
-                    e.preventDefault();
+                case 'p': // Ctrl+P
+                    event.preventDefault();
                     previewReport();
                     break;
             }
@@ -1099,14 +886,20 @@ function setupKeyboardShortcuts() {
     });
 }
 
-// Preview functionality
 function previewReport() {
-    const formData = new FormData(document.querySelector('form'));
-    // Open preview in new window/modal
-    showNotification('Preview functionality coming soon!', 'info');
+    // This function would ideally gather form data and show a formatted preview.
+    // For now, it's a placeholder.
+    showNotification('Report preview functionality is under development.', 'info');
+    // Example: Gather data and open a new window or modal with the preview
+    // const formData = new FormData(document.querySelector('form'));
+    // let previewContent = '<h1>Report Preview</h1>';
+    // formData.forEach((value, key) => { previewContent += `<p><strong>${key}:</strong> ${value}</p>`; });
+    // const previewWindow = window.open('', '_blank');
+    // previewWindow.document.write(previewContent);
+    // previewWindow.document.close();
 }
 
-// Modal functions
+// Quick Tips Modal
 function showQuickTips() {
     document.getElementById('quick-tips-modal').classList.remove('hidden');
 }
@@ -1115,56 +908,89 @@ function hideQuickTips() {
     document.getElementById('quick-tips-modal').classList.add('hidden');
 }
 
-// Notification system
-function showNotification(message, type = 'info', duration = 3000) {
-    const colors = {
-        success: 'bg-green-500',
-        error: 'bg-red-500',
-        info: 'bg-blue-500',
-        warning: 'bg-yellow-500'
-    };
+// Form Error Display
+function showFormErrors(errors) {
+    const errorSection = document.getElementById('form-errors-section');
+    const errorList = document.getElementById('form-errors-list');
     
-    const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300`;
-    notification.innerHTML = `
-        <div class="flex items-center space-x-2">
-            <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info-circle'}"></i>
+    errorList.innerHTML = ''; // Clear previous errors
+    if (typeof errors === 'object' && errors !== null) {
+        Object.values(errors).forEach(errorMessages => {
+            errorMessages.forEach(message => {
+                const li = document.createElement('li');
+                li.textContent = message;
+                errorList.appendChild(li);
+            });
+        });
+    } else if (typeof errors === 'string') {
+        const li = document.createElement('li');
+        li.textContent = errors;
+        errorList.appendChild(li);
+    } else {
+        const li = document.createElement('li');
+        li.textContent = 'An unknown error occurred.';
+        errorList.appendChild(li);
+    }
+    errorSection.classList.remove('hidden');
+    errorSection.scrollIntoView({ behavior: 'smooth' });
+}
+
+function hideFormErrors() {
+    document.getElementById('form-errors-section').classList.add('hidden');
+}
+
+// Utility for notifications (toast-like messages)
+function showNotification(message, type = 'info', duration = 3000) {
+    const container = document.createElement('div');
+    container.className = `fixed top-5 right-5 p-4 rounded-lg shadow-xl text-white z-[100] transition-all duration-300 transform translate-x-full`;
+    
+    let bgColor, iconClass;
+    switch (type) {
+        case 'success':
+            bgColor = 'bg-green-500';
+            iconClass = 'fas fa-check-circle';
+            break;
+        case 'error':
+            bgColor = 'bg-red-500';
+            iconClass = 'fas fa-times-circle';
+            break;
+        case 'warning':
+            bgColor = 'bg-yellow-500';
+            iconClass = 'fas fa-exclamation-triangle';
+            break;
+        default:
+            bgColor = 'bg-blue-500';
+            iconClass = 'fas fa-info-circle';
+            break;
+    }
+    container.classList.add(bgColor);
+    
+    container.innerHTML = `
+        <div class="flex items-center">
+            <i class="${iconClass} mr-3 text-xl"></i>
             <span>${message}</span>
         </div>
     `;
     
-    document.body.appendChild(notification);
+    document.body.appendChild(container);
     
+    // Animate in
     setTimeout(() => {
-        notification.classList.remove('translate-x-full');
+        container.classList.remove('translate-x-full');
+        container.classList.add('translate-x-0');
     }, 100);
     
+    // Animate out and remove
     setTimeout(() => {
-        notification.classList.add('translate-x-full');
+        container.classList.add('translate-x-full');
+        container.classList.remove('translate-x-0');
         setTimeout(() => {
-            document.body.removeChild(notification);
+            container.remove();
         }, 300);
     }, duration);
 }
 
-// Load saved draft on page load
-window.addEventListener('load', function() {
-    const savedDraft = localStorage.getItem('medicalReportDraft');
-    if (savedDraft) {
-        try {
-            const data = JSON.parse(savedDraft);
-            Object.keys(data).forEach(key => {
-                const field = document.querySelector(`[name="${key}"]`);
-                if (field && data[key]) {
-                    field.value = data[key];
-                }
-            });
-            showNotification('Draft loaded from auto-save', 'info');
-        } catch (e) {
-            console.error('Error loading draft:', e);
-        }
-    }
-});
 </script>
 @endpush
+
 @endsection
