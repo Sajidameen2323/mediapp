@@ -111,6 +111,13 @@ class AppointmentConfigController extends Controller
         $validated['default_start_time'] = $validated['default_start_time'] . ':00';
         $validated['default_end_time'] = $validated['default_end_time'] . ':00';
 
+        // divide tax rate by 100 for storage if tax is enabled
+        if ($validated['tax_enabled']) {
+            $validated['tax_rate'] = $validated['tax_rate'] / 100; // Store as percentage
+        } else {
+            $validated['tax_rate'] = 0; // If tax is not enabled, set to 0
+        }
+
         // Get current active config or create new one
         $config = AppointmentConfig::where('is_active', true)->first();
         
