@@ -108,7 +108,7 @@
                         </div>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Create your health profile to help healthcare providers better assist you.</p>
                         <a href="{{ route('patient.health-profile.create') }}" 
-                           class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105">
+                           class="w-full inline-flex items-center justify-center px-4 py-2 bg-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105">
                             <i class="fas fa-plus mr-2"></i>Create Profile
                         </a>
                     </div>

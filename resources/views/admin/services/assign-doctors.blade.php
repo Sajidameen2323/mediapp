@@ -118,7 +118,7 @@
                         <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No doctors available</h3>
                         <p class="text-gray-500 dark:text-gray-400 mb-6">There are no registered doctors in the system yet.</p>
                         <a href="{{ route('admin.doctors.create') }}" 
-                           class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
+                           class="inline-flex items-center gap-2 bg-gray-900 dark:bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
                             <i class="fas fa-plus"></i>
                             Add New Doctor
                         </a>
@@ -140,7 +140,7 @@
                         Cancel
                     </a>
                     <button type="submit" 
-                            class="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
+                            class="px-6 py-3 bg-gray-900 dark:bg-gray-800 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
                         <i class="fas fa-save mr-2"></i>
                         Update Assignments
                     </button>

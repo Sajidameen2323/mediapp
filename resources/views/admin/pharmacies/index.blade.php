@@ -10,7 +10,7 @@
             <p class="mt-2 text-gray-600 dark:text-gray-400">Manage registered pharmacies and their profiles</p>
         </div>
         <a href="{{ route('admin.pharmacies.create') }}" 
-           class="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
+           class="inline-flex items-center gap-2 bg-gray-900 dark:bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
             <i class="fas fa-plus"></i>
             Add New Pharmacy
         </a>

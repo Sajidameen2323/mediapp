@@ -6,7 +6,7 @@
     <div class="max-w-md w-full space-y-8">
                 <!-- Header -->
                 <div class="text-center">
-                    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-3 rounded-2xl shadow-lg inline-block mb-6">
+                    <div class="bg-gray-900 p-3 rounded-2xl shadow-lg inline-block mb-6">
                         <i class="fas fa-sign-in-alt text-white text-3xl"></i>
                     </div>
                     <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Welcome back</h2>
@@ -68,7 +68,7 @@
                         </div>
 
                         <!-- Submit Button -->
-                        <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        <button type="submit" class="w-full bg-blue-600 text-white py-3 px-6 rounded-xl font-semibold text-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                             <i class="fas fa-sign-in-alt mr-2"></i>{{ __('Sign In') }}
                         </button>
 

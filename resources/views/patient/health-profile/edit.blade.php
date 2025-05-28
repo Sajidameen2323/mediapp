@@ -342,7 +342,7 @@
                 Cancel
             </a>
             <button type="submit" 
-                    class="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-xl text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg transition-all duration-200">
+                    class="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-xl text-white bg-gray-900 dark:bg-gray-800 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-lg transition-all duration-200">
                 <i class="fas fa-save mr-2"></i>
                 Update Health Profile
             </button>

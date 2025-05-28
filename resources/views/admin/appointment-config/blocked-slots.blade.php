@@ -139,7 +139,7 @@
                 </div>
 
                 <div class="flex justify-end">
-                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-medium rounded-lg transition-colors duration-200">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-900 dark:bg-gray-700 hover:from-red-700 hover:to-orange-700 text-white font-medium rounded-lg transition-colors duration-200">
                         <i class="fas fa-ban mr-2"></i>
                         Block Time Slot
                     </button>

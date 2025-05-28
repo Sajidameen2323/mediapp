@@ -107,7 +107,7 @@
                 <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">General Configuration</h3>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Configure appointment settings, buffer times, payment options, and system preferences</p>
                 <div class="mt-4">
-                    <a href="{{ route('admin.appointment-config.edit') }}" class="block w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2 rounded transition-colors duration-200 text-center">
+                    <a href="{{ route('admin.appointment-config.edit') }}" class="block w-full bg-gray-900 dark:bg-gray-700 text-white px-4 py-2 rounded transition-colors duration-200 text-center">
                         <i class="fas fa-cog mr-2"></i>Configure Settings
                     </a>
                 </div>
@@ -120,7 +120,7 @@
                 <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Holiday Management</h3>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Manage holidays and special days when appointments are not available</p>
                 <div class="mt-4">
-                    <a href="{{ route('admin.appointment-config.holidays') }}" class="block w-full bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white px-4 py-2 rounded transition-colors duration-200 text-center">
+                    <a href="{{ route('admin.appointment-config.holidays') }}" class="block w-full bg-gray-900 dark:bg-gray-700 text-white px-4 py-2 rounded transition-colors duration-200 text-center">
                         <i class="fas fa-calendar-times mr-2"></i>Manage Holidays
                     </a>
                 </div>
@@ -133,7 +133,7 @@
                 <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Blocked Time Slots</h3>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Block specific time slots for maintenance, personal time, or emergencies</p>
                 <div class="mt-4">
-                    <a href="{{ route('admin.appointment-config.blocked-slots') }}" class="block w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-4 py-2 rounded transition-colors duration-200 text-center">
+                    <a href="{{ route('admin.appointment-config.blocked-slots') }}" class="block w-full bg-gray-900 dark:bg-gray-700 text-white px-4 py-2 rounded transition-colors duration-200 text-center">
                         <i class="fas fa-ban mr-2"></i>Manage Blocked Slots
                     </a>
                 </div>

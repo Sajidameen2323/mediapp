@@ -38,7 +38,7 @@ class HealthProfileRequest extends FormRequest
             'dietary_restrictions' => 'nullable|string|max:1000',
             'is_smoker' => 'boolean',
             'is_alcohol_consumer' => 'boolean',
-            'exercise_frequency' => 'nullable|string|in:never,rarely,weekly,daily',
+            'exercise_frequency' => 'nullable|string|in:sedentary,light,moderate,active,very_active',
             'additional_notes' => 'nullable|string|max:1000',
         ];
     }

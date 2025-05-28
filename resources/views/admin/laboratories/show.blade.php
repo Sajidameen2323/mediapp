@@ -15,7 +15,7 @@
         </div>
         <div class="flex space-x-3">
             <a href="{{ route('admin.laboratories.edit', $laboratory) }}" 
-               class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
+               class="inline-flex items-center gap-2 bg-gray-900 dark:bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
                 <i class="fas fa-edit"></i>
                 Edit Laboratory
             </a>

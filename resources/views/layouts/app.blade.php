@@ -60,7 +60,7 @@
             <div class="flex justify-between items-center h-16">
                 <!-- Brand Section with Home Navigation -->
                 <a href="{{ url('/') }}" class="flex items-center space-x-3 group transition-all duration-200 hover:scale-105">
-                    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-2.5 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-200">
+                    <div class="bg-gray-900 p-2.5 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-200">
                         <i class="fas fa-heartbeat text-white text-xl"></i>
                     </div>
                     <div class="flex flex-col">

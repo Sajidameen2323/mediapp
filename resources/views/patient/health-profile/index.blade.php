@@ -16,13 +16,13 @@
         <div class="flex space-x-3">
             @if($healthProfile)
                 <a href="{{ route('patient.health-profile.edit') }}" 
-                   class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
+                   class="inline-flex items-center gap-2 bg-gray-900 dark:bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
                     <i class="fas fa-edit"></i>
                     Edit Profile
                 </a>
             @else
                 <a href="{{ route('patient.health-profile.create') }}" 
-                   class="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
+                   class="inline-flex items-center gap-2 bg-gray-900 dark:bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
                     <i class="fas fa-plus"></i>
                     Create Profile
                 </a>
@@ -311,7 +311,7 @@
                 <!-- Action Buttons -->
                 <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl border dark:border-gray-700 overflow-hidden">
                     <div class="p-6 space-y-3">                        <button onclick="printHealthProfile()" 
-                                class="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white px-4 py-2 rounded-lg font-medium hover:from-gray-700 hover:to-gray-800 transition-all duration-200">
+                                class="w-full inline-flex items-center justify-center gap-2 bg-gray-900 dark:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium hover:from-gray-700 hover:to-gray-800 transition-all duration-200">
                             <i class="fas fa-print"></i>
                             Print Profile
                         </button>
@@ -320,7 +320,7 @@
                             @csrf
                             @method('DELETE')
                             <button type="submit" 
-                                    class="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-red-600 to-red-700 text-white px-4 py-2 rounded-lg font-medium hover:from-red-700 hover:to-red-800 transition-all duration-200">
+                                    class="w-full inline-flex items-center justify-center gap-2 bg-gray-900 dark:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium hover:from-red-700 hover:to-red-800 transition-all duration-200">
                                 <i class="fas fa-trash"></i>
                                 Delete Profile
                             </button>
@@ -339,7 +339,7 @@
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No Health Profile Found</h3>
                 <p class="text-gray-500 dark:text-gray-400 mb-8">Create your comprehensive health profile to help healthcare providers better understand your medical history and current health status.</p>
                 <a href="{{ route('patient.health-profile.create') }}" 
-                   class="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
+                   class="inline-flex items-center gap-2 bg-gray-900 dark:bg-gray-800 text-white px-8 py-4 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
                     <i class="fas fa-plus"></i>
                     Create Health Profile
                 </a>

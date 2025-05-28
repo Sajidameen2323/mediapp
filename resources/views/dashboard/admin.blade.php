@@ -185,10 +185,10 @@
                 <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Appointment Configuration</h3>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Configure appointment settings and policies</p>
                 <div class="mt-4 space-y-2">
-                    <a href="{{ route('admin.appointment-config.index') }}" class="block w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-4 py-2 rounded transition-colors duration-200 text-center">
-                        <i class="fas fa-calendar-cog mr-2"></i>Appointment Settings
+                    <a href="{{ route('admin.appointment-config.index') }}" class="block w-full bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white px-4 py-2 rounded transition-colors duration-200 text-center">
+                        <i class="fas fa-calendar-alt mr-2"></i>Appointment Settings
                     </a>
-                    <a href="{{ route('admin.appointment-config.edit') }}" class="block w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2 rounded transition-colors duration-200 text-center">
+                    <a href="{{ route('admin.appointment-config.edit') }}" class="block w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors duration-200 text-center">
                         <i class="fas fa-cog mr-2"></i>Configure System
                     </a>
                 </div>

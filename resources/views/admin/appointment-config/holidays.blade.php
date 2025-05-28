@@ -76,7 +76,7 @@
                     @enderror
                 </div>
                 <div class="flex justify-end">
-                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium rounded-lg transition-colors duration-200">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white font-medium rounded-lg transition-colors duration-200">
                         <i class="fas fa-plus mr-2"></i>
                         Add Holiday
                     </button>

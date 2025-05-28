@@ -6,7 +6,7 @@
     <div class="max-w-lg w-full space-y-8">            <!-- Header -->
             <div class="text-center mb-8">
                 <div
-                    class="mx-auto h-16 w-16 bg-gradient-to-r from-green-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg mb-6">
+                    class="mx-auto h-16 w-16 bg-gray-900 rounded-2xl flex items-center justify-center shadow-lg mb-6">
                     <i class="fas fa-user-plus text-white text-2xl"></i>
                 </div>
                 <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white">Join MediCare</h2>
@@ -185,7 +185,7 @@
                         </div>                        <!-- Submit Button -->
                         <div class="pt-6">
                             <button type="submit"
-                                class="w-full flex justify-center items-center py-4 px-6 border border-transparent rounded-xl shadow-lg text-base font-semibold text-white bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform hover:scale-[1.02] transition-all duration-300">
+                                class="w-full flex justify-center items-center py-4 px-6 border border-transparent rounded-xl shadow-lg text-base font-semibold text-white bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform hover:scale-[1.02] transition-all duration-300">
                                 <i class="fas fa-user-plus mr-3"></i>
                                 Create My Patient Account
                             </button>

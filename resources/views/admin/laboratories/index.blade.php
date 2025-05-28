@@ -10,7 +10,7 @@
             <p class="mt-2 text-gray-600 dark:text-gray-400">Manage registered laboratories and their profiles</p>
         </div>
         <a href="{{ route('admin.laboratories.create') }}" 
-           class="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
+           class="inline-flex items-center gap-2 bg-gray-900 dark:bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
             <i class="fas fa-plus"></i>
             Add New Laboratory
         </a>
@@ -137,7 +137,7 @@
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No laboratories registered yet</h3>
                 <p class="text-gray-500 dark:text-gray-400 mb-6">Get started by adding your first laboratory to the platform.</p>
                 <a href="{{ route('admin.laboratories.create') }}" 
-                   class="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
+                   class="inline-flex items-center gap-2 bg-gray-900 dark:bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
                     <i class="fas fa-plus"></i>
                     Add First Laboratory
                 </a>
