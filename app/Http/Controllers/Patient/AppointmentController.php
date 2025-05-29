@@ -107,14 +107,21 @@ class AppointmentController extends Controller
         if ($request->has('service_id')) {
             $preselectedService = Service::find($request->get('service_id'));
         }
-        
-        return view('patient.appointments.create-enhanced', compact(
+          return view('patient.appointments.create-enhanced', compact(
             'doctors', 
             'services', 
             'config', 
             'preselectedDoctor', 
             'preselectedService'
         ));
+    }
+
+    /**
+     * Show the enhanced appointment booking form.
+     */
+    public function createEnhanced(Request $request)
+    {
+        return $this->create($request);
     }
 
     /**

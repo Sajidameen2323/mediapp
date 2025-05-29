@@ -1,0 +1,340 @@
+/**
+ * Modern Appointment Calendar Styles
+ * Clean, accessible, and responsive design
+ */
+
+/* Calendar Container */
+.appointment-calendar {
+    min-height: 500px;
+}
+
+/* Calendar Day Styles */
+.calendar-day {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    cursor: pointer;
+    position: relative;
+    min-height: 40px;
+    min-width: 40px;
+}
+
+.calendar-day.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.calendar-day.other-month {
+    color: #9ca3af;
+}
+
+.dark .calendar-day.other-month {
+    color: #6b7280;
+}
+
+.calendar-day.current-month {
+    color: #111827;
+}
+
+.dark .calendar-day.current-month {
+    color: #f9fafb;
+}
+
+.calendar-day.today {
+    box-shadow: 0 0 0 2px #3b82f6;
+}
+
+.dark .calendar-day.today {
+    box-shadow: 0 0 0 2px #60a5fa;
+}
+
+.calendar-day.selected {
+    background-color: #3b82f6;
+    color: white;
+    box-shadow: 0 0 0 2px #93c5fd;
+}
+
+.dark .calendar-day.selected {
+    box-shadow: 0 0 0 2px #1d4ed8;
+}
+
+.calendar-day.available {
+    background-color: #dcfce7;
+    color: #166534;
+    cursor: pointer;
+}
+
+.dark .calendar-day.available {
+    background-color: rgba(20, 83, 45, 0.3);
+    color: #bbf7d0;
+}
+
+.calendar-day.available:hover {
+    background-color: #bbf7d0;
+    transform: scale(1.05);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.dark .calendar-day.available:hover {
+    background-color: rgba(20, 83, 45, 0.5);
+}
+
+.calendar-day.unavailable {
+    background-color: #fee2e2;
+    color: #991b1b;
+    cursor: not-allowed;
+}
+
+.dark .calendar-day.unavailable {
+    background-color: rgba(153, 27, 27, 0.3);
+    color: #fca5a5;
+}
+
+.calendar-day.past {
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+.dark .calendar-day.past {
+    background-color: #374151;
+    color: #6b7280;
+}
+
+.calendar-day.selected.available {
+    background-color: #1d4ed8;
+    color: white;
+    box-shadow: 0 0 0 2px #93c5fd;
+}
+
+.dark .calendar-day.selected.available {
+    background-color: #3b82f6;
+    box-shadow: 0 0 0 2px #1d4ed8;
+}
+
+/* Slot Indicators */
+.calendar-day .slot-indicator {
+    position: absolute;
+    top: -0.25rem;
+    right: -0.25rem;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 9999px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.calendar-day.available .slot-indicator {
+    background-color: #059669;
+    color: white;
+}
+
+.dark .calendar-day.available .slot-indicator {
+    background-color: #10b981;
+}
+
+.calendar-day.limited-slots .slot-indicator {
+    background-color: #d97706;
+    color: white;
+}
+
+.dark .calendar-day.limited-slots .slot-indicator {
+    background-color: #f59e0b;
+}
+
+.calendar-day.low-slots .slot-indicator {
+    background-color: #ea580c;
+    color: white;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.dark .calendar-day.low-slots .slot-indicator {
+    background-color: #fb923c;
+}
+
+/* Time Slots */
+.time-slot {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    border: 2px solid;
+    transition: all 0.3s;
+    text-align: center;
+    min-height: 44px;
+}
+
+.time-slot.available {
+    border-color: #86efac;
+    background-color: #f0fdf4;
+    color: #15803d;
+    cursor: pointer;
+}
+
+.dark .time-slot.available {
+    border-color: #059669;
+    background-color: rgba(20, 83, 45, 0.2);
+    color: #86efac;
+}
+
+.time-slot.available:hover {
+    border-color: #10b981;
+    background-color: #dcfce7;
+}
+
+.dark .time-slot.available:hover {
+    background-color: rgba(20, 83, 45, 0.4);
+}
+
+.time-slot.selected {
+    border-color: #3b82f6;
+    background-color: #3b82f6;
+    color: white;
+}
+
+.dark .time-slot.selected {
+    border-color: #60a5fa;
+}
+
+.time-slot.unavailable {
+    border-color: #d1d5db;
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+.dark .time-slot.unavailable {
+    border-color: #4b5563;
+    background-color: #374151;
+    color: #6b7280;
+}
+
+/* Loading States */
+.loading-spinner {
+    animation: spin 1s linear infinite;
+    border-radius: 50%;
+    border-bottom: 2px solid #3b82f6;
+}
+
+.dark .loading-spinner {
+    border-bottom-color: #60a5fa;
+}
+
+/* Calendar Grid Responsiveness */
+@media (max-width: 640px) {
+    .calendar-day {
+        width: 2rem;
+        height: 2rem;
+        font-size: 0.75rem;
+        min-height: 32px;
+        min-width: 32px;
+    }
+    
+    .calendar-day .slot-indicator {
+        width: 0.75rem;
+        height: 0.75rem;
+        font-size: 8px;
+    }
+}
+
+/* Focus States for Accessibility */
+.calendar-day:focus,
+.time-slot:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #3b82f6, 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.dark .calendar-day:focus,
+.dark .time-slot:focus {
+    box-shadow: 0 0 0 2px #60a5fa, 0 0 0 4px rgba(96, 165, 250, 0.1);
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.scale-in {
+    animation: scaleIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .calendar-day.available {
+        border: 2px solid #059669;
+    }
+    
+    .calendar-day.unavailable {
+        border: 2px solid #dc2626;
+    }
+    
+    .calendar-day.selected {
+        border: 2px solid #1e40af;
+    }
+}
+
+/* Dark Mode Specific Adjustments */
+@media (prefers-color-scheme: dark) {
+    .appointment-calendar {
+        color-scheme: dark;
+    }
+}
+
+/* Mobile Specific Time Slots */
+@media (max-width: 768px) {
+    .time-slots-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .time-slot {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+        min-height: 36px;
+    }
+}
+
+/* Tablet Adjustments */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .time-slots-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Desktop Time Slots */
+@media (min-width: 1024px) {
+    .time-slots-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}

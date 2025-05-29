@@ -158,25 +158,28 @@ class CustomCalendar {
             const nextMonthDay = new Date(year, month + 1, i);
             container.appendChild(this.createDayElement(nextMonthDay, true));
         }
-    }
-
-    createDayElement(date, isOtherMonth) {
+    }    createDayElement(date, isOtherMonth) {
         const dayElement = document.createElement('div');
         dayElement.className = 'calendar-day';
         dayElement.textContent = date.getDate();
 
         const dateString = this.formatDateString(date);
         const today = new Date();
+        today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
+        const dateToCheck = new Date(date);
+        dateToCheck.setHours(0, 0, 0, 0);
+        
         const isToday = this.isSameDate(date, today);
         const isSelected = this.selectedDate && this.isSameDate(date, this.selectedDate);
-        const isPast = date < today;
+        const isPast = dateToCheck < today;
 
         // Add base classes
         if (isOtherMonth) {
-            dayElement.classList.add('other-month');
-        } else {
-            dayElement.classList.add('current-month');
+            dayElement.classList.add('other-month', 'disabled');
+            return dayElement; // Early return for other month dates
         }
+
+        dayElement.classList.add('current-month');
 
         if (isToday) {
             dayElement.classList.add('today');
@@ -186,37 +189,41 @@ class CustomCalendar {
             dayElement.classList.add('selected');
         }
 
-        // Check availability only for current month dates
-        if (!isOtherMonth) {
-            const selectableDate = this.selectableDates.find(d => d.date === dateString);
-            const unavailableDate = this.unavailableDates.find(d => d.date === dateString);
+        // Check availability for current month dates
+        const selectableDate = this.selectableDates.find(d => d.date === dateString);
+        const unavailableDate = this.unavailableDates.find(d => d.date === dateString);
 
-            if (isPast) {
-                dayElement.classList.add('past', 'disabled');
-            } else if (selectableDate) {
-                dayElement.classList.add('available');
-                dayElement.addEventListener('click', () => this.selectDate(date));
+        if (isPast && !selectableDate) {
+            // Past dates that are not explicitly selectable
+            dayElement.classList.add('past', 'disabled');
+            dayElement.title = 'Past date - no longer available';
+        } else if (selectableDate) {
+            // Available dates with slots
+            dayElement.classList.add('available', 'clickable');
+            dayElement.addEventListener('click', () => this.selectDate(date));
+            dayElement.title = `${selectableDate.slots_count} slots available`;
+            
+            // Add slot indicator
+            if (selectableDate.slots_count) {
+                const indicator = document.createElement('div');
+                indicator.className = 'slot-indicator';
+                indicator.textContent = selectableDate.slots_count > 9 ? '9+' : selectableDate.slots_count;
                 
-                // Add slot indicator
-                if (selectableDate.slots_count) {
-                    const indicator = document.createElement('div');
-                    indicator.className = 'slot-indicator';
-                    indicator.textContent = selectableDate.slots_count > 9 ? '9+' : selectableDate.slots_count;
-                    
-                    if (selectableDate.slots_count <= 3) {
-                        dayElement.classList.add('limited-slots');
-                    }
-                    
-                    dayElement.appendChild(indicator);
+                if (selectableDate.slots_count <= 3) {
+                    dayElement.classList.add('limited-slots');
+                    indicator.classList.add('low-slots');
                 }
-            } else if (unavailableDate) {
-                dayElement.classList.add('unavailable', 'disabled');
-                dayElement.title = unavailableDate.reason || 'Not available';
-            } else {
-                dayElement.classList.add('past', 'disabled');
+                
+                dayElement.appendChild(indicator);
             }
+        } else if (unavailableDate) {
+            // Explicitly unavailable dates
+            dayElement.classList.add('unavailable', 'disabled');
+            dayElement.title = unavailableDate.reason || 'Not available';
         } else {
-            dayElement.classList.add('disabled');
+            // Future dates without defined availability
+            dayElement.classList.add('no-data', 'disabled');
+            dayElement.title = 'No appointment slots defined for this date';
         }
 
         return dayElement;

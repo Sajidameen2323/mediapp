@@ -11,6 +11,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Demo routes
+Route::get('/demo/appointment-booking', function () {
+    return view('demo.appointment-booking');
+})->name('demo.appointment-booking');
+
 // Public doctor search routes
 Route::prefix('api')->group(function () {
     Route::get('/doctors/available', [DoctorController::class, 'getAvailableDoctors'])->name('api.doctors.available');
@@ -209,6 +214,7 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('patient/appointments')->name('patient.appointments.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Patient\AppointmentController::class, 'index'])->name('index');
             Route::get('/create', [\App\Http\Controllers\Patient\AppointmentController::class, 'create'])->name('create');
+            Route::get('/create-enhanced', [\App\Http\Controllers\Patient\AppointmentController::class, 'createEnhanced'])->name('create-enhanced');
             Route::post('/', [\App\Http\Controllers\Patient\AppointmentController::class, 'store'])->name('store');
             Route::get('/{appointment}', [\App\Http\Controllers\Patient\AppointmentController::class, 'show'])->name('show');
             Route::patch('/{appointment}/cancel', [\App\Http\Controllers\Patient\AppointmentController::class, 'cancel'])->name('cancel');

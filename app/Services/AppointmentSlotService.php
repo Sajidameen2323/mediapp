@@ -295,6 +295,8 @@ class AppointmentSlotService
             })
             ->get();
 
+        error_log("Found " . $breaks->count() . " breaks for doctor ID: {$doctor->id} on date: {$date->toDateString()}");
+
         return $slots->filter(function ($slot) use ($breaks) {
             foreach ($breaks as $break) {
                 $slotStart = $slot['start_time'];

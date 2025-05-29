@@ -51,10 +51,10 @@
                 <x-appointment.navigation :currentStep="1" />
             </form>
         </div>
-    </div>
-
-    {{-- Enhanced Booking JavaScript --}}
-    <script src="{{ asset('js/custom-calendar.js') }}"></script>
+    </div> {{-- Enhanced Booking JavaScript --}}
+    <link rel="stylesheet" href="{{ asset('css/appointment-calendar.css') }}">
+    {{-- <script src="{{ asset('js/appointment-calendar.js') }}"></script> --}}
+      @vite('resources/js/appointment-calendar.js')
     <script>
         class AppointmentBooking {
             constructor() {
@@ -80,36 +80,43 @@
                 this.loadInitialDoctors();
                 this.initializeCustomCalendar();
             }
-
             initializeCustomCalendar() {
-                // Initialize calendar with callback functions
-                this.calendar = new CustomCalendar({
-                    onDateSelect: (dateString, dateData) => {
-                        this.handleDateSelection(dateString, dateData);
-                    }
-                });
+                // Wait for DOM to be ready, then initialize the new calendar
+                setTimeout(() => {
+                    this.calendar = new AppointmentCalendar('appointment-calendar-container', {
+                        onDateSelect: (dateString, dateData) => {
+                            this.handleDateSelection(dateString, dateData);
+                        },
+                        onTimeSelect: (timeString, timeData) => {
+                            this.handleTimeSelection(timeString, timeData);
+                        }
+                    });
+                }, 100);
             }
-
             handleDateSelection(dateString, dateData) {
                 this.selectedData.date = dateString;
 
-                // Update hidden form input
+                // Update hidden form inputs
                 const dateInput = document.getElementById('appointment_date');
                 if (dateInput) {
                     dateInput.value = dateString;
                 }
 
-                // Clear previous time selection
-                this.selectedData.time = null;
-                this.clearTimeSlotSelection();
+                // Show success message or UI feedback
+                this.showDateSelectionFeedback(dateString, dateData);
+            }
 
-                // Load time slots for selected date
-                if (this.selectedData.doctor && this.selectedData.service) {
-                    this.loadTimeSlots(dateString);
+            handleTimeSelection(timeString, timeData) {
+                this.selectedData.time = timeString;
+
+                // Update hidden form inputs
+                const timeInput = document.getElementById('appointment_time');
+                if (timeInput) {
+                    timeInput.value = timeString;
                 }
 
                 // Show success message or UI feedback
-                this.showDateSelectionFeedback(dateString, dateData);
+                this.showTimeSelectionFeedback(timeString, timeData);
             }
 
             showDateSelectionFeedback(dateString, dateData) {

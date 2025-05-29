@@ -125,9 +125,7 @@
             <div id="services_grid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Services will be loaded here -->
             </div>
-        </div>
-
-        {{-- Step 3: Date & Time Selection --}}
+        </div>        {{-- Step 3: Date & Time Selection --}}
         <div id="step_3" class="step-content bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 mb-6 hidden">
             <div class="mb-6">
                 <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
@@ -137,42 +135,14 @@
                 <p class="text-gray-600 dark:text-gray-400">Pick your preferred appointment date and time</p>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {{-- Date Selection --}}
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select Date</label>
-                    <input type="date" id="appointment_date" 
-                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500">
-                </div>
-
-                {{-- Time Slots --}}
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Available Time Slots</label>
-                    
-                    <div id="timeslots_loading" class="hidden">
-                        <div class="flex items-center justify-center py-8">
-                            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                            <span class="ml-2 text-gray-600 dark:text-gray-400">Loading slots...</span>
-                        </div>
-                    </div>
-
-                    <div id="no_date_selected" class="text-center py-8 text-gray-500 dark:text-gray-400">
-                        <i class="fas fa-calendar text-2xl mb-2"></i>
-                        <p>Please select a date to view available time slots</p>
-                    </div>
-
-                    <div id="no_slots_available" class="hidden text-center py-8 text-gray-500 dark:text-gray-400">
-                        <i class="fas fa-calendar-times text-2xl mb-2"></i>
-                        <p>No time slots available for this date</p>
-                    </div>
-
-                    <div id="timeslots_grid" class="hidden">
-                        <div id="timeslots_container" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                            <!-- Time slots will be loaded here -->
-                        </div>
-                    </div>
-                </div>
+            {{-- Modern Appointment Calendar --}}
+            <div id="appointment-calendar-container" class="appointment-calendar-wrapper">
+                {{-- Calendar will be rendered here by JavaScript --}}
             </div>
+
+            {{-- Hidden inputs for form submission --}}
+            <input type="hidden" id="appointment_date" name="appointment_date" value="">
+            <input type="hidden" id="appointment_time" name="appointment_time" value="">
         </div>
 
         {{-- Step 4: Confirmation --}}
@@ -307,12 +277,53 @@ class AppointmentBookingDemo {
         };
         
         this.init();
-    }
-
-    init() {
+    }    init() {
         this.setupEventListeners();
         this.updateStepDisplay();
         this.loadInitialDoctors();
+        this.initializeCalendar();
+    }
+
+    initializeCalendar() {
+        // Initialize the new appointment calendar when the page loads
+        setTimeout(() => {
+            try {
+                this.calendar = new AppointmentCalendar('appointment-calendar-container', {
+                    onDateSelect: (dateString, dateData) => {
+                        this.handleDateSelection(dateString, dateData);
+                    },
+                    onTimeSelect: (timeString, timeData) => {
+                        this.handleTimeSelection(timeString, timeData);
+                    }
+                });
+            } catch (error) {
+                console.log('Calendar will be initialized when Step 3 is reached');
+            }
+        }, 100);
+    }
+
+    handleDateSelection(dateString, dateData) {
+        this.selectedData.date = dateString;
+        
+        // Update hidden form inputs
+        const dateInput = document.getElementById('appointment_date');
+        if (dateInput) {
+            dateInput.value = dateString;
+        }
+        
+        console.log('Date selected:', dateString, dateData);
+    }
+
+    handleTimeSelection(timeString, timeData) {
+        this.selectedData.time = timeString;
+        
+        // Update hidden form inputs
+        const timeInput = document.getElementById('appointment_time');
+        if (timeInput) {
+            timeInput.value = timeString;
+        }
+        
+        console.log('Time selected:', timeString, timeData);
     }
 
     setupEventListeners() {
@@ -581,12 +592,17 @@ class AppointmentBookingDemo {
         
         // Enable next button
         document.getElementById('next_btn').disabled = false;
-    }
-
-    nextStep() {
+    }    nextStep() {
         if (this.currentStep < this.totalSteps) {
             this.currentStep++;
             this.updateStepDisplay();
+            
+            // Initialize calendar when reaching step 3
+            if (this.currentStep === 3 && !this.calendar) {
+                setTimeout(() => {
+                    this.initializeCalendar();
+                }, 100);
+            }
             
             if (this.currentStep === 4) {
                 this.updateConfirmationSummary();
@@ -717,4 +733,9 @@ document.addEventListener('DOMContentLoaded', function() {
     new AppointmentBookingDemo();
 });
 </script>
+
+{{-- Appointment Calendar Styles & Scripts --}}
+<link rel="stylesheet" href="{{ asset('css/appointment-calendar.css') }}">
+<script src="{{ asset('js/appointment-calendar.js') }}"></script>
+
 @endsection

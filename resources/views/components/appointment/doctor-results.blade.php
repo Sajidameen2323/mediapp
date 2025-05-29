@@ -35,7 +35,7 @@
         <div class="p-6">
             {{-- Doctor Avatar --}}
             <div class="flex items-center mb-4">
-                <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center text-white text-xl font-bold shadow-lg">
+                <div class="w-16 h-16 bg-gray-800 dark:bg-gray-700 rounded-2xl flex items-center justify-center text-white text-xl font-bold shadow-lg">
                     <span class="doctor-initials"></span>
                 </div>
                 <div class="ml-4 flex-1">
@@ -77,7 +77,7 @@
             </div>
 
             {{-- Action Button --}}
-            <button class="select-doctor-btn w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform group-hover:scale-105">
+            <button class="select-doctor-btn w-full bg-gray-800 dark:bg-gray-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform group-hover:scale-105">
                 <i class="fas fa-calendar-plus mr-2"></i>
                 Select Doctor
             </button>

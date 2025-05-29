@@ -22,66 +22,10 @@
                     </button>
                 </div>
             </div>
-        </div>
-
-        {{-- Date and Time Selection --}}
-        <div class="grid lg:grid-cols-2 gap-6">            {{-- Calendar Section --}}
-            <div>
-                <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                    <i class="fas fa-calendar mr-2 text-blue-600 dark:text-blue-400"></i>
-                    Select Date
-                </h3>
-                
-                {{-- Custom Calendar Component --}}
-                <x-appointment.custom-calendar />
-                
-                {{-- Hidden input for form submission --}}
-                <input type="hidden" id="appointment_date" name="appointment_date" value="">
-            </div>
-
-            {{-- Time Slots Section --}}
-            <div>
-                <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                    <i class="fas fa-clock mr-2 text-blue-600 dark:text-blue-400"></i>
-                    Available Times
-                </h3>
-                
-                {{-- Time Slots Loading --}}
-                <div id="timeslots_loading" class="hidden bg-gray-50 dark:bg-gray-700 rounded-xl p-8">
-                    <div class="flex items-center justify-center">
-                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 dark:border-blue-400"></div>
-                        <span class="ml-3 text-gray-600 dark:text-gray-400">Loading available times...</span>
-                    </div>
-                </div>
-
-                {{-- No Date Selected --}}
-                <div id="no_date_selected" class="bg-gray-50 dark:bg-gray-700 rounded-xl p-8 text-center">
-                    <div class="text-gray-400 dark:text-gray-500 mb-2">
-                        <i class="fas fa-calendar-day text-3xl"></i>
-                    </div>
-                    <p class="text-gray-600 dark:text-gray-400">Please select a date to view available times</p>
-                </div>
-
-                {{-- No Slots Available --}}
-                <div id="no_slots_available" class="hidden bg-gray-50 dark:bg-gray-700 rounded-xl p-8 text-center">
-                    <div class="text-red-400 dark:text-red-500 mb-2">
-                        <i class="fas fa-calendar-times text-3xl"></i>
-                    </div>
-                    <p class="text-gray-600 dark:text-gray-400">No available time slots for this date</p>
-                    <button type="button" id="suggest_alternative_date" class="mt-2 text-blue-600 dark:text-blue-400 hover:underline text-sm">
-                        Suggest alternative dates
-                    </button>
-                </div>
-
-                {{-- Time Slots Grid --}}
-                <div id="timeslots_grid" class="hidden">
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 max-h-80 overflow-y-auto">
-                        <div id="timeslots_container" class="grid grid-cols-2 gap-2">
-                            {{-- Time slot buttons will be inserted here --}}
-                        </div>
-                    </div>
-                </div>
-            </div>
+        </div>        {{-- Date and Time Selection --}}
+        <div class="appointment-datetime-section">
+            {{-- Modern Appointment Calendar --}}
+            <x-appointment.custom-calendar />
         </div>
 
         {{-- Additional Details --}}
@@ -157,18 +101,5 @@
                         <option value="emergency">Emergency</option>
                     </select>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-{{-- Time Slot Button Template --}}
-<template id="timeslot_template">
-    <button type="button" 
-            class="timeslot-btn w-full py-2 px-3 text-sm font-medium rounded-lg border-2 transition-all duration-300
-                   border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 
-                   hover:border-blue-500 hover:text-blue-600 dark:hover:border-blue-400 dark:hover:text-blue-400
-                   focus:outline-none focus:ring-2 focus:ring-blue-500">        <span class="timeslot-time"></span>
-    </button>
-</template>
+            </div>    </div>
 </div>
