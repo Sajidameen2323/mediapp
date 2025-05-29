@@ -47,7 +47,8 @@ class Doctor extends Model
      */
     public function services(): BelongsToMany
     {
-        return $this->belongsToMany(Service::class);
+        return $this->belongsToMany(Service::class)
+                    ->select('services.id', 'services.name', 'services.description', 'services.price', 'services.duration_minutes', 'services.category', 'services.is_active');
     }
 
     /**
@@ -72,6 +73,14 @@ class Doctor extends Model
     public function medicalReports(): HasMany
     {
         return $this->hasMany(MedicalReport::class);
+    }
+
+    /**
+     * Get the appointments for the doctor.
+     */
+    public function appointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class);
     }
 
     /**

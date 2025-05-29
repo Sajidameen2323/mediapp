@@ -164,10 +164,13 @@
                     <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Appointments</h3>
                 </div>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">View and manage your appointments</p>
-                <div class="mt-4">
-                    <button class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
-                        <i class="fas fa-calendar mr-2"></i>View Schedule
-                    </button>
+                <div class="mt-4 flex space-x-2">
+                    <a href="{{ route('doctor.appointments.index') }}" class="bg-teal-600 hover:bg-teal-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+                        <i class="fas fa-list mr-1"></i>All Appointments
+                    </a>
+                    <a href="{{ route('doctor.appointments.calendar') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+                        <i class="fas fa-calendar mr-1"></i>Calendar View
+                    </a>
                 </div>
             </div>
         </div>

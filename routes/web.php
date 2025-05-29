@@ -16,6 +16,12 @@ Route::prefix('api')->group(function () {
     Route::get('/doctors/available', [DoctorController::class, 'getAvailableDoctors'])->name('api.doctors.available');
     Route::get('/doctors/search', [DoctorController::class, 'searchDoctors'])->name('api.doctors.search');
     Route::get('/doctors/specializations', [DoctorController::class, 'getSpecializations'])->name('api.doctors.specializations');
+    
+    // Public appointment-related routes for booking system
+    Route::get('/doctors/{doctor}/services', [\App\Http\Controllers\Patient\AppointmentController::class, 'getDoctorServices'])->name('api.doctors.services.public');
+    Route::get('/appointments/search-doctors', [\App\Http\Controllers\Patient\AppointmentController::class, 'searchDoctors'])->name('api.appointments.search-doctors');
+    Route::get('/appointments/available-slots', [\App\Http\Controllers\Patient\AppointmentController::class, 'getAvailableSlots'])->name('api.appointments.available-slots');
+    Route::get('/appointments/selectable-dates', [\App\Http\Controllers\Patient\AppointmentController::class, 'getSelectableDates'])->name('api.appointments.selectable-dates');
 });
 
 // Authentication routes
@@ -174,6 +180,17 @@ Route::middleware(['auth'])->group(function () {
         // Medical Report PDF Export
         Route::get('/doctor/manage-reports/{medicalReport}/pdf', [\App\Http\Controllers\Doctor\MedicalReportController::class, 'exportPdf'])
             ->name('doctor.reports.pdf');
+        
+        // Appointment Management
+        Route::prefix('doctor/appointments')->name('doctor.appointments.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Doctor\AppointmentController::class, 'index'])->name('index');
+            Route::get('/calendar', [\App\Http\Controllers\Doctor\AppointmentController::class, 'calendar'])->name('calendar');
+            Route::get('/{appointment}', [\App\Http\Controllers\Doctor\AppointmentController::class, 'show'])->name('show');
+            Route::patch('/{appointment}/confirm', [\App\Http\Controllers\Doctor\AppointmentController::class, 'confirm'])->name('confirm');
+            Route::patch('/{appointment}/cancel', [\App\Http\Controllers\Doctor\AppointmentController::class, 'cancel'])->name('cancel');
+            Route::patch('/{appointment}/complete', [\App\Http\Controllers\Doctor\AppointmentController::class, 'complete'])->name('complete');
+            Route::patch('/{appointment}/no-show', [\App\Http\Controllers\Doctor\AppointmentController::class, 'noShow'])->name('no-show');
+        });
     });
     
     // Patient routes
@@ -187,6 +204,26 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/patient/health-profile/edit', [\App\Http\Controllers\Patient\HealthProfileController::class, 'edit'])->name('patient.health-profile.edit');
         Route::put('/patient/health-profile', [\App\Http\Controllers\Patient\HealthProfileController::class, 'update'])->name('patient.health-profile.update');
         Route::delete('/patient/health-profile', [\App\Http\Controllers\Patient\HealthProfileController::class, 'destroy'])->name('patient.health-profile.destroy');
+        
+        // Appointment Management
+        Route::prefix('patient/appointments')->name('patient.appointments.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Patient\AppointmentController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Patient\AppointmentController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Patient\AppointmentController::class, 'store'])->name('store');
+            Route::get('/{appointment}', [\App\Http\Controllers\Patient\AppointmentController::class, 'show'])->name('show');
+            Route::patch('/{appointment}/cancel', [\App\Http\Controllers\Patient\AppointmentController::class, 'cancel'])->name('cancel');
+            Route::post('/{appointment}/rate', [\App\Http\Controllers\Patient\AppointmentController::class, 'rate'])->name('rate');
+            
+            // AJAX endpoints for appointment booking
+            Route::get('/search-doctors', [\App\Http\Controllers\Patient\AppointmentController::class, 'searchDoctors'])->name('search-doctors');
+            Route::get('/available-slots', [\App\Http\Controllers\Patient\AppointmentController::class, 'getAvailableSlots'])->name('available-slots');
+            Route::get('/selectable-dates', [\App\Http\Controllers\Patient\AppointmentController::class, 'getSelectableDates'])->name('selectable-dates');
+        });
+        
+        // API routes for enhanced booking
+        Route::prefix('api')->group(function () {
+            Route::get('/doctors/{doctor}/services', [\App\Http\Controllers\Patient\AppointmentController::class, 'getDoctorServices'])->name('api.doctors.services');
+        });
     });
     
     // Laboratory staff routes
