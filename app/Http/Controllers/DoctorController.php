@@ -117,6 +117,33 @@ class DoctorController extends Controller
         return response()->json([
             'success' => true,
             'specializations' => $specializations
+        ]);    }
+
+    /**
+     * Get a specific doctor for API
+     */
+    public function show(Doctor $doctor): JsonResponse
+    {
+        $doctor->load(['user', 'services']);
+
+        return response()->json([
+            'success' => true,
+            'doctor' => [
+                'id' => $doctor->id,
+                'name' => $doctor->user->name,
+                'user' => [
+                    'name' => $doctor->user->name,
+                    'email' => $doctor->user->email
+                ],
+                'specialization' => $doctor->specialization,
+                'experience_years' => $doctor->experience_years,
+                'consultation_fee' => $doctor->consultation_fee,
+                'profile_image' => $doctor->profile_image,
+                'is_available' => $doctor->is_available,
+                'bio' => $doctor->bio,
+                'services' => $doctor->services,
+                'initials' => $this->getInitials($doctor->user->name)
+            ]
         ]);
     }
 

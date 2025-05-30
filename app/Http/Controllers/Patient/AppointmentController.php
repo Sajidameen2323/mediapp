@@ -33,19 +33,19 @@ class AppointmentController extends Controller
     public function index(Request $request)
     {
         $this->authorize('patient-access');
-        
+
         $user = auth()->user();
-        
+
         $status = $request->get('status', 'all');
         $date = $request->get('date', 'upcoming');
-        
+
         $query = Appointment::where('patient_id', $user->id)->with(['doctor', 'service']);
-        
+
         // Filter by status
         if ($status !== 'all') {
             $query->byStatus($status);
         }
-        
+
         // Filter by date
         switch ($date) {
             case 'upcoming':
@@ -63,11 +63,11 @@ class AppointmentController extends Controller
                 $query->byDateRange($startOfWeek->toDateString(), $endOfWeek->toDateString());
                 break;
         }
-        
+
         $appointments = $query->orderBy('appointment_date', 'desc')
-                             ->orderBy('start_time', 'desc')
-                             ->paginate(10);
-        
+            ->orderBy('start_time', 'desc')
+            ->paginate(10);
+
         // Statistics
         $stats = [
             'total' => Appointment::where('patient_id', $user->id)->count(),
@@ -75,7 +75,7 @@ class AppointmentController extends Controller
             'completed' => Appointment::where('patient_id', $user->id)->byStatus('completed')->count(),
             'cancelled' => Appointment::where('patient_id', $user->id)->byStatus('cancelled')->count(),
         ];
-        
+
         return view('patient.appointments.index', compact('appointments', 'stats', 'status', 'date'));
     }
 
@@ -85,33 +85,33 @@ class AppointmentController extends Controller
     public function create(Request $request)
     {
         $this->authorize('patient-access');
-        
+
         $config = AppointmentConfig::first();
         if (!$config) {
             return redirect()->back()->with('error', 'Appointment booking is currently unavailable.');
         }
 
         $doctors = Doctor::with(['user', 'services'])
-                        ->where('is_available', true)
-                        ->get();
-        
+            ->where('is_available', true)
+            ->get();
+
         $services = Service::where('is_active', true)->get();
-        
+
         $preselectedDoctor = null;
         $preselectedService = null;
-        
+
         if ($request->has('doctor_id')) {
             $preselectedDoctor = Doctor::find($request->get('doctor_id'));
         }
-        
+
         if ($request->has('service_id')) {
             $preselectedService = Service::find($request->get('service_id'));
         }
-          return view('patient.appointments.create-enhanced', compact(
-            'doctors', 
-            'services', 
-            'config', 
-            'preselectedDoctor', 
+        return view('patient.appointments.create', compact(
+            'doctors',
+            'services',
+            'config',
+            'preselectedDoctor',
             'preselectedService'
         ));
     }
@@ -130,27 +130,27 @@ class AppointmentController extends Controller
     public function store(BookAppointmentRequest $request)
     {
         $this->authorize('patient-access');
-        
+
         $user = auth()->user();
         /** @var Doctor $doctor */
         $doctor = Doctor::findOrFail($request->doctor_id); // Single doctor instance
         /** @var Service $service */
         $service = Service::findOrFail($request->service_id);
-        
+
         $appointmentDateTime = Carbon::parse($request->appointment_date . ' ' . $request->start_time);
-        
+
         // Verify slot is still available
         if (!$this->slotService->isSlotAvailable($doctor, $appointmentDateTime->toDateTimeString(), $service->id)) {
             return redirect()->back()
-                           ->withInput()
-                           ->with('error', 'The selected time slot is no longer available. Please choose another slot.');
+                ->withInput()
+                ->with('error', 'The selected time slot is no longer available. Please choose another slot.');
         }
-        
+
         // Calculate end time based on service duration or default slot duration
         $config = AppointmentConfig::first();
         $duration = $service->duration ?? $config->slot_duration;
         $endTime = $appointmentDateTime->copy()->addMinutes($duration);
-        
+
         // Generate appointment number
         $appointmentNumber = 'APT-' . now()->format('Ymd') . '-' . str_pad(
             Appointment::whereDate('created_at', now()->toDateString())->count() + 1,
@@ -158,7 +158,7 @@ class AppointmentController extends Controller
             '0',
             STR_PAD_LEFT
         );
-        
+
         // Create appointment
         $appointment = Appointment::create([
             'appointment_number' => $appointmentNumber,
@@ -179,11 +179,11 @@ class AppointmentController extends Controller
             'payment_amount' => $service->price,
             'booking_source' => 'online'
         ]);
-        
+
         // Send notification to doctor (implement notification system as needed)
-        
+
         return redirect()->route('patient.appointments.show', $appointment)
-                        ->with('success', 'Appointment booked successfully! Your appointment number is ' . $appointmentNumber);
+            ->with('success', 'Appointment booked successfully! Your appointment number is ' . $appointmentNumber);
     }
 
     /**
@@ -192,15 +192,15 @@ class AppointmentController extends Controller
     public function show(Appointment $appointment)
     {
         $this->authorize('patient-access');
-        
+
         $user = auth()->user();
-        
+
         if ($appointment->patient_id !== $user->id) {
             abort(403, 'Unauthorized access to appointment.');
         }
-        
+
         $appointment->load(['doctor', 'service']);
-        
+
         return view('patient.appointments.show', compact('appointment'));
     }
 
@@ -210,40 +210,42 @@ class AppointmentController extends Controller
     public function cancel(Request $request, Appointment $appointment)
     {
         $this->authorize('patient-access');
-        
+
         $user = auth()->user();
-        
+
         if ($appointment->patient_id !== $user->id) {
             abort(403, 'Unauthorized access to appointment.');
         }
-        
+
         if (in_array($appointment->status, ['cancelled', 'completed'])) {
             return redirect()->back()->with('error', 'This appointment cannot be cancelled.');
         }
-        
+
         // Check cancellation policy
         $config = AppointmentConfig::first();
         $appointmentDateTime = Carbon::parse($appointment->appointment_date . ' ' . $appointment->start_time);
         $hoursUntilAppointment = now()->diffInHours($appointmentDateTime, false);
-        
+
         if ($hoursUntilAppointment < $config->min_cancellation_hours) {
-            return redirect()->back()->with('error', 
-                'Appointments can only be cancelled at least ' . $config->min_cancellation_hours . ' hours in advance.');
+            return redirect()->back()->with(
+                'error',
+                'Appointments can only be cancelled at least ' . $config->min_cancellation_hours . ' hours in advance.'
+            );
         }
-        
+
         $request->validate([
             'cancellation_reason' => 'required|string|max:500'
         ]);
-        
+
         $appointment->update([
             'status' => 'cancelled',
             'cancelled_at' => now(),
             'cancelled_by' => 'patient',
             'cancellation_reason' => $request->cancellation_reason
         ]);
-        
+
         return redirect()->route('patient.appointments.index')
-                        ->with('success', 'Appointment cancelled successfully.');
+            ->with('success', 'Appointment cancelled successfully.');
     }
 
     /**
@@ -256,23 +258,23 @@ class AppointmentController extends Controller
             'date' => 'required|date|after_or_equal:today',
             'service_id' => 'nullable|exists:services,id'
         ]);
-        
+
         $doctor = Doctor::findOrFail($request->doctor_id);
         $slots = $this->slotService->getAvailableSlots(
-            $doctor, 
-            $request->date, 
+            $doctor,
+            $request->date,
             $request->service_id
         );
-        
+
         return response()->json([
             'success' => true,
             'slots' => $slots,
             'date' => $request->date
         ]);
     }    /**
-     * Search for doctors based on query and filters (AJAX).
-     * Can be used both by authenticated patients and for public booking.
-     */
+         * Search for doctors based on query and filters (AJAX).
+         * Can be used both by authenticated patients and for public booking.
+         */
     public function searchDoctors(Request $request)
     {
         // Only authorize if user is authenticated and accessing through patient routes
@@ -290,8 +292,8 @@ class AppointmentController extends Controller
                 $q->whereHas('user', function ($userQuery) use ($searchTerm) {
                     $userQuery->where('name', 'LIKE', "%{$searchTerm}%");
                 })
-                ->orWhere('specialization', 'LIKE', "%{$searchTerm}%")
-                ->orWhere('bio', 'LIKE', "%{$searchTerm}%");
+                    ->orWhere('specialization', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('bio', 'LIKE', "%{$searchTerm}%");
             });
         }
 
@@ -312,7 +314,7 @@ class AppointmentController extends Controller
             $today = Carbon::today();
             $query->whereHas('schedules', function ($q) use ($today) {
                 $q->where('day_of_week', $today->dayOfWeek)
-                  ->where('is_available', true);
+                    ->where('is_available', true);
             });
         }
 
@@ -338,7 +340,8 @@ class AppointmentController extends Controller
                         'id' => $service->id,
                         'name' => $service->name,
                         'price' => $service->price
-                    ];                }),
+                    ];
+                }),
                 'user' => [
                     'name' => $doctor->user->name ?? null,
                     'email' => $doctor->user->email ?? null
@@ -352,9 +355,9 @@ class AppointmentController extends Controller
             'total' => $doctors->count()
         ]);
     }    /**
-     * Get services for a specific doctor (AJAX).
-     * Can be used both by authenticated patients and for public booking.
-     */
+         * Get services for a specific doctor (AJAX).
+         * Can be used both by authenticated patients and for public booking.
+         */
     public function getDoctorServices(Request $request, Doctor $doctor)
     {
         // Only authorize if user is authenticated and accessing through patient routes
@@ -396,15 +399,16 @@ class AppointmentController extends Controller
     {
         $request->validate([
             'doctor_id' => 'required|exists:doctors,id',
-            'service_id' => 'nullable|exists:services,id'        ]);        
-          /** @var Doctor $doctor */
+            'service_id' => 'nullable|exists:services,id'
+        ]);
+        /** @var Doctor $doctor */
         $doctor = Doctor::findOrFail($request->doctor_id);
-        
+
         // Ensure $doctor is a single Doctor instance, not a collection
         assert($doctor instanceof Doctor, 'Doctor must be a single model instance');
-        
+
         $config = AppointmentConfig::getActive();
-        
+
         if (!$config) {
             return response()->json([
                 'success' => false,
@@ -422,28 +426,28 @@ class AppointmentController extends Controller
         // Calculate date range
         $startDate = Carbon::now()->addDays($config->min_advance_booking_days ?? 1);
         $endDate = Carbon::now()->addDays($config->max_booking_days_ahead ?? 90);
-        
+
         //log current date and config min/max days
-    
+
 
         $selectableDates = [];
         $unavailableDates = [];
-        
+
         // Check each date in the range
         for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
             $dateString = $date->toDateString();
-            
-              // Check if date is selectable
+
+            // Check if date is selectable
             if ($this->isDateSelectable($doctor, $date, $config)) {
                 // Check if there are available slots on this date
                 error_log("Checking available slots for doctor {$doctor->id} on {$dateString}");
                 $slots = $this->slotService->getAvailableSlots(
                     $doctor, // $doctor is guaranteed to be a Doctor model instance from findOrFail above
-                    $dateString, 
+                    $dateString,
                     $request->service_id
                 );
                 error_log("Available slots for {$doctor->id} on {$dateString}: " . $slots->count());
-                
+
                 if ($slots->isNotEmpty()) {
                     $selectableDates[] = [
                         'date' => $dateString,
@@ -486,18 +490,22 @@ class AppointmentController extends Controller
     private function isDateSelectable(Doctor $doctor, Carbon $date, AppointmentConfig $config): bool
     {
         // Check if it's a system holiday
-        if (Holiday::where('date', $date->toDateString())
-            ->where('is_active', true)
-            ->exists()) {
+        if (
+            Holiday::where('date', $date->toDateString())
+                ->where('is_active', true)
+                ->exists()
+        ) {
             return false;
         }
 
         // Check if doctor is on holiday
-        if (DoctorHoliday::where('doctor_id', $doctor->id)
-            ->where('start_date', '<=', $date->toDateString())
-            ->where('end_date', '>=', $date->toDateString())
-            ->where('status', 'approved')
-            ->exists()) {
+        if (
+            DoctorHoliday::where('doctor_id', $doctor->id)
+                ->where('start_date', '<=', $date->toDateString())
+                ->where('end_date', '>=', $date->toDateString())
+                ->where('status', 'approved')
+                ->exists()
+        ) {
             return false;
         }
 
@@ -539,7 +547,7 @@ class AppointmentController extends Controller
             ->where('day_of_week', $dayOfWeek)
             ->where('is_available', true)
             ->exists();
-        
+
         if (!$hasSchedule) {
             return 'Doctor not available on ' . $date->format('l');
         }

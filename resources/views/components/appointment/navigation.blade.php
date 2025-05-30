@@ -9,31 +9,29 @@
             {{ $currentStep <= 1 ? 'disabled' : '' }}>
         <i class="fas fa-arrow-left mr-2"></i>
         Back
-    </button>
-
-    {{-- Step Information --}}
+    </button>    {{-- Step Information --}}
     <div class="order-1 sm:order-2 text-center">
         <div class="text-sm text-gray-500 dark:text-gray-400">
-            Step <span id="current_step_display">{{ $currentStep }}</span> of 4
+            Step <span id="current_step_display">{{ $currentStep }}</span> of 5
         </div>
         <div id="step_title" class="font-semibold text-gray-900 dark:text-gray-100">
             @switch($currentStep)
                 @case(1) Find Your Doctor @break
                 @case(2) Choose Service @break
                 @case(3) Select Date & Time @break
-                @case(4) Confirm Booking @break
+                @case(4) Patient Details @break
+                @case(5) Confirm Booking @break
                 @default Find Your Doctor
             @endswitch
         </div>
     </div>
 
     {{-- Next/Submit Button --}}
-    <div class="order-3 w-full sm:w-auto">
-        <button type="button" 
+    <div class="order-3 w-full sm:w-auto">        <button type="button" 
                 id="next_btn" 
                 class="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
             <span id="next_btn_text">
-                @if($currentStep < 4)
+                @if($currentStep < 5)
                     Next
                     <i class="fas fa-arrow-right ml-2"></i>
                 @else

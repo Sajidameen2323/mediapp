@@ -50,18 +50,22 @@ class AppointmentSlotService
         }
 
         // Generate time slots based on schedule
-        $slots = $this->generateTimeSlotsFromSchedule($schedule, $config,$service, $date);
+        $slots = $this->generateTimeSlotsFromSchedule($schedule, $config, $service, $date);
 
+        error_log($slots->count());
         // Remove blocked slots
         $slots = $this->removeBlockedSlots($slots, $doctor, $date);
-
+        error_log($slots->count());
         // Remove doctor break times
         $slots = $this->removeDoctorBreaks($slots, $doctor, $date);
-
+        error_log($slots->count());
         // Remove already booked slots
         $slots = $this->removeBookedSlots($slots, $doctor, $date);
+        error_log($slots->count());
 
-        return $slots;
+        $reindexedSlots = $slots->values();
+
+        return $reindexedSlots;
     }
 
     /**
@@ -74,7 +78,7 @@ class AppointmentSlotService
         $time = $datetime->format('H:i:s');
 
         $availableSlots = $this->getAvailableSlots($doctor, $date, $serviceId);
-        
+
         return $availableSlots->contains(function ($slot) use ($time) {
             return $slot['start_time'] === $time;
         });
@@ -95,7 +99,7 @@ class AppointmentSlotService
 
         for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
             $slots = $this->getAvailableSlots($doctor, $date->toDateString(), $serviceId);
-            
+
             if ($slots->isNotEmpty()) {
                 $firstSlot = $slots->first();
                 return [
@@ -120,7 +124,7 @@ class AppointmentSlotService
 
         for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
             $daySlots = $this->getAvailableSlots($doctor, $date->toDateString(), $serviceId);
-            
+
             if ($daySlots->isNotEmpty()) {
                 $availableSlots->put($date->toDateString(), $daySlots);
             }
@@ -201,7 +205,7 @@ class AppointmentSlotService
     /**
      * Generate time slots based on doctor's schedule.
      */
-    private function generateTimeSlotsFromSchedule(DoctorSchedule $schedule, AppointmentConfig $config, Service $service ,Carbon $date): Collection
+    private function generateTimeSlotsFromSchedule(DoctorSchedule $schedule, AppointmentConfig $config, Service $service, Carbon $date): Collection
     {
         $slots = collect();
         $slotDuration = $service->duration_minutes; // in minutes
@@ -211,7 +215,7 @@ class AppointmentSlotService
             error_log("Invalid slot duration: {$slotDuration}. Cannot generate slots.");
             return $slots;
         }
-        
+
         $startTime = Carbon::parse($date->toDateString() . ' ' . Carbon::parse($schedule->start_time)->format('H:i:s'));
         $endTime = Carbon::parse($date->toDateString() . ' ' . Carbon::parse($schedule->end_time)->format('H:i:s'));
 
@@ -224,10 +228,10 @@ class AppointmentSlotService
         // Add safety counter to prevent infinite loops
         $maxSlots = 100; // Reasonable maximum number of slots per day
         $slotCount = 0;
-    
+
         while ($startTime->lt($endTime) && $slotCount < $maxSlots) {
             $slotEndTime = $startTime->copy()->addMinutes($slotDuration);
-            
+
             if ($slotEndTime->lte($endTime)) {
                 $slots->push([
                     'start_time' => $startTime->format('H:i:s'),
@@ -237,7 +241,7 @@ class AppointmentSlotService
                     'duration' => $slotDuration
                 ]);
             }
-            
+
             $startTime->addMinutes($slotDuration);
             $slotCount++;
         }
@@ -256,15 +260,22 @@ class AppointmentSlotService
      */
     private function removeBlockedSlots(Collection $slots, Doctor $doctor, Carbon $date): Collection
     {
-        $blockedSlots = BlockedTimeSlot::where('doctor_id', $doctor->id)
-            ->where('date', $date->toDateString())
+
+        $blockedSlots = BlockedTimeSlot::where('date', $date->toDateString())
+            ->where('is_active', true)
+            ->where(function ($query) use ($doctor) {
+                $query->where('doctor_id', $doctor->id)
+                    ->orWhereNull('doctor_id');
+            })
             ->get();
+
+        // error_log($blockedSlots);
 
         return $slots->filter(function ($slot) use ($blockedSlots) {
             foreach ($blockedSlots as $blocked) {
                 $slotStart = $slot['start_time'];
                 $slotEnd = $slot['end_time'];
-                
+
                 // Check if slot overlaps with blocked time
                 if ($this->timesOverlap($slotStart, $slotEnd, $blocked->start_time, $blocked->end_time)) {
                     return false;
@@ -279,29 +290,20 @@ class AppointmentSlotService
      */
     private function removeDoctorBreaks(Collection $slots, Doctor $doctor, Carbon $date): Collection
     {
-        $dayOfWeek = $date->dayOfWeek;
-        
+        $dayOfWeek = strtolower($date->format('l'));
+
         $breaks = DoctorBreak::where('doctor_id', $doctor->id)
-            ->where(function ($query) use ($dayOfWeek, $date) {
-            $query->where(function ($q) use ($dayOfWeek) {
-                // Regular recurring breaks
-                $q->where('type', 'recurring')
-                  ->where('day_of_week', $dayOfWeek);
-            })->orWhere(function ($q) use ($date) {
-                // One-time breaks - check if break falls on the given date
-                $q->where('type', 'one_time')
-                  ->whereDate('start_time', $date->toDateString());
-            });
-            })
+            ->where('day_of_week', $dayOfWeek)
+            ->where('is_active', true)
             ->get();
 
-        error_log("Found " . $breaks->count() . " breaks for doctor ID: {$doctor->id} on date: {$date->toDateString()}");
+        // error_log("Found " . $breaks->count() . " breaks for doctor ID: {$doctor->id} on day: {$dayOfWeek}");
 
         return $slots->filter(function ($slot) use ($breaks) {
             foreach ($breaks as $break) {
                 $slotStart = $slot['start_time'];
                 $slotEnd = $slot['end_time'];
-                
+
                 // Check if slot overlaps with break time
                 if ($this->timesOverlap($slotStart, $slotEnd, $break->start_time, $break->end_time)) {
                     return false;
@@ -325,7 +327,7 @@ class AppointmentSlotService
             foreach ($bookedAppointments as $appointment) {
                 $slotStart = $slot['start_time'];
                 $slotEnd = $slot['end_time'];
-                
+
                 // Check if slot overlaps with booked appointment
                 if ($this->timesOverlap($slotStart, $slotEnd, $appointment->start_time, $appointment->end_time)) {
                     return false;

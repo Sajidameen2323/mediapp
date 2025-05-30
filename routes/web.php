@@ -16,11 +16,16 @@ Route::get('/demo/appointment-booking', function () {
     return view('demo.appointment-booking');
 })->name('demo.appointment-booking');
 
+// Temporary public appointment booking for testing
+Route::get('/test/appointment-booking', [\App\Http\Controllers\Patient\AppointmentController::class, 'create'])->name('test.appointment-booking');
+
 // Public doctor search routes
 Route::prefix('api')->group(function () {
     Route::get('/doctors/available', [DoctorController::class, 'getAvailableDoctors'])->name('api.doctors.available');
     Route::get('/doctors/search', [DoctorController::class, 'searchDoctors'])->name('api.doctors.search');
     Route::get('/doctors/specializations', [DoctorController::class, 'getSpecializations'])->name('api.doctors.specializations');
+    Route::get('/doctors/{doctor}', [DoctorController::class, 'show'])->name('api.doctors.show');
+    Route::get('/services/{service}', [\App\Http\Controllers\Admin\ServiceController::class, 'show'])->name('api.services.show');
     
     // Public appointment-related routes for booking system
     Route::get('/doctors/{doctor}/services', [\App\Http\Controllers\Patient\AppointmentController::class, 'getDoctorServices'])->name('api.doctors.services.public');

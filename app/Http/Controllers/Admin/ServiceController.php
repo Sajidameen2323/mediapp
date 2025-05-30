@@ -60,6 +60,24 @@ class ServiceController extends Controller
      */
     public function show(Service $service)
     {
+        // Handle API requests
+        if (request()->expectsJson() || request()->is('api/*')) {
+            return response()->json([
+                'success' => true,
+                'service' => [
+                    'id' => $service->id,
+                    'name' => $service->name,
+                    'description' => $service->description,
+                    'duration' => $service->duration,
+                    'price' => $service->price,
+                    'consultation_fee' => $service->consultation_fee,
+                    'type' => $service->type ?? 'consultation',
+                    'is_active' => $service->is_active
+                ]
+            ]);
+        }
+
+        // Handle web requests
         $this->authorize('admin-access');
         
         $service->load('doctors.user');

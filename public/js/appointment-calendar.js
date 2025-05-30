@@ -494,7 +494,7 @@ class AppointmentCalendar {
         dayElement.className = classes.join(' ');
         return dayElement;
     }
-    
+
     selectDate(date) {
         // Check if date is within allowed range
         if ((this.minDate && date < this.minDate) || (this.maxDate && date > this.maxDate)) {
@@ -627,7 +627,8 @@ class AppointmentCalendar {
             button.addEventListener('click', () => this.selectTime(slot.start_time));
             container.appendChild(button);
         });
-    } selectTime(time) {
+    }
+    selectTime(time) {
         this.selectedTime = time;
         this.renderTimeSlots();
 

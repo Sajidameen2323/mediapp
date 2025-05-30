@@ -21,12 +21,12 @@ class AppointmentConfigController extends Controller
     public function index()
     {
         $this->authorize('admin-access');
-        
+
         $config = AppointmentConfig::getActive();
         $holidaysCount = Holiday::where('is_active', true)->count();
         $blockedSlotsCount = BlockedTimeSlot::where('is_active', true)->count();
         $totalDoctors = Doctor::count();
-        
+
         return view('admin.appointment-config.index', compact(
             'config',
             'holidaysCount',
@@ -41,11 +41,11 @@ class AppointmentConfigController extends Controller
     public function edit()
     {
         $this->authorize('admin-access');
-        
+
         $config = AppointmentConfig::getActive();
         $paymentMethods = AppointmentConfig::getPaymentMethods();
         $timezones = AppointmentConfig::getTimezones();
-        
+
         return view('admin.appointment-config.edit', compact(
             'config',
             'paymentMethods',
@@ -59,7 +59,7 @@ class AppointmentConfigController extends Controller
     public function update(Request $request)
     {
         $this->authorize('admin-access');
-        
+
         $validated = $request->validate([
             'buffer_time_before' => 'required|integer|min:0|max:120',
             'buffer_time_after' => 'required|integer|min:0|max:120',
@@ -120,7 +120,7 @@ class AppointmentConfigController extends Controller
 
         // Get current active config or create new one
         $config = AppointmentConfig::where('is_active', true)->first();
-        
+
         if ($config) {
             $config->update($validated);
         } else {
@@ -139,11 +139,11 @@ class AppointmentConfigController extends Controller
     public function holidays()
     {
         $this->authorize('admin-access');
-        
+
         $holidays = Holiday::where('is_active', true)
             ->orderBy('date')
             ->paginate(15);
-            
+
         return view('admin.appointment-config.holidays', compact('holidays'));
     }
 
@@ -153,7 +153,7 @@ class AppointmentConfigController extends Controller
     public function storeHoliday(Request $request)
     {
         $this->authorize('admin-access');
-        
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
@@ -178,7 +178,7 @@ class AppointmentConfigController extends Controller
     public function destroyHoliday(Holiday $holiday)
     {
         $this->authorize('admin-access');
-        
+
         $holiday->update(['is_active' => false]);
 
         return redirect()
@@ -192,15 +192,15 @@ class AppointmentConfigController extends Controller
     public function blockedSlots()
     {
         $this->authorize('admin-access');
-        
+
         $blockedSlots = BlockedTimeSlot::with('doctor')
             ->where('is_active', true)
             ->orderBy('date')
             ->orderBy('start_time')
             ->paginate(15);
-            
+
         $doctors = Doctor::where('is_available', true)->get();
-            
+
         return view('admin.appointment-config.blocked-slots', compact('blockedSlots', 'doctors'));
     }
 
@@ -210,7 +210,7 @@ class AppointmentConfigController extends Controller
     public function storeBlockedSlot(Request $request)
     {
         $this->authorize('admin-access');
-        
+
         $validated = $request->validate([
             'doctor_id' => 'nullable|exists:doctors,id',
             'date' => 'required|date|after_or_equal:today',
@@ -251,8 +251,9 @@ class AppointmentConfigController extends Controller
     public function destroyBlockedSlot(BlockedTimeSlot $blockedSlot)
     {
         $this->authorize('admin-access');
-        
-        $blockedSlot->update(['is_active' => false]);
+
+        // $blockedSlot->update(['is_active' => false]);
+        $blockedSlot->delete();
 
         return redirect()
             ->route('admin.appointment-config.blocked-slots')
