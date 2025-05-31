@@ -5,6 +5,9 @@ namespace App\Http\Requests\Patient;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Carbon\Carbon;
+use App\Models\AppointmentConfig;
+use App\Models\Doctor;
+use App\Models\Appointment;
 
 class BookAppointmentRequest extends FormRequest
 {
@@ -18,8 +21,13 @@ class BookAppointmentRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     */    public function rules(): array
+     */
+    public function rules(): array
     {
+        $config = AppointmentConfig::getActive();
+        $maxDaysAhead = $config->max_booking_days_ahead;
+        $minHoursAhead = $config->min_booking_hours_ahead;
+        
         return [
             'doctor_id' => ['required', 'exists:doctors,id'],
             'service_id' => ['required', 'exists:services,id'],
@@ -27,22 +35,24 @@ class BookAppointmentRequest extends FormRequest
                 'required',
                 'date',
                 'after:today',
-                function ($attribute, $value, $fail) {
-                    // Check if the date is not more than 90 days in advance
-                    $maxDate = Carbon::now()->addDays(90);
+                function ($attribute, $value, $fail) use ($maxDaysAhead) {
+                    // Check if the date is not more than the configured max days in advance
+                    $maxDate = Carbon::now()->addDays($maxDaysAhead);
                     if (Carbon::parse($value)->gt($maxDate)) {
-                        $fail('Appointments can only be booked up to 90 days in advance.');
+                        $fail("Appointments can only be booked up to {$maxDaysAhead} days in advance.");
                     }
                 }
             ],
             'start_time' => [
                 'required',
                 'date_format:H:i',
-                function ($attribute, $value, $fail) {
-                    // Validate appointment time is in the future
+                function ($attribute, $value, $fail) use ($minHoursAhead) {
+                    // Validate appointment time is in the future and meets minimum hours ahead requirement
                     $appointmentDateTime = Carbon::parse($this->appointment_date . ' ' . $value);
-                    if ($appointmentDateTime->lte(Carbon::now())) {
-                        $fail('Appointment time must be in the future.');
+                    $minBookingTime = Carbon::now()->addHours($minHoursAhead);
+                    
+                    if ($appointmentDateTime->lt($minBookingTime)) {
+                        $fail("Appointment must be scheduled at least {$minHoursAhead} hours in advance.");
                     }
                 }
             ],
@@ -59,6 +69,8 @@ class BookAppointmentRequest extends FormRequest
      */
     public function messages(): array
     {
+        $config = AppointmentConfig::getActive();
+        
         return [
             'doctor_id.required' => 'Please select a doctor for your appointment.',
             'doctor_id.exists' => 'The selected doctor is not valid.',
@@ -126,23 +138,57 @@ class BookAppointmentRequest extends FormRequest
             if (!$validator->errors()->has('doctor_id') && 
                 !$validator->errors()->has('service_id') && 
                 !$validator->errors()->has('appointment_date') && 
-                !$validator->errors()->has('start_time')) {                $slotService = app(\App\Services\AppointmentSlotService::class);
-                $doctor = \App\Models\Doctor::find($this->doctor_id);
+                !$validator->errors()->has('start_time')) {
                 
-                if (!$doctor) {
+                $slotService = app(\App\Services\AppointmentSlotService::class);
+                try {
+                    // Explicitly cast doctor_id to integer
+                    $doctorId = (int)$this->doctor_id;
+                    $doctor = Doctor::findOrFail($doctorId);
+                } catch (\Exception $e) {
                     $validator->errors()->add('doctor_id', 'Doctor not found.');
                     return;
                 }
+                
                 $appointmentDateTime = Carbon::parse($this->appointment_date . ' ' . $this->start_time);
                 
+                // Get the appointment configuration
+                $config = AppointmentConfig::getActive();
+                
+                // Check if the appointment is already booked
                 $isAvailable = $slotService->isSlotAvailable(
                     $doctor,
                     $appointmentDateTime->toDateTimeString(),
-                    $this->service_id
+                    (int) $this->service_id
                 );
 
                 if (!$isAvailable) {
                     $validator->errors()->add('start_time', 'The selected time slot is not available.');
+                }
+                
+                // Check for maximum appointments per patient per day
+                $patientId = auth()->id();
+                $appointmentDate = Carbon::parse($this->appointment_date)->format('Y-m-d');
+                
+                $dailyAppointmentCount = Appointment::where('patient_id', $patientId)
+                    ->whereDate('appointment_date', $appointmentDate)
+                    ->whereNotIn('status', ['cancelled', 'no_show'])
+                    ->count();
+                
+                if ($dailyAppointmentCount >= $config->max_appointments_per_patient_per_day) {
+                    $validator->errors()->add('appointment_date', 
+                        "You can only book a maximum of {$config->max_appointments_per_patient_per_day} appointments per day.");
+                }
+                
+                // Check for maximum appointments per doctor per day
+                $doctorDailyAppointmentCount = Appointment::where('doctor_id', $this->doctor_id)
+                    ->whereDate('appointment_date', $appointmentDate)
+                    ->whereNotIn('status', ['cancelled', 'no_show'])
+                    ->count();
+                
+                if ($doctorDailyAppointmentCount >= $config->max_appointments_per_doctor_per_day) {
+                    $validator->errors()->add('doctor_id', 
+                        "The selected doctor has reached their maximum appointment limit for this day.");
                 }
             }
         });

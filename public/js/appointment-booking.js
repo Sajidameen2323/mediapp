@@ -3,6 +3,7 @@ class AppointmentBooking {
     constructor() {
         this.currentStep = 1;
         this.totalSteps = 5; // Updated to 5 steps
+        this.validatedSteps = new Set(); // Track which steps have been validated
         this.selectedData = {
             doctor: null,
             service: null,
@@ -88,15 +89,19 @@ class AppointmentBooking {
         } catch (error) {
             console.error('Error preselecting service:', error);
         }
-    }
-
-    goToStep(targetStep) {
+    } goToStep(targetStep) {
         if (targetStep < 1 || targetStep > this.totalSteps) {
             return;
         }
 
-        // Allow going back to any previous step
-        if (targetStep < this.currentStep) {
+        // Check if step is accessible
+        if (!this.isStepAccessible(targetStep)) {
+            this.showError('Please complete the previous steps to access this step.');
+            return;
+        }
+
+        // Allow going back to any accessible step
+        if (targetStep < this.currentStep || this.validatedSteps.has(targetStep)) {
             this.currentStep = targetStep;
             this.updateStepDisplay();
             return;
@@ -112,6 +117,8 @@ class AppointmentBooking {
                 canProceed = false;
                 this.currentStep = originalStep;
                 break;
+            } else {
+                this.validatedSteps.add(step);
             }
         }
 
@@ -121,6 +128,14 @@ class AppointmentBooking {
         } else {
             this.showError('Please complete the current step before proceeding.');
         }
+    }
+
+    isStepAccessible(stepNumber) {
+        // Step 1 is always accessible
+        if (stepNumber === 1) return true;
+
+        // For subsequent steps, check if previous step is validated
+        return this.validatedSteps.has(stepNumber - 1) || stepNumber <= this.currentStep;
     }
     initializeCustomCalendar() {
         // Wait for DOM to be ready, then initialize the new calendar
@@ -248,22 +263,27 @@ class AppointmentBooking {
                 this.applyFilters();
             });
         });
-    }
-    setupFormInputs() {
+    } setupFormInputs() {
         // Priority and appointment type change handlers
         ['reason', 'symptoms', 'priority', 'appointment_type'].forEach(field => {
             const element = document.getElementById(field);
             element?.addEventListener('change', () => {
+                // Ensure details object exists
+                if (!this.selectedData.details || typeof this.selectedData.details !== 'object') {
+                    this.selectedData.details = {};
+                }
                 this.selectedData.details[field] = element.value;
                 // Update hidden form fields
                 const hiddenField = document.getElementById(`hidden_${field}`);
                 if (hiddenField) {
                     hiddenField.value = element.value;
                 }
-            });
-
-            // Also listen for input events for text fields
+            });            // Also listen for input events for text fields
             element?.addEventListener('input', () => {
+                // Ensure details object exists
+                if (!this.selectedData.details || typeof this.selectedData.details !== 'object') {
+                    this.selectedData.details = {};
+                }
                 this.selectedData.details[field] = element.value;
                 // Update hidden form fields
                 const hiddenField = document.getElementById(`hidden_${field}`);
@@ -271,13 +291,17 @@ class AppointmentBooking {
                     hiddenField.value = element.value;
                 }
             });
-        });
-
-        // Form submission handler
+        });        // Form submission handler
         const form = document.getElementById('appointmentBookingForm');
         form?.addEventListener('submit', (e) => {
             e.preventDefault();
             this.handleFormSubmission();
+        });
+
+        // Debug button handler
+        const debugBtn = document.getElementById('debug_form_state');
+        debugBtn?.addEventListener('click', () => {
+            this.logCurrentFormState();
         });
     }
 
@@ -300,11 +324,40 @@ class AppointmentBooking {
         // Submit the form
         const form = document.getElementById('appointmentBookingForm');
         if (form) {
+
+            // set form fields before submission
+            document.getElementById('selected_doctor_id').value = this.selectedData.doctor?.id || '';
+            document.getElementById('selected_service_id').value = this.selectedData.service?.id || '';
+            document.getElementById('appointment_date').value = this.selectedData.date || '';
+            document.getElementById('appointment_time').value = this.selectedData.time || '';
+            document.getElementById('reason').value = this.selectedData.details.reason || '';
+            document.getElementById('symptoms').value = this.selectedData.details.symptoms || '';
+            document.getElementById('priority').value = this.selectedData.details.priority || '';
+            document.getElementById('appointment_type').value = this.selectedData.details.appointment_type || '';
+            document.getElementById('terms_agreement').checked = true; // Ensure terms are agreed
+            // Submit the form
+            // log form fields before submission
+            console.log('Submitting form with data:', {
+                selected_doctor_id: this.selectedData.doctor?.id || '',
+                selected_service_id: this.selectedData.service?.id || '',
+                appointment_date: this.selectedData.date || '',
+                appointment_time: this.selectedData.time || '',
+                reason: this.selectedData.details.reason || '',
+                symptoms: this.selectedData.details.symptoms || '',
+                priority: this.selectedData.details.priority || '',
+                appointment_type: this.selectedData.details.appointment_type || '',
+                terms_agreement: document.getElementById('terms_agreement')?.checked || false
+            });
+
             form.submit();
         }
     }
-
     updateHiddenFormFields() {
+        // Ensure details object exists
+        if (!this.selectedData.details || typeof this.selectedData.details !== 'object') {
+            this.selectedData.details = {};
+        }
+
         // Update patient details
         document.getElementById('hidden_reason').value = this.selectedData.details.reason || '';
         document.getElementById('hidden_symptoms').value = this.selectedData.details.symptoms || '';
@@ -315,6 +368,91 @@ class AppointmentBooking {
         // Update appointment details
         document.getElementById('selected_date').value = this.selectedData.date || '';
         document.getElementById('selected_time').value = this.selectedData.time || '';
+    }
+
+    // Debug method to log current form state
+    logCurrentFormState() {
+        console.group('🐛 APPOINTMENT BOOKING DEBUG - CURRENT FORM STATE');
+
+        // 1. Basic Info
+        console.log('📊 Basic Information:');
+        console.log('  • Current Step:', this.currentStep);
+        console.log('  • Total Steps:', this.totalSteps);
+        console.log('  • Validated Steps:', Array.from(this.validatedSteps));
+
+        // 2. Selected Data
+        console.log('\n📋 Selected Data:');
+        console.log('  • Doctor:', this.selectedData.doctor);
+        console.log('  • Service:', this.selectedData.service);
+        console.log('  • Date:', this.selectedData.date);
+        console.log('  • Time:', this.selectedData.time);
+        console.log('  • Details:', this.selectedData.details);
+
+        // 3. Form Fields
+        console.log('\n📝 Form Field Values:');
+        const formFields = [
+            'selected_doctor_id', 'selected_service_id', 'appointment_date', 'appointment_time',
+            'reason', 'symptoms', 'priority', 'appointment_type', 'terms_agreement'
+        ];
+
+        formFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                const value = field.type === 'checkbox' ? field.checked : field.value;
+                console.log(`  • ${fieldId}:`, value);
+            } else {
+                console.log(`  • ${fieldId}: [FIELD NOT FOUND]`);
+            }
+        });
+
+        // 4. Hidden Fields
+        console.log('\n🔒 Hidden Form Fields:');
+        const hiddenFields = [
+            'hidden_reason', 'hidden_symptoms', 'hidden_priority', 'hidden_appointment_type',
+            'selected_date', 'selected_time'
+        ];
+
+        hiddenFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                console.log(`  • ${fieldId}:`, field.value);
+            } else {
+                console.log(`  • ${fieldId}: [FIELD NOT FOUND]`);
+            }
+        });
+
+        // 5. Validation Status
+        console.log('\n✅ Validation Status:');
+        console.log('  • Current Step Valid:', this.validateCurrentStep());
+        console.log('  • Doctor Selected:', !!this.selectedData.doctor);
+        console.log('  • Service Selected:', !!this.selectedData.service); console.log('  • Date Selected:', !!this.selectedData.date);
+        console.log('  • Time Selected:', !!this.selectedData.time);
+        console.log('  • Reason Provided:', !!(this.selectedData.details && this.selectedData.details.reason || document.getElementById('reason')?.value));
+        console.log('  • Priority Selected:', !!(this.selectedData.details && this.selectedData.details.priority || document.getElementById('priority')?.value));
+        console.log('  • Terms Agreed:', document.getElementById('terms_agreement')?.checked);
+
+        // 6. Browser/DOM Info
+        console.log('\n🌐 Browser/DOM Info:');
+        console.log('  • User Agent:', navigator.userAgent);
+        console.log('  • URL:', window.location.href);
+        console.log('  • Timestamp:', new Date().toISOString());
+
+        // 7. Complete form data as would be submitted
+        console.log('\n📤 Complete Form Data (as would be submitted):');
+        const form = document.getElementById('appointmentBookingForm');
+        if (form) {
+            const formData = new FormData(form);
+            const formObject = {};
+            for (let [key, value] of formData.entries()) {
+                formObject[key] = value;
+            }
+            console.log(formObject);
+        } else {
+            console.log('  [FORM NOT FOUND]');
+        }
+
+        console.groupEnd();
+
     }
     async loadInitialDoctors() {
         console.log('loadInitialDoctors called');
@@ -445,6 +583,9 @@ class AppointmentBooking {
         this.selectedData.doctor = doctor;
         document.getElementById('selected_doctor_id').value = doctor.id;
 
+        // Invalidate all subsequent steps when doctor changes
+        this.invalidateStepsFrom(2);
+
         // Update selected doctor info in step 2
         this.updateSelectedDoctorInfo(doctor);
 
@@ -458,6 +599,30 @@ class AppointmentBooking {
 
         // Move to next step (service selection)
         this.nextStep();
+    }
+
+    // Method to invalidate steps from a given step number onwards
+    invalidateStepsFrom(fromStep) {
+        // Remove validated steps from the specified step onwards
+        for (let step = fromStep; step <= this.totalSteps; step++) {
+            this.validatedSteps.delete(step);
+        }
+        // Clear related data based on which step we're invalidating from
+        if (fromStep <= 2) {
+            this.selectedData.service = null;
+            this.selectedData.date = null;
+            this.selectedData.time = null;
+            this.selectedData.details = {};
+        } else if (fromStep <= 3) {
+            this.selectedData.date = null;
+            this.selectedData.time = null;
+            this.selectedData.details = {};
+        } else if (fromStep <= 4) {
+            this.selectedData.details = {};
+        }
+
+        // Update the stepper display
+        this.updateProgressStepper();
     }
 
     updateSelectedDoctorInfo(doctor) {
@@ -525,9 +690,13 @@ class AppointmentBooking {
             container.appendChild(card);
         });
     }
+
     selectService(service) {
         this.selectedData.service = service;
         document.getElementById('selected_service_id').value = service.id;
+
+        // Invalidate subsequent steps when service changes (keep doctor selection)
+        this.invalidateStepsFrom(3);
 
         // Update calendar with new service
         if (this.calendar) {
@@ -694,13 +863,16 @@ class AppointmentBooking {
 
         if (appointmentDate) appointmentDate.textContent = new Date(this.selectedData.date)
             .toLocaleDateString();
-        if (appointmentTime) appointmentTime.textContent = this.selectedData.time;
-
-        // Update patient details in confirmation
+        if (appointmentTime) appointmentTime.textContent = this.selectedData.time;        // Update patient details in confirmation
         const confirmReason = document.getElementById('confirm_reason');
         const confirmSymptoms = document.getElementById('confirm_symptoms');
         const confirmPriority = document.getElementById('confirm_priority');
         const confirmAppointmentType = document.getElementById('confirm_appointment_type');
+
+        // Ensure details object exists
+        if (!this.selectedData.details || typeof this.selectedData.details !== 'object') {
+            this.selectedData.details = {};
+        }
 
         if (confirmReason) confirmReason.textContent = this.selectedData.details.reason || 'Not specified';
         if (confirmSymptoms) confirmSymptoms.textContent = this.selectedData.details.symptoms ||
@@ -730,6 +902,9 @@ class AppointmentBooking {
         if (!this.validateCurrentStep()) {
             return;
         }
+
+        // Mark current step as validated
+        this.validatedSteps.add(this.currentStep);
 
         if (this.currentStep < this.totalSteps) {
             this.currentStep++;
@@ -780,20 +955,21 @@ class AppointmentBooking {
                 if (!reason || reason.trim() === '') {
                     this.showError('Please provide a reason for your appointment.');
                     return false;
-                }
-
-                if (!priority) {
+                } if (!priority) {
                     this.showError('Please select the priority level for your appointment.');
                     return false;
+                }
+
+                // Ensure details object exists
+                if (!this.selectedData.details || typeof this.selectedData.details !== 'object') {
+                    this.selectedData.details = {};
                 }
 
                 // Update selected data
                 this.selectedData.details.reason = reason;
                 this.selectedData.details.priority = priority;
                 this.selectedData.details.symptoms = document.getElementById('symptoms')?.value || '';
-                this.selectedData.details.appointment_type = document.getElementById('appointment_type')
-                    ?.value ||
-                    'consultation';
+                this.selectedData.details.appointment_type = document.getElementById('appointment_type')?.value || 'consultation';
                 break;
         }
         return true;
@@ -815,53 +991,192 @@ class AppointmentBooking {
         }
 
         // Update progress stepper
-        const stepper = document.querySelector('.progress-stepper');
-        if (stepper) {
-            // Update step circles
-            stepper.querySelectorAll('.step').forEach((step, index) => {
-                const stepNumber = index + 1;
-                const stepCircle = step.querySelector('.step-circle');
-                const stepLabel = step.querySelector('.step-label');
+        this.updateProgressStepper();
 
-                if (stepNumber < this.currentStep) {
-                    // Completed step
-                    stepCircle?.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'bg-blue-600',
-                        'text-white');
-                    stepCircle?.classList.add('bg-green-600', 'text-white');
-                    stepLabel?.classList.remove('text-gray-500', 'text-blue-600');
-                    stepLabel?.classList.add('text-green-600');
-                } else if (stepNumber === this.currentStep) {
-                    // Current step
-                    stepCircle?.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'bg-green-600');
-                    stepCircle?.classList.add('bg-blue-600', 'text-white');
-                    stepLabel?.classList.remove('text-gray-500', 'text-green-600');
-                    stepLabel?.classList.add('text-blue-600');
-                } else {
-                    // Future step
-                    stepCircle?.classList.remove('bg-green-600', 'bg-blue-600', 'text-white');
-                    stepCircle?.classList.add('bg-gray-200', 'dark:bg-gray-700');
-                    stepLabel?.classList.remove('text-blue-600', 'text-green-600');
-                    stepLabel?.classList.add('text-gray-500');
-                }
-            });
+        // Update step display counter
+        const stepDisplay = document.getElementById('current_step_display');
+        if (stepDisplay) {
+            stepDisplay.textContent = this.currentStep;
+        }
+
+        // Update step title
+        const stepTitle = document.getElementById('step_title');
+        if (stepTitle) {
+            const titles = {
+                1: 'Find Your Doctor',
+                2: 'Choose Service',
+                3: 'Select Date & Time',
+                4: 'Patient Details',
+                5: 'Confirm Booking'
+            };
+            stepTitle.textContent = titles[this.currentStep] || 'Find Your Doctor';
         }
 
         // Update navigation buttons
+        this.updateNavigationButtons();
+    }
+
+    updateProgressStepper() {
+        const stepper = document.querySelector('.progress-stepper');
+        if (!stepper) return;
+
+        // Update progress bar
+        const progressBar = stepper.querySelector('.bg-gradient-to-r');
+        if (progressBar) {
+            const progressWidth = ((this.currentStep - 1) / (this.totalSteps - 1)) * 100;
+            progressBar.style.width = `${progressWidth}%`;
+        }
+
+        // Update step circles and labels
+        stepper.querySelectorAll('.step').forEach((stepElement, index) => {
+            const stepNumber = index + 1;
+            const stepCircle = stepElement.querySelector('.step-circle');
+            const stepLabel = stepElement.querySelector('.step-label');
+            const isAccessible = this.isStepAccessible(stepNumber);
+            const isCompleted = this.validatedSteps.has(stepNumber) && stepNumber < this.currentStep;
+            const isCurrent = stepNumber === this.currentStep;
+
+            // Reset all classes
+            if (stepCircle) {
+                stepCircle.className = 'step-circle relative flex items-center justify-center w-10 h-10 rounded-full border-3 transition-all duration-300 transform';
+                if (isCompleted) {
+                    // Completed step - green with step icon instead of checkmark
+                    stepCircle.classList.add(
+                        'bg-gradient-to-r', 'from-green-500', 'to-green-600',
+                        'border-green-500', 'text-white', 'shadow-lg'
+                    );
+                    const stepIcons = [
+                        'fas fa-user-md',     // Doctor
+                        'fas fa-stethoscope', // Service  
+                        'fas fa-calendar',    // Date/Time
+                        'fas fa-edit',        // Details
+                        'fas fa-check'        // Confirm
+                    ];
+                    stepCircle.innerHTML = `<i class="${stepIcons[stepNumber - 1]} text-sm"></i>`;
+                } else if (isCurrent) {
+                    // Current step - blue with icon and pulse
+                    stepCircle.classList.add(
+                        'bg-gradient-to-r', 'from-blue-500', 'to-indigo-600',
+                        'border-blue-500', 'text-white', 'shadow-lg',
+                        'ring-4', 'ring-blue-200', 'dark:ring-blue-800'
+                    );
+                    const stepIcons = [
+                        'fas fa-user-md',     // Doctor
+                        'fas fa-stethoscope', // Service  
+                        'fas fa-calendar',    // Date/Time
+                        'fas fa-edit',        // Details
+                        'fas fa-check'        // Confirm
+                    ];
+                    stepCircle.innerHTML = `<i class="${stepIcons[stepNumber - 1]} text-sm"></i>`;
+
+                    // Add pulse animation
+                    const existingPulse = stepCircle.querySelector('.animate-ping');
+                    if (!existingPulse) {
+                        const pulseDiv = document.createElement('div');
+                        pulseDiv.className = 'absolute inset-0 rounded-full bg-blue-400 animate-ping opacity-25';
+                        stepCircle.appendChild(pulseDiv);
+                    }
+                } else if (isAccessible) {
+                    // Accessible future step - white with number
+                    stepCircle.classList.add(
+                        'bg-white', 'dark:bg-gray-800', 'border-gray-300',
+                        'dark:border-gray-600', 'text-gray-700', 'dark:text-gray-300',
+                        'shadow-md', 'hover:border-blue-400', 'hover:text-blue-600'
+                    );
+                    stepCircle.innerHTML = `<span class="text-sm font-semibold">${stepNumber}</span>`;
+                } else {
+                    // Inaccessible step - gray and disabled
+                    stepCircle.classList.add(
+                        'bg-gray-100', 'dark:bg-gray-700', 'border-gray-200',
+                        'dark:border-gray-600', 'text-gray-400', 'dark:text-gray-500',
+                        'opacity-50', 'cursor-not-allowed'
+                    );
+                    stepCircle.innerHTML = `<span class="text-sm font-semibold">${stepNumber}</span>`;
+                }
+
+                // Remove existing pulse animations if not current step
+                if (!isCurrent) {
+                    const pulseElements = stepCircle.querySelectorAll('.animate-ping');
+                    pulseElements.forEach(pulse => pulse.remove());
+                }
+            }
+
+            // Update step labels
+            if (stepLabel) {
+                const labelText = stepLabel.querySelector('.text-xs');
+                if (labelText) {
+                    labelText.className = 'text-xs font-semibold leading-tight transition-all duration-300';
+
+                    if (isCompleted) {
+                        labelText.classList.add('text-green-600', 'dark:text-green-400');
+                    } else if (isCurrent) {
+                        labelText.classList.add('text-blue-600', 'dark:text-blue-400');
+                    } else if (isAccessible) {
+                        labelText.classList.add('text-gray-600', 'dark:text-gray-400');
+                    } else {
+                        labelText.classList.add('text-gray-400', 'dark:text-gray-500', 'opacity-50');
+                    }
+                }
+            }
+
+            // Update cursor and click behavior
+            stepElement.style.cursor = isAccessible ? 'pointer' : 'not-allowed';
+            if (!isAccessible) {
+                stepElement.onclick = null;
+            }
+        });
+
+        // Update the step info at the bottom
+        const stepCounter = stepper.querySelector('span.font-semibold');
+        if (stepCounter) {
+            stepCounter.textContent = this.currentStep;
+        }
+
+        const stepTitle = stepper.querySelector('.text-lg.font-semibold');
+        if (stepTitle) {
+            const titles = {
+                1: 'Find Your Preferred Doctor',
+                2: 'Choose the Right Service',
+                3: 'Select Your Appointment Time',
+                4: 'Provide Additional Details',
+                5: 'Confirm Your Appointment'
+            };
+            stepTitle.textContent = titles[this.currentStep] || `Step ${this.currentStep}`;
+        }
+    }
+
+    updateNavigationButtons() {
         const backBtn = document.getElementById('back_btn');
         const nextBtn = document.getElementById('next_btn');
         const submitBtn = document.getElementById('submit_btn');
 
         if (backBtn) {
-            backBtn.style.display = this.currentStep > 1 ? 'block' : 'none';
+            if (this.currentStep > 1) {
+                backBtn.disabled = false;
+                backBtn.style.display = 'block';
+            } else {
+                backBtn.disabled = true;
+                backBtn.style.display = 'block'; // Keep visible but disabled
+            }
         }
 
         if (nextBtn && submitBtn) {
+            const nextBtnText = document.getElementById('next_btn_text');
             if (this.currentStep === this.totalSteps) {
                 nextBtn.style.display = 'none';
                 submitBtn.style.display = 'block';
             } else {
                 nextBtn.style.display = 'block';
                 submitBtn.style.display = 'none';
+
+                // Update next button text
+                if (nextBtnText) {
+                    if (this.currentStep < this.totalSteps) {
+                        nextBtnText.innerHTML = 'Next <i class="fas fa-arrow-right ml-2"></i>';
+                    } else {
+                        nextBtnText.innerHTML = '<i class="fas fa-calendar-check mr-2"></i> Book Appointment';
+                    }
+                }
             }
         }
     }

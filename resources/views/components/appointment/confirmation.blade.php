@@ -1,9 +1,9 @@
 {{-- Appointment Confirmation Component --}}
 <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-6">
-        <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 text-center">
+        {{-- <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 text-center">
             <i class="fas fa-check-circle mr-2 text-green-600 dark:text-green-400"></i>
             Confirm Your Appointment
-        </h3>
+        </h3> --}}
 
         {{-- Appointment Summary Card --}}
         <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 rounded-2xl p-6 mb-6">
@@ -118,9 +118,7 @@
                 <li>• Cancellation must be done at least 24 hours in advance</li>
                 <li>• Late arrivals may result in appointment rescheduling</li>
             </ul>
-        </div>
-
-        {{-- Agreement Checkbox --}}
+        </div>        {{-- Agreement Checkbox --}}
         <div class="flex items-start mb-6">
             <input type="checkbox" 
                    id="terms_agreement" 
@@ -132,6 +130,16 @@
                 I confirm that the information provided is accurate and complete.
                 <span class="text-red-500">*</span>
             </label>
+        </div>
+
+        {{-- Debug Button (Development Only) --}}
+        <div class="mb-6 border-t border-gray-200 dark:border-gray-600 pt-4">
+            <button type="button" 
+                    id="debug_form_state" 
+                    class="w-full px-4 py-2 bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white font-medium rounded-lg transition-colors duration-200 text-sm">
+                <i class="fas fa-bug mr-2"></i>
+                Debug: Log Current Form State
+            </button>
         </div>
     </div>
 </div>

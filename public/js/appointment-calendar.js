@@ -3,25 +3,34 @@
  * A complete redesign for better functionality and user experience
  */
 class AppointmentCalendar {
-
     constructor(containerId, options = {}) {
-
+        // Find the container element
         this.container = document.getElementById(containerId);
 
         if (!this.container) {
             throw new Error(`Container with ID "${containerId}" not found`);
         }
 
+        // Set default options and merge with provided options
         this.options = {
             doctorId: null,
             serviceId: null,
             onDateSelect: null,
             onTimeSelect: null,
             theme: 'light',
+            startDate: null, // Option to set a specific start date
             ...options
         };
 
-        this.currentDate = new Date();
+        // Initialize date-related properties
+        // Either use the provided start date or default to today
+        this.currentDate = this.options.startDate instanceof Date ?
+            new Date(this.options.startDate) :
+            new Date();
+
+        // Reset the time part to avoid any time-related issues
+        this.currentDate.setHours(0, 0, 0, 0);
+
         this.selectedDate = null;
         this.selectedTime = null;
         this.availableDates = new Map();
@@ -31,15 +40,28 @@ class AppointmentCalendar {
         // Calendar navigation restrictions
         this.config = {
             minAdvanceDays: 0,
-            maxAdvanceDays: 30
+            maxAdvanceDays: 30,
+            ...(options.config || {}) // Allow config to be passed in options
         };
         this.minDate = null;
         this.maxDate = null;
 
+        // Initialize the calendar
         this.init();
-    }
+    } init() {
+        // Ensure we have a valid date to start with
+        if (!(this.currentDate instanceof Date) || isNaN(this.currentDate)) {
+            console.warn('Invalid current date in init. Resetting to today.');
+            this.currentDate = new Date();
+        }
 
-    init() {
+        // Set the date to the 1st of the month to ensure consistent rendering
+        this.currentDate = new Date(
+            this.currentDate.getFullYear(),
+            this.currentDate.getMonth(),
+            1
+        );
+
         // Calculate initial date limits
         this.calculateDateLimits();
 
@@ -86,16 +108,15 @@ class AppointmentCalendar {
                 <!-- Main Content Grid -->
                 <div class="calendar-content grid grid-cols-1 lg:grid-cols-2 gap-6 p-6">
                     <!-- Calendar Grid -->
-                    <div class="calendar-section">
-                        <!-- Days of Week Header -->
+                    <div class="calendar-section">                        <!-- Days of Week Header -->
                         <div class="days-header grid grid-cols-7 gap-1 mb-2">
-                            <div class="day-name text-center text-xs font-medium text-gray-500 dark:text-gray-400 py-2">Sun</div>
-                            <div class="day-name text-center text-xs font-medium text-gray-500 dark:text-gray-400 py-2">Mon</div>
-                            <div class="day-name text-center text-xs font-medium text-gray-500 dark:text-gray-400 py-2">Tue</div>
-                            <div class="day-name text-center text-xs font-medium text-gray-500 dark:text-gray-400 py-2">Wed</div>
-                            <div class="day-name text-center text-xs font-medium text-gray-500 dark:text-gray-400 py-2">Thu</div>
-                            <div class="day-name text-center text-xs font-medium text-gray-500 dark:text-gray-400 py-2">Fri</div>
-                            <div class="day-name text-center text-xs font-medium text-gray-500 dark:text-gray-400 py-2">Sat</div>
+                            <div class="day-name text-center text-xs font-medium text-gray-500 dark:text-gray-400 py-2" aria-label="Sunday">Sun</div>
+                            <div class="day-name text-center text-xs font-medium text-gray-500 dark:text-gray-400 py-2" aria-label="Monday">Mon</div>
+                            <div class="day-name text-center text-xs font-medium text-gray-500 dark:text-gray-400 py-2" aria-label="Tuesday">Tue</div>
+                            <div class="day-name text-center text-xs font-medium text-gray-500 dark:text-gray-400 py-2" aria-label="Wednesday">Wed</div>
+                            <div class="day-name text-center text-xs font-medium text-gray-500 dark:text-gray-400 py-2" aria-label="Thursday">Thu</div>
+                            <div class="day-name text-center text-xs font-medium text-gray-500 dark:text-gray-400 py-2" aria-label="Friday">Fri</div>
+                            <div class="day-name text-center text-xs font-medium text-gray-500 dark:text-gray-400 py-2" aria-label="Saturday">Sat</div>
                         </div>
 
                         <!-- Calendar Days Grid -->
@@ -210,9 +231,7 @@ class AppointmentCalendar {
 
         // Keyboard navigation support
         this.bindKeyboardEvents();
-    }
-
-    bindKeyboardEvents() {
+    } bindKeyboardEvents() {
         // Add keyboard navigation for calendar
         this.container.addEventListener('keydown', (event) => {
             // Only handle keyboard events when calendar has focus
@@ -244,6 +263,20 @@ class AppointmentCalendar {
                     event.preventDefault();
                     // Clear selection
                     this.clearSelection();
+                    break;
+
+                // Additional keyboard support for day selection
+                case 'Enter':
+                case ' ': // Space key
+                    if (document.activeElement.classList.contains('calendar-day') &&
+                        !document.activeElement.classList.contains('cursor-not-allowed')) {
+                        event.preventDefault();
+                        const dateStr = document.activeElement.dataset.date;
+                        if (dateStr) {
+                            const selectedDate = new Date(dateStr);
+                            this.selectDate(selectedDate);
+                        }
+                    }
                     break;
             }
         });
@@ -335,13 +368,15 @@ class AppointmentCalendar {
             button.classList.remove('opacity-50', 'cursor-not-allowed');
             button.classList.add('hover:bg-gray-200', 'dark:hover:bg-gray-600');
         }
-    }
-
-    previousMonth() {
+    } previousMonth() {
         const prevBtn = this.container.querySelector('.prev-btn');
         if (prevBtn && prevBtn.disabled) return;
 
-        this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+        // Create a new Date object instead of modifying the existing one
+        const newDate = new Date(this.currentDate);
+        newDate.setMonth(newDate.getMonth() - 1);
+        this.currentDate = newDate;
+
         this.updateCalendarHeader();
         this.renderCalendarDays();
 
@@ -355,7 +390,11 @@ class AppointmentCalendar {
         const nextBtn = this.container.querySelector('.next-btn');
         if (nextBtn && nextBtn.disabled) return;
 
-        this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+        // Create a new Date object instead of modifying the existing one
+        const newDate = new Date(this.currentDate);
+        newDate.setMonth(newDate.getMonth() + 1);
+        this.currentDate = newDate;
+
         this.updateCalendarHeader();
         this.renderCalendarDays();
 
@@ -363,87 +402,135 @@ class AppointmentCalendar {
         if (this.options.doctorId) {
             this.loadAvailableDates();
         }
-    }
-
-    calculateDateLimits() {
+    } calculateDateLimits() {
+        // Get today's date and reset the time to start of day
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        // Calculate minimum date
+        // Calculate minimum date (earliest date that can be selected)
         this.minDate = new Date(today);
         this.minDate.setDate(today.getDate() + this.config.minAdvanceDays);
+        this.minDate.setHours(0, 0, 0, 0); // Start of day
 
-        // Calculate maximum date
+        // Calculate maximum date (furthest date that can be selected)
         this.maxDate = new Date(today);
         this.maxDate.setDate(today.getDate() + this.config.maxAdvanceDays);
-        this.maxDate.setHours(23, 59, 59, 999); // Ensure max date includes the whole day
+        this.maxDate.setHours(23, 59, 59, 999); // End of day
 
-
-    }
-
-    renderCalendarDays() {
+        // Log date limits for debugging
+        console.log('Date limits calculated:', {
+            minDate: this.minDate.toISOString(),
+            maxDate: this.maxDate.toISOString(),
+            minAdvanceDays: this.config.minAdvanceDays,
+            maxAdvanceDays: this.config.maxAdvanceDays
+        });
+    } renderCalendarDays() {
         const grid = this.container.querySelector('.calendar-grid');
         grid.innerHTML = '';
 
         const year = this.currentDate.getFullYear();
         const month = this.currentDate.getMonth();
 
+        // First day of the month
         const firstDay = new Date(year, month, 1);
+        // Last day of the month
         const lastDay = new Date(year, month + 1, 0);
+
+        // Calculate the first day to show in the calendar (previous month's days to fill the first week)
         const startDate = new Date(firstDay);
-        startDate.setDate(startDate.getDate() - firstDay.getDay());
+        // Adjust the startDate to be the Sunday before the first day of the month
+        // getDay() returns 0 for Sunday, 1 for Monday, etc.
+        const dayOfWeek = firstDay.getDay();
+        startDate.setDate(firstDay.getDate() - dayOfWeek);
 
-        // Generate 42 days (6 weeks)
+        // Create a temporary date object for iteration
+        const tempDate = new Date(startDate);
+
+        // Generate up to 42 days (6 weeks) - enough to show a full month plus surrounding days
         for (let i = 0; i < 42; i++) {
-            const date = new Date(startDate);
-            date.setDate(startDate.getDate() + i);
+            const currentDate = new Date(tempDate); const dayElement = this.createDayElement(currentDate, month);
 
-            const dayElement = this.createDayElement(date, month);
+            // Add tabindex to make element focusable
+            const isInteractiveDay = currentDate.getMonth() === month &&
+                !(currentDate < new Date().setHours(0, 0, 0, 0)) &&
+                !((this.minDate && currentDate < this.minDate) ||
+                    (this.maxDate && currentDate > this.maxDate));
+
+            if (isInteractiveDay) {
+                dayElement.setAttribute('tabindex', '0');
+            } else {
+                dayElement.setAttribute('tabindex', '-1');
+            }
+
             grid.appendChild(dayElement);
-        }
-    }
 
-    createDayElement(date, currentMonth) {
+            // Move to the next day
+            tempDate.setDate(tempDate.getDate() + 1);
+
+            // If we've gone past the end of the month and completed the week, we can stop
+            if (tempDate.getMonth() !== month && tempDate.getDay() === 0 && i >= 28) {
+                break;
+            }
+        }
+    } createDayElement(date, currentMonth) {
         const dayElement = document.createElement('div');
         const dateString = this.formatDate(date);
 
-        // create a date element from dateString
-        const dateObj = new Date(dateString);
-
-        const isCurrentMonth = dateObj.getMonth() === currentMonth;
-        const isToday = this.isToday(dateObj);
+        // Use the original date object instead of creating a new one from the string
+        // This preserves the correct day of week
+        const isCurrentMonth = date.getMonth() === currentMonth;
+        const isToday = this.isToday(date);
         const isSelected = this.selectedDate && this.formatDate(this.selectedDate) === dateString;
-        const isPast = dateObj < new Date().setHours(0, 0, 0, 0);
+        const isPast = date < new Date().setHours(0, 0, 0, 0);
 
         // Check if date is outside allowed range
-        const isOutsideRange = (this.minDate && dateObj < this.minDate) || (this.maxDate && dateObj > this.maxDate);
+        const isOutsideRange = (this.minDate && date < this.minDate) || (this.maxDate && date > this.maxDate);
 
         dayElement.className = 'calendar-day';
-        dayElement.textContent = dateObj.getDate();
+        dayElement.textContent = date.getDate();
         dayElement.dataset.date = dateString;
 
-        // Apply base styles
-        let classes = ['calendar-day', 'w-10', 'h-10', 'rounded-lg', 'flex', 'items-center', 'justify-center', 'text-sm', 'font-medium', 'transition-all', 'duration-200', 'relative', 'cursor-pointer'];
+        // Add ARIA attributes for accessibility
+        dayElement.setAttribute('role', 'button');
+        dayElement.setAttribute('aria-label', date.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        }));
 
+        if (isPast || !isCurrentMonth || isOutsideRange) {
+            dayElement.setAttribute('aria-disabled', 'true');
+        }
+
+        // Apply base styles
+        let classes = ['calendar-day', 'w-10', 'h-10', 'rounded-lg', 'flex', 'items-center', 'justify-center', 'text-sm', 'font-medium', 'transition-all', 'duration-200', 'relative', 'cursor-pointer'];        // Apply different styles based on whether the date is in the current month
         if (!isCurrentMonth) {
-            classes.push('text-gray-400', 'dark:text-gray-600');
+            classes.push('text-gray-400', 'dark:text-gray-600', 'bg-gray-50', 'dark:bg-gray-800');
         } else {
             classes.push('text-gray-900', 'dark:text-gray-100');
         }
 
+        // Highlight today's date
         if (isToday) {
-            classes.push('ring-2', 'ring-blue-500', 'dark:ring-blue-400');
+            classes.push('ring-2', 'ring-blue-500', 'dark:ring-blue-400', 'font-bold');
         }
 
+        // Style for selected date
         if (isSelected) {
-            classes.push('bg-blue-500', 'text-white', 'ring-2', 'ring-blue-300', 'dark:ring-blue-600');
+            classes.push('bg-blue-500', 'text-white', 'ring-2', 'ring-blue-300', 'dark:ring-blue-600', 'font-bold');
         }
-        if (isPast || !isCurrentMonth || isOutsideRange) {
 
+        // Style for dates that can't be selected
+        if (isPast || !isCurrentMonth || isOutsideRange) {
             classes.push('cursor-not-allowed', 'opacity-50');
 
             if (isOutsideRange && isCurrentMonth && !isPast) {
                 dayElement.title = 'Date outside allowed booking range';
+            } else if (isPast) {
+                dayElement.title = 'Past date';
+            } else if (!isCurrentMonth) {
+                dayElement.title = 'Not in current month';
             }
         }
         else {
@@ -474,11 +561,15 @@ class AppointmentCalendar {
                     } else {
                         indicator.classList.add('bg-green-600', 'dark:bg-green-500', 'text-white');
                     }
-                    dayElement.appendChild(indicator);
-
-                    // Make clickable only if date is not restricted
+                    dayElement.appendChild(indicator);                    // Make clickable only if date is not restricted
                     if (!isOutsideRange) {
-                        dayElement.addEventListener('click', () => this.selectDate(dateObj));
+                        dayElement.addEventListener('click', (event) => {
+                            // Prevent event bubbling
+                            event.preventDefault();
+                            event.stopPropagation();
+                            // Use the original date object to ensure day is correct
+                            this.selectDate(date);
+                        });
                     }
                     dayElement.title = `${availableDate.slots_count} slots available`;
                 } else {
@@ -493,29 +584,36 @@ class AppointmentCalendar {
 
         dayElement.className = classes.join(' ');
         return dayElement;
-    }
-
-    selectDate(date) {
-        // Check if date is within allowed range
-        if ((this.minDate && date < this.minDate) || (this.maxDate && date > this.maxDate)) {
-            console.warn('Cannot select date outside allowed range');
+    } selectDate(date) {
+        // Validate date parameter
+        if (!(date instanceof Date) || isNaN(date)) {
+            console.error('Invalid date provided to selectDate:', date);
             return;
         }
 
-        this.selectedDate = date;
-        const dateString = this.formatDate(date);
+        // Clone the date to avoid mutations
+        const selectedDate = new Date(date);
+
+        // Check if date is within allowed range
+        if ((this.minDate && selectedDate < this.minDate) || (this.maxDate && selectedDate > this.maxDate)) {
+            console.warn('Cannot select date outside allowed range:', selectedDate);
+            return;
+        }
+
+        this.selectedDate = selectedDate;
+        const dateString = this.formatDate(selectedDate);
 
         // Update visual selection
         this.renderCalendarDays();
 
         // Update selected date info
-        this.showSelectedDateInfo(date);
+        this.showSelectedDateInfo(selectedDate);
 
         // Load time slots
         this.loadTimeSlots(dateString);
 
         // Callback
-        if (this.options.onDateSelect) {
+        if (this.options.onDateSelect && typeof this.options.onDateSelect === 'function') {
             this.options.onDateSelect(dateString, this.availableDates.get(dateString));
         }
     }
@@ -587,12 +685,12 @@ class AppointmentCalendar {
             const response = await fetch(`/api/appointments/available-slots?${params}`);
             const data = await response.json();
 
-            console.log('Response data:', data);
-            console.log('condition - ', data.success && data.slots ? 'passed' : 'failed');
+            // console.log('Response data:', data);
+            // console.log('condition - ', data.success && data.slots ? 'passed' : 'failed');
             if (data.success && data.slots && data.slots.length > 0) {
 
                 this.availableSlots = data.slots;
-                console.log('Available slots:', this.availableSlots);
+                // console.log('Available slots:', this.availableSlots);
                 this.renderTimeSlots();
                 this.showTimeSlotsGrid();
             }
@@ -635,51 +733,54 @@ class AppointmentCalendar {
         if (this.options.onTimeSelect) {
             this.options.onTimeSelect(time, this.formatDate(this.selectedDate));
         }
-    }
-
-    previousMonth() {
-        const prevBtn = this.container.querySelector('.prev-btn');
-        if (prevBtn && prevBtn.disabled) return;
-
-        this.currentDate.setMonth(this.currentDate.getMonth() - 1);
-        this.updateCalendarHeader();
-        this.renderCalendarDays();
-        // Load available dates for the new month if doctor is selected
-        if (this.options.doctorId) {
-            this.loadAvailableDates();
-        }
-    }
-
-    nextMonth() {
-        const nextBtn = this.container.querySelector('.next-btn');
-        if (nextBtn && nextBtn.disabled) return;
-
-        this.currentDate.setMonth(this.currentDate.getMonth() + 1);
-        this.updateCalendarHeader();
-        this.renderCalendarDays();
-
-        // Load available dates for the new month if doctor is selected
-        if (this.options.doctorId) {
-            this.loadAvailableDates();
-        }
-    }
-
-    // Utility methods
+    }    // Note: previousMonth and nextMonth methods are defined elsewhere in the class    // Utility methods
     formatDate(date) {
-        return date.toISOString().split('T')[0];
+        // Ensure we're working with a valid date object
+        if (!(date instanceof Date) || isNaN(date)) {
+            console.error("Invalid date provided to formatDate:", date);
+            return "";
+        }
+
+        // Create a new Date object to avoid timezone issues
+        const localDate = new Date(date);
+        // Get year, month, day and ensure month and day are padded with leading zeros if needed
+        const year = localDate.getFullYear();
+        const month = String(localDate.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+        const day = String(localDate.getDate()).padStart(2, '0');
+
+        return `${year}-${month}-${day}`;
     }
 
     formatTime(timeString) {
+        if (!timeString || typeof timeString !== 'string') {
+            return '';
+        }
+
         const [hours, minutes] = timeString.split(':');
-        const hour = parseInt(hours);
+        const hour = parseInt(hours, 10);
+        if (isNaN(hour)) return timeString; // Return original if parsing fails
+
         const ampm = hour >= 12 ? 'PM' : 'AM';
         const hour12 = hour % 12 || 12;
         return `${hour12}:${minutes} ${ampm}`;
     }
 
     isToday(date) {
+        if (!(date instanceof Date) || isNaN(date)) return false;
+
         const today = new Date();
-        return date.toDateString() === today.toDateString();
+        return date.getDate() === today.getDate() &&
+            date.getMonth() === today.getMonth() &&
+            date.getFullYear() === today.getFullYear();
+    }
+
+    // Helper method to ensure dates are properly compared
+    isSameDate(date1, date2) {
+        if (!(date1 instanceof Date) || !(date2 instanceof Date)) return false;
+
+        return date1.getDate() === date2.getDate() &&
+            date1.getMonth() === date2.getMonth() &&
+            date1.getFullYear() === date2.getFullYear();
     }
 
     // State management
@@ -802,10 +903,17 @@ class AppointmentCalendar {
         // } else {
         //     this.renderCalendarDays();
         // }
-    }
-
-    // Method to programmatically navigate to a specific month
+    }    // Method to programmatically navigate to a specific month
     navigateToMonth(year, month) {
+        // Validate input
+        if (typeof year !== 'number' || typeof month !== 'number' ||
+            isNaN(year) || isNaN(month) ||
+            month < 0 || month > 11) {
+            console.error('Invalid year or month provided to navigateToMonth:', { year, month });
+            return false;
+        }
+
+        // Always create a new date object to avoid mutating the existing one
         const targetDate = new Date(year, month, 1);
 
         // Check if target month is within allowed range
@@ -835,7 +943,34 @@ class AppointmentCalendar {
 
         return true;
     }
+
+    // Debug methods
+    debug(enabled = true) {
+        this._debug = enabled;
+        if (enabled) {
+            console.log('Calendar debug mode enabled');
+            this.logState();
+        }
+        return this;
+    }
+
+    logState() {
+        if (!this._debug) return;
+
+        console.log('Calendar State:', {
+            currentDate: new Date(this.currentDate),
+            selectedDate: this.selectedDate ? new Date(this.selectedDate) : null,
+            selectedTime: this.selectedTime,
+            minDate: this.minDate ? new Date(this.minDate) : null,
+            maxDate: this.maxDate ? new Date(this.maxDate) : null,
+            availableDatesCount: this.availableDates.size,
+            monthYear: this.currentDate ? `${this.currentDate.getMonth() + 1}/${this.currentDate.getFullYear()}` : 'Not set'
+        });
+    }
 }
+
+
+
 
 // Export for use in other scripts
 window.AppointmentCalendar = AppointmentCalendar;
