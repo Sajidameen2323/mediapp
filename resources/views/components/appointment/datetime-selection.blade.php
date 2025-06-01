@@ -14,15 +14,16 @@
                 </div>
                 <div class="text-right">
                     <div id="selected_service_price" class="text-lg font-bold text-green-600 dark:text-green-400"></div>
-                    <button type="button" 
+                    {{-- <button type="button" 
                             id="change_service_btn" 
                             class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium text-sm">
                         <i class="fas fa-edit mr-1"></i>
                         Change Service
-                    </button>
+                    </button> --}}
                 </div>
             </div>
-        </div>        {{-- Date and Time Selection --}}
+        </div>        
+        {{-- Date and Time Selection --}}
         <div class="appointment-datetime-section">
             {{-- Modern Appointment Calendar --}}
             <x-appointment.custom-calendar />

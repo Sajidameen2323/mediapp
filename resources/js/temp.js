@@ -46,7 +46,7 @@ class AppointmentBooking {
 
             if (data.success && data.doctor) {
                 this.selectedData.doctor = data.doctor;
-                document.getElementById('selected_doctor_id').value = doctorId;
+                document.getElementById('doctor_id').value = doctorId;
 
                 // Update UI to show selected doctor
                 this.updateSelectedDoctorInfo(data.doctor);
@@ -437,7 +437,7 @@ class AppointmentBooking {
     }
     selectDoctor(doctor) {
         this.selectedData.doctor = doctor;
-        document.getElementById('selected_doctor_id').value = doctor.id;
+        document.getElementById('doctor_id').value = doctor.id;
 
         // Update selected doctor info in step 2
         this.updateSelectedDoctorInfo(doctor);

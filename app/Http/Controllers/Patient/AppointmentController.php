@@ -131,6 +131,15 @@ class AppointmentController extends Controller
     {
         $this->authorize('patient-access');
 
+        // // error log all request data
+        // error_log('Appointment booking request data: ' . json_encode($request->all()));
+
+        // // return to index if no doctor or service is selected
+        // if (!$request->has('doctor_id') || !$request->has('service_id')) {
+        //     return redirect()->route('patient.appointments.create')
+        //         ->with('error', 'Please select a doctor and service to book an appointment.');
+        // }
+
         $user = auth()->user();
         /** @var Doctor $doctor */
         $doctor = Doctor::findOrFail($request->doctor_id); // Single doctor instance
@@ -148,7 +157,7 @@ class AppointmentController extends Controller
 
         // Calculate end time based on service duration or default slot duration
         $config = AppointmentConfig::first();
-        $duration = $service->duration ?? $config->slot_duration;
+        $duration = $service->duration_minutes ?? $config->default_slot_duration ?? 15;
         $endTime = $appointmentDateTime->copy()->addMinutes($duration);
 
         // Generate appointment number
@@ -171,8 +180,8 @@ class AppointmentController extends Controller
             'duration_minutes' => $duration,
             'patient_name' => $user->name,
             'patient_email' => $user->email,
-            'patient_phone' => $request->patient_phone,
-            'chief_complaint' => $request->chief_complaint,
+            'patient_phone' => $user->phone_number ?? "",
+            'chief_complaint' => $request->reason,
             'notes' => $request->notes,
             'status' => 'pending',
             'payment_status' => 'pending',

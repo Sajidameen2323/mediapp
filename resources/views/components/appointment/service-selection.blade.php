@@ -16,11 +16,11 @@
                     <p id="selected_doctor_specialization" class="text-sm text-gray-600 dark:text-gray-400"></p>
                 </div>
             </div>
-            <button type="button" id="change_doctor_btn"
+            {{-- <button type="button" id="change_doctor_btn"
                 class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium text-sm">
                 <i class="fas fa-edit mr-1"></i>
                 Change Doctor
-            </button>
+            </button> --}}
         </div>
     </div>
 

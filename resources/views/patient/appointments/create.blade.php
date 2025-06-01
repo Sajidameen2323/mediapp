@@ -1,10 +1,12 @@
 @extends('layouts.app')
 
-@ {{-- Hidden inputs for form data --}}
-<input type="hidden" id="selected_doctor_id" name="doctor_id" value="{{ $preselectedDoctor?->id ?? '' }}">
+
+
+@ Hidden inputs for form data
+{{-- <input type="hidden" id="doctor_id" name="doctor_id" value="{{ $preselectedDoctor?->id ?? '' }}">
 <input type="hidden" id="selected_service_id" name="service_id" value="{{ $preselectedService?->id ?? '' }}">
 <input type="hidden" id="selected_date" name="appointment_date" value="">
-<input type="hidden" id="selected_time" name="start_time" value="">
+<input type="hidden" id="selected_time" name="start_time" value=""> --}}
 <input type="hidden" id="current_step" value="1">
 {{-- Hidden inputs for patient details --}}
 <input type="hidden" id="hidden_reason" name="reason" value="">
@@ -12,6 +14,8 @@
 <input type="hidden" id="hidden_priority" name="priority" value="">
 <input type="hidden" id="hidden_appointment_type" name="appointment_type" value="">n('title', 'Book New
 Appointment - MediCare')
+
+
 
 @section('content')
     {{-- log all errors --}}
@@ -52,7 +56,7 @@ Appointment - MediCare')
                 @csrf
 
                 {{-- Hidden inputs for form data --}}
-                <input type="hidden" id="selected_doctor_id" name="doctor_id" value="{{ $preselectedDoctor?->id ?? '' }}">
+                <input type="hidden" id="doctor_id" name="doctor_id" value="{{ $preselectedDoctor?->id ?? '' }}">
                 <input type="hidden" id="selected_service_id" name="service_id"
                     value="{{ $preselectedService?->id ?? '' }}">
                 <input type="hidden" id="selected_date" name="appointment_date" value="">

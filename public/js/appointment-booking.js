@@ -48,7 +48,7 @@ class AppointmentBooking {
 
             if (data.success && data.doctor) {
                 this.selectedData.doctor = data.doctor;
-                document.getElementById('selected_doctor_id').value = doctorId;
+                document.getElementById('doctor_id').value = doctorId;
 
                 // Update UI to show selected doctor
                 this.updateSelectedDoctorInfo(data.doctor);
@@ -89,7 +89,8 @@ class AppointmentBooking {
         } catch (error) {
             console.error('Error preselecting service:', error);
         }
-    } goToStep(targetStep) {
+    } 
+    goToStep(targetStep) {
         if (targetStep < 1 || targetStep > this.totalSteps) {
             return;
         }
@@ -263,7 +264,11 @@ class AppointmentBooking {
                 this.applyFilters();
             });
         });
-    } setupFormInputs() {
+    }
+
+    setupFormInputs() {
+
+
         // Priority and appointment type change handlers
         ['reason', 'symptoms', 'priority', 'appointment_type'].forEach(field => {
             const element = document.getElementById(field);
@@ -291,7 +296,9 @@ class AppointmentBooking {
                     hiddenField.value = element.value;
                 }
             });
-        });        // Form submission handler
+        });
+
+        // Form submission handler
         const form = document.getElementById('appointmentBookingForm');
         form?.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -326,29 +333,16 @@ class AppointmentBooking {
         if (form) {
 
             // set form fields before submission
-            document.getElementById('selected_doctor_id').value = this.selectedData.doctor?.id || '';
-            document.getElementById('selected_service_id').value = this.selectedData.service?.id || '';
-            document.getElementById('appointment_date').value = this.selectedData.date || '';
-            document.getElementById('appointment_time').value = this.selectedData.time || '';
-            document.getElementById('reason').value = this.selectedData.details.reason || '';
-            document.getElementById('symptoms').value = this.selectedData.details.symptoms || '';
-            document.getElementById('priority').value = this.selectedData.details.priority || '';
-            document.getElementById('appointment_type').value = this.selectedData.details.appointment_type || '';
-            document.getElementById('terms_agreement').checked = true; // Ensure terms are agreed
+            // document.getElementById('doctor_id').value = this.selectedData.doctor?.id || '';
+            // document.getElementById('selected_service_id').value = this.selectedData.service?.id || '';
+            // document.getElementById('appointment_date').value = this.selectedData.date || '';
+            // document.getElementById('appointment_time').value = this.selectedData.time || '';
+            // document.getElementById('reason').value = this.selectedData.details.reason || '';
+            // document.getElementById('symptoms').value = this.selectedData.details.symptoms || '';
+            // document.getElementById('priority').value = this.selectedData.details.priority || '';
+            // document.getElementById('appointment_type').value = this.selectedData.details.appointment_type || '';
+            // document.getElementById('terms_agreement').checked = true; // Ensure terms are agreed
             // Submit the form
-            // log form fields before submission
-            console.log('Submitting form with data:', {
-                selected_doctor_id: this.selectedData.doctor?.id || '',
-                selected_service_id: this.selectedData.service?.id || '',
-                appointment_date: this.selectedData.date || '',
-                appointment_time: this.selectedData.time || '',
-                reason: this.selectedData.details.reason || '',
-                symptoms: this.selectedData.details.symptoms || '',
-                priority: this.selectedData.details.priority || '',
-                appointment_type: this.selectedData.details.appointment_type || '',
-                terms_agreement: document.getElementById('terms_agreement')?.checked || false
-            });
-
             form.submit();
         }
     }
@@ -391,7 +385,7 @@ class AppointmentBooking {
         // 3. Form Fields
         console.log('\n📝 Form Field Values:');
         const formFields = [
-            'selected_doctor_id', 'selected_service_id', 'appointment_date', 'appointment_time',
+            'doctor_id', 'selected_service_id', 'appointment_date', 'appointment_time',
             'reason', 'symptoms', 'priority', 'appointment_type', 'terms_agreement'
         ];
 
@@ -580,8 +574,9 @@ class AppointmentBooking {
         });
     }
     selectDoctor(doctor) {
+        console.log('selectDoctor called with:', doctor);
         this.selectedData.doctor = doctor;
-        document.getElementById('selected_doctor_id').value = doctor.id;
+        document.getElementById('doctor_id').value = doctor.id;
 
         // Invalidate all subsequent steps when doctor changes
         this.invalidateStepsFrom(2);
@@ -923,6 +918,7 @@ class AppointmentBooking {
             this.updateStepDisplay();
         }
     }
+
     validateCurrentStep() {
         switch (this.currentStep) {
             case 1:
@@ -994,9 +990,12 @@ class AppointmentBooking {
         this.updateProgressStepper();
 
         // Update step display counter
-        const stepDisplay = document.getElementById('current_step_display');
-        if (stepDisplay) {
-            stepDisplay.textContent = this.currentStep;
+        const stepDisplays = document.querySelectorAll('.current_step_display');
+        if (stepDisplays && stepDisplays.length > 0) {
+            stepDisplays.forEach(display => {
+                display.textContent = this.currentStep;
+            });
+            // stepDisplay.textContent = this.currentStep;
         }
 
         // Update step title

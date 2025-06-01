@@ -46,6 +46,9 @@ class AppointmentCalendar {
         this.minDate = null;
         this.maxDate = null;
 
+        // Store instance globally for retry functionality
+        window.calendarInstance = this;
+
         // Initialize the calendar
         this.init();
     } init() {
@@ -472,7 +475,9 @@ class AppointmentCalendar {
                 break;
             }
         }
-    } createDayElement(date, currentMonth) {
+    }
+
+    createDayElement(date, currentMonth) {
         const dayElement = document.createElement('div');
         const dateString = this.formatDate(date);
 
@@ -584,7 +589,8 @@ class AppointmentCalendar {
 
         dayElement.className = classes.join(' ');
         return dayElement;
-    } selectDate(date) {
+    }
+    selectDate(date) {
         // Validate date parameter
         if (!(date instanceof Date) || isNaN(date)) {
             console.error('Invalid date provided to selectDate:', date);
@@ -627,12 +633,15 @@ class AppointmentCalendar {
             day: 'numeric'
         });
         selectedDateText.textContent = dateString;
-    }
-
-    async loadAvailableDates() {
+    } async loadAvailableDates() {
         if (!this.options.doctorId) return;
 
-        this.showLoading();
+        // Use specific loader for dates loading
+        if (window.CalendarLoader) {
+            window.CalendarLoader.showDatesLoader();
+        } else {
+            this.showLoading();
+        }
         this.hideError();
 
         try {
@@ -668,12 +677,15 @@ class AppointmentCalendar {
         } finally {
             this.hideLoading();
         }
-    }
-
-    async loadTimeSlots(date) {
+    } async loadTimeSlots(date) {
         if (!this.options.doctorId || !date) return;
 
-        this.showTimeSlotsLoading();
+        // Use specific loader for time slots loading
+        if (window.CalendarLoader) {
+            window.CalendarLoader.showSlotsLoader();
+        } else {
+            this.showTimeSlotsLoading();
+        }
 
         try {
             const params = new URLSearchParams({
@@ -701,6 +713,8 @@ class AppointmentCalendar {
             console.error('Error loading time slots:', error);
             this.showNoSlots();
         } finally {
+            // Hide both the main loader and time slots loader
+            this.hideLoading();
             this.hideTimeSlotsLoading();
         }
     }
@@ -781,26 +795,53 @@ class AppointmentCalendar {
         return date1.getDate() === date2.getDate() &&
             date1.getMonth() === date2.getMonth() &&
             date1.getFullYear() === date2.getFullYear();
-    }
-
-    // State management
+    }    // State management
     showLoading() {
-        this.container.querySelector('.calendar-loading').classList.remove('hidden');
+        // Use the enhanced loader from the Blade component if available
+        if (window.CalendarLoader) {
+            window.CalendarLoader.show();
+        } else {
+            // Fallback to internal loader
+            const loader = this.container.querySelector('.calendar-loading');
+            if (loader) loader.classList.remove('hidden');
+        }
     }
 
     hideLoading() {
-        this.container.querySelector('.calendar-loading').classList.add('hidden');
+        // Use the enhanced loader from the Blade component if available
+        if (window.CalendarLoader) {
+            window.CalendarLoader.hide();
+        } else {
+            // Fallback to internal loader
+            const loader = this.container.querySelector('.calendar-loading');
+            if (loader) loader.classList.add('hidden');
+        }
     }
 
     showError(message) {
-        const errorEl = this.container.querySelector('.calendar-error');
-        const messageEl = this.container.querySelector('.error-message');
-        messageEl.textContent = message;
-        errorEl.classList.remove('hidden');
+        // Use the enhanced error display from the Blade component if available
+        if (window.CalendarLoader) {
+            window.CalendarLoader.showError(message);
+        } else {
+            // Fallback to internal error display
+            const errorEl = this.container.querySelector('.calendar-error');
+            const messageEl = this.container.querySelector('.error-message');
+            if (errorEl && messageEl) {
+                messageEl.textContent = message;
+                errorEl.classList.remove('hidden');
+            }
+        }
     }
 
     hideError() {
-        this.container.querySelector('.calendar-error').classList.add('hidden');
+        // Use the enhanced error display from the Blade component if available
+        if (window.CalendarLoader) {
+            window.CalendarLoader.hideError();
+        } else {
+            // Fallback to internal error display
+            const errorEl = this.container.querySelector('.calendar-error');
+            if (errorEl) errorEl.classList.add('hidden');
+        }
     }
 
     showTimeSlotsLoading() {
@@ -897,13 +938,20 @@ class AppointmentCalendar {
         this.selectedTime = null;
         this.availableSlots = [];
 
+        // Show doctor loading state if available
+        if (window.CalendarLoader && doctorId) {
+            window.CalendarLoader.showDoctorLoader();
+        }
+
         // Load new data if doctor is set
-        // if (doctorId) {
-        //     this.loadAvailableDates();
-        // } else {
-        //     this.renderCalendarDays();
-        // }
-    }    // Method to programmatically navigate to a specific month
+        if (doctorId && serviceId) {
+            this.loadAvailableDates();
+        } else {
+            this.renderCalendarDays();
+            this.hideLoading();
+        }
+    }// Method to programmatically navigate to a specific month
+    
     navigateToMonth(year, month) {
         // Validate input
         if (typeof year !== 'number' || typeof month !== 'number' ||

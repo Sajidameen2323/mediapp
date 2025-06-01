@@ -118,7 +118,9 @@
                 <li>• Cancellation must be done at least 24 hours in advance</li>
                 <li>• Late arrivals may result in appointment rescheduling</li>
             </ul>
-        </div>        {{-- Agreement Checkbox --}}
+        </div>        
+        
+        {{-- Agreement Checkbox --}}
         <div class="flex items-start mb-6">
             <input type="checkbox" 
                    id="terms_agreement" 
