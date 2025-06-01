@@ -223,6 +223,8 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/', [\App\Http\Controllers\Patient\AppointmentController::class, 'store'])->name('store');
             Route::get('/{appointment}', [\App\Http\Controllers\Patient\AppointmentController::class, 'show'])->name('show');
             Route::patch('/{appointment}/cancel', [\App\Http\Controllers\Patient\AppointmentController::class, 'cancel'])->name('cancel');
+            Route::get('/{appointment}/reschedule', [\App\Http\Controllers\Patient\AppointmentController::class, 'reschedule'])->name('reschedule');
+            Route::patch('/{appointment}/reschedule', [\App\Http\Controllers\Patient\AppointmentController::class, 'updateReschedule'])->name('reschedule.update');
             Route::post('/{appointment}/rate', [\App\Http\Controllers\Patient\AppointmentController::class, 'rate'])->name('rate');
             
             // AJAX endpoints for appointment booking

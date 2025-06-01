@@ -173,7 +173,12 @@ class Appointment extends Model
         }
 
         $config = AppointmentConfig::getActive();
-        $appointmentDateTime = Carbon::parse($this->appointment_date . ' ' . $this->start_time);
+        if (!$config || !$config->allow_cancellation) {
+            return false;
+        }
+
+        // Create proper datetime by combining date and time
+        $appointmentDateTime = $this->appointment_date->copy()->setTimeFromTimeString($this->getRawOriginal('start_time'));
         $hoursUntilAppointment = now()->diffInHours($appointmentDateTime, false);
 
         return $hoursUntilAppointment >= $config->cancellation_hours_limit;
@@ -189,7 +194,12 @@ class Appointment extends Model
         }
 
         $config = AppointmentConfig::getActive();
-        $appointmentDateTime = Carbon::parse($this->appointment_date . ' ' . $this->start_time);
+        if (!$config || !$config->allow_rescheduling) {
+            return false;
+        }
+
+        // Create proper datetime by combining date and time
+        $appointmentDateTime = $this->appointment_date->copy()->setTimeFromTimeString($this->getRawOriginal('start_time'));
         $hoursUntilAppointment = now()->diffInHours($appointmentDateTime, false);
 
         return $hoursUntilAppointment >= $config->reschedule_hours_limit;

@@ -76,7 +76,10 @@ class AppointmentController extends Controller
             'cancelled' => Appointment::where('patient_id', $user->id)->byStatus('cancelled')->count(),
         ];
 
-        return view('patient.appointments.index', compact('appointments', 'stats', 'status', 'date'));
+        // Get appointment configuration
+        $config = AppointmentConfig::getActive();
+
+        return view('patient.appointments.index', compact('appointments', 'stats', 'status', 'date', 'config'));
     }
 
     /**
@@ -235,15 +238,12 @@ class AppointmentController extends Controller
             return redirect()->back()->with('error', 'This appointment cannot be cancelled.');
         }
 
-        // Check cancellation policy
-        $config = AppointmentConfig::first();
-        $appointmentDateTime = Carbon::parse($appointment->appointment_date . ' ' . $appointment->start_time);
-        $hoursUntilAppointment = now()->diffInHours($appointmentDateTime, false);
-
-        if ($hoursUntilAppointment < $config->min_cancellation_hours) {
+        // Check cancellation policy using model method
+        if (!$appointment->canBeCancelled()) {
+            $config = AppointmentConfig::getActive();
             return redirect()->back()->with(
                 'error',
-                'Appointments can only be cancelled at least ' . $config->min_cancellation_hours . ' hours in advance.'
+                'Appointments can only be cancelled at least ' . $config->cancellation_hours_limit . ' hours in advance.'
             );
         }
 
@@ -260,6 +260,108 @@ class AppointmentController extends Controller
 
         return redirect()->route('patient.appointments.index')
             ->with('success', 'Appointment cancelled successfully.');
+    }
+
+    /**
+     * Show reschedule form for an appointment.
+     */
+    public function reschedule(Appointment $appointment)
+    {
+        $this->authorize('patient-access');
+
+        $user = auth()->user();
+
+        if ($appointment->patient_id !== $user->id) {
+            abort(403, 'Unauthorized access to appointment.');
+        }
+
+        if (in_array($appointment->status, ['cancelled', 'completed'])) {
+            return redirect()->back()->with('error', 'This appointment cannot be rescheduled.');
+        }
+
+        // Check rescheduling policy using model method
+        if (!$appointment->canBeRescheduled()) {
+            $config = AppointmentConfig::getActive();
+            return redirect()->back()->with(
+                'error',
+                'Appointments can only be rescheduled at least ' . $config->reschedule_hours_limit . ' hours in advance.'
+            );
+        }
+
+        $config = AppointmentConfig::getActive();
+        if (!$config->allow_rescheduling) {
+            return redirect()->back()->with('error', 'Appointment rescheduling is not allowed.');
+        }
+
+        $appointment->load(['doctor', 'service']);
+
+        return view('patient.appointments.reschedule', compact('appointment', 'config'));
+    }
+
+    /**
+     * Update appointment with new date/time (reschedule).
+     */
+    public function updateReschedule(Request $request, Appointment $appointment)
+    {
+        $this->authorize('patient-access');
+
+        $user = auth()->user();
+
+        if ($appointment->patient_id !== $user->id) {
+            abort(403, 'Unauthorized access to appointment.');
+        }
+
+        if (in_array($appointment->status, ['cancelled', 'completed'])) {
+            return redirect()->back()->with('error', 'This appointment cannot be rescheduled.');
+        }
+
+        // Check rescheduling policy using model method
+        if (!$appointment->canBeRescheduled()) {
+            $config = AppointmentConfig::getActive();
+            return redirect()->back()->with(
+                'error',
+                'Appointments can only be rescheduled at least ' . $config->reschedule_hours_limit . ' hours in advance.'
+            );
+        }
+
+        $request->validate([
+            'new_date' => 'required|date|after:today',
+            'new_time' => 'required|date_format:H:i',
+            'reschedule_reason' => 'nullable|string|max:500'
+        ]);
+
+        $newDateTime = Carbon::parse($request->new_date . ' ' . $request->new_time);
+
+        // Verify new slot is available
+        if (!$this->slotService->isSlotAvailable($appointment->doctor, $newDateTime->toDateTimeString(), $appointment->service_id)) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'The selected time slot is no longer available. Please choose another slot.');
+        }
+
+        // Store old appointment details for reference
+        $oldDate = $appointment->appointment_date;
+        $oldTime = $appointment->start_time;
+
+        // Calculate end time based on service duration or default slot duration
+        $config = AppointmentConfig::getActive();
+        $duration = $appointment->service->duration_minutes ?? $config->default_slot_duration ?? 15;
+        $endTime = $newDateTime->copy()->addMinutes($duration);
+
+        // Update appointment
+        $appointment->update([
+            'appointment_date' => $request->new_date,
+            'start_time' => $request->new_time, // Store as time string
+            'end_time' => $endTime->format('H:i:s'),
+            'rescheduled_at' => now(),
+            'rescheduled_by' => 'patient',
+            'reschedule_reason' => $request->reschedule_reason,
+            'original_date' => $oldDate, // Store original date for reference
+            'original_time' => $oldTime, // Store original time for reference
+        ]);
+
+        return redirect()->route('patient.appointments.show', $appointment)
+            ->with('success', 'Appointment rescheduled successfully!');
     }
 
     /**

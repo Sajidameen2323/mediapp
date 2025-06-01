@@ -1,163 +1,361 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">My Appointments</h2>
-                <a href="{{ route('patient.appointments.create') }}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Book New Appointment
-                </a>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header Section -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+            <div class="mb-4 sm:mb-0">
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">My Appointments</h1>
+                <p class="mt-2 text-gray-600 dark:text-gray-400">Manage and track your medical appointments</p>
             </div>
+            <a href="{{ route('patient.appointments.create') }}"
+                class="inline-flex items-center px-6 py-3 bg-gray-900 dark:bg-gray-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
+                <i class="fas fa-plus mr-2"></i>
+                Book New Appointment
+            </a>
+        </div>
 
-            <!-- Filter Section -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <form method="GET" action="{{ route('patient.appointments.index') }}" class="row g-3">
-                        <div class="col-md-3">
-                            <label for="status" class="form-label">Status</label>
-                            <select name="status" id="status" class="form-select">
-                                <option value="">All Statuses</option>
-                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                                <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
-                                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
-                                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                                <option value="no_show" {{ request('status') == 'no_show' ? 'selected' : '' }}>No Show</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label for="date_from" class="form-label">From Date</label>
-                            <input type="date" name="date_from" id="date_from" class="form-control" value="{{ request('date_from') }}">
-                        </div>
-                        <div class="col-md-3">
-                            <label for="date_to" class="form-label">To Date</label>
-                            <input type="date" name="date_to" id="date_to" class="form-control" value="{{ request('date_to') }}">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">&nbsp;</label>
-                            <div class="d-flex gap-2">
-                                <button type="submit" class="btn btn-outline-primary">Filter</button>
-                                <a href="{{ route('patient.appointments.index') }}" class="btn btn-outline-secondary">Clear</a>
-                            </div>
-                        </div>
-                    </form>
+        {{-- Log all page errors --}}
+        @if (session('error'))
+            <div
+                class="bg-red-100 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 rounded-lg p-4 mb-6">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <span class="font-medium">{{ session('error') }}</span>
                 </div>
             </div>
+        @endif
 
-            <!-- Appointments List -->
-            @if($appointments->count() > 0)
-                <div class="row">
-                    @foreach($appointments as $appointment)
-                        <div class="col-md-6 mb-4">
-                            <div class="card h-100">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h6 class="mb-0">{{ \Carbon\Carbon::parse($appointment->appointment_date)->format('M d, Y') }}</h6>
-                                    <span class="badge bg-{{ $appointment->status == 'confirmed' ? 'success' : ($appointment->status == 'pending' ? 'warning' : ($appointment->status == 'cancelled' ? 'danger' : 'secondary')) }}">
-                                        {{ ucfirst($appointment->status) }}
-                                    </span>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row mb-3">
-                                        <div class="col-6">
-                                            <small class="text-muted">Doctor</small>
-                                            <p class="mb-0 fw-bold">Dr. {{ $appointment->doctor->name }}</p>
-                                        </div>
-                                        <div class="col-6">
-                                            <small class="text-muted">Time</small>
-                                            <p class="mb-0 fw-bold">{{ \Carbon\Carbon::parse($appointment->appointment_time)->format('h:i A') }}</p>
-                                        </div>
+        <!-- Filter Section -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
+            <div class="p-6">
+                <form method="GET" action="{{ route('patient.appointments.index') }}"
+                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div>
+                        <label for="status"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+                        <select name="status" id="status"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">All Statuses</option>
+                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed
+                            </option>
+                            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed
+                            </option>
+                            <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled
+                            </option>
+                            <option value="no_show" {{ request('status') == 'no_show' ? 'selected' : '' }}>No Show</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="date_from" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">From
+                            Date</label>
+                        <input type="date" name="date_from" id="date_from"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            value="{{ request('date_from') }}">
+                    </div>
+                    <div>
+                        <label for="date_to" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">To
+                            Date</label>
+                        <input type="date" name="date_to" id="date_to"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            value="{{ request('date_to') }}">
+                    </div>
+                    <div class="flex flex-col justify-end">
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <button type="submit"
+                                class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+                                <i class="fas fa-search mr-2"></i>Filter
+                            </button>
+                            <a href="{{ route('patient.appointments.index') }}"
+                                class="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition-colors duration-200 text-center">
+                                <i class="fas fa-times mr-2"></i>Clear
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div> <!-- Appointment Policies Info Panel -->
+        @if ($config)
+            <div
+                class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-200 dark:border-blue-800 mb-8">
+                <div class="p-6">
+                    <div class="flex items-start space-x-3">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-info-circle text-blue-600 dark:text-blue-400 text-xl mt-0.5"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-3">Appointment Policies
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                                @if ($config->allow_cancellation)
+                                    <div class="flex items-center space-x-2 text-blue-800 dark:text-blue-200">
+                                        <i class="fas fa-clock w-4"></i>
+                                        <span><strong>Cancellation:</strong> {{ $config->cancellation_hours_limit }} hours
+                                            before appointment</span>
                                     </div>
-                                    
-                                    <div class="mb-3">
-                                        <small class="text-muted">Reason</small>
-                                        <p class="mb-0">{{ Str::limit($appointment->reason, 80) }}</p>
+                                @else
+                                    <div class="flex items-center space-x-2 text-red-600 dark:text-red-400">
+                                        <i class="fas fa-ban w-4"></i>
+                                        <span><strong>Cancellation:</strong> Not allowed</span>
                                     </div>
+                                @endif
 
-                                    <div class="row mb-3">
-                                        <div class="col-6">
-                                            <small class="text-muted">Type</small>
-                                            <p class="mb-0">{{ ucfirst(str_replace('_', ' ', $appointment->appointment_type)) }}</p>
-                                        </div>
-                                        <div class="col-6">
-                                            <small class="text-muted">Priority</small>
-                                            <span class="badge bg-{{ $appointment->priority == 'high' || $appointment->priority == 'urgent' ? 'danger' : ($appointment->priority == 'medium' ? 'warning' : 'success') }}">
-                                                {{ ucfirst($appointment->priority) }}
-                                            </span>
-                                        </div>
+                                @if ($config->allow_rescheduling)
+                                    <div class="flex items-center space-x-2 text-blue-800 dark:text-blue-200">
+                                        <i class="fas fa-calendar-alt w-4"></i>
+                                        <span><strong>Rescheduling:</strong> {{ $config->reschedule_hours_limit }} hours
+                                            before appointment</span>
                                     </div>
+                                @else
+                                    <div class="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
+                                        <i class="fas fa-calendar-times w-4"></i>
+                                        <span><strong>Rescheduling:</strong> Not available</span>
+                                    </div>
+                                @endif
 
-                                    @if($appointment->symptoms)
-                                        <div class="mb-3">
-                                            <small class="text-muted">Symptoms</small>
-                                            <p class="mb-0">{{ Str::limit($appointment->symptoms, 60) }}</p>
-                                        </div>
-                                    @endif
+                                <div class="flex items-center space-x-2 text-blue-800 dark:text-blue-200">
+                                    <i class="fas fa-calendar-plus w-4"></i>
+                                    <span><strong>Booking Window:</strong> Up to {{ $config->max_booking_days_ahead }} days
+                                        ahead</span>
                                 </div>
-                                <div class="card-footer bg-transparent">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <a href="{{ route('patient.appointments.show', $appointment) }}" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-eye"></i> View Details
-                                        </a>
-                                        
-                                        @if($appointment->status == 'pending' && \Carbon\Carbon::parse($appointment->appointment_date . ' ' . $appointment->appointment_time)->gt(\Carbon\Carbon::now()->addHours(24)))
-                                            <form action="{{ route('patient.appointments.cancel', $appointment) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel this appointment?')">
-                                                @csrf
-                                                @method('PATCH')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                    <i class="fas fa-times"></i> Cancel
-                                                </button>
-                                            </form>
-                                        @endif
+
+                                @if ($config->max_appointments_per_patient_per_day > 1)
+                                    <div class="flex items-center space-x-2 text-blue-800 dark:text-blue-200">
+                                        <i class="fas fa-user-clock w-4"></i>
+                                        <span><strong>Daily Limit:</strong>
+                                            {{ $config->max_appointments_per_patient_per_day }} appointments per day</span>
                                     </div>
-                                </div>
+                                @endif
+
+                                @if ($config->send_reminder_email)
+                                    <div class="flex items-center space-x-2 text-green-600 dark:text-green-400">
+                                        <i class="fas fa-bell w-4"></i>
+                                        <span><strong>Reminders:</strong> {{ $config->reminder_hours_before }} hours
+                                            before</span>
+                                    </div>
+                                @endif
+
+                                @if ($config->auto_approve_appointments)
+                                    <div class="flex items-center space-x-2 text-green-600 dark:text-green-400">
+                                        <i class="fas fa-check-circle w-4"></i>
+                                        <span><strong>Approval:</strong> Automatic confirmation</span>
+                                    </div>
+                                @else
+                                    <div class="flex items-center space-x-2 text-yellow-600 dark:text-yellow-400">
+                                        <i class="fas fa-hourglass-half w-4"></i>
+                                        <span><strong>Approval:</strong> Manual review required</span>
+                                    </div>
+                                @endif
                             </div>
                         </div>
-                    @endforeach
-                </div>
-
-                <!-- Pagination -->
-                <div class="d-flex justify-content-center">
-                    {{ $appointments->withQueryString()->links() }}
-                </div>
-            @else
-                <div class="card">
-                    <div class="card-body text-center py-5">
-                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
-                        <h4 class="text-muted">No Appointments Found</h4>
-                        <p class="text-muted mb-4">You haven't booked any appointments yet or no appointments match your filter criteria.</p>
-                        <a href="{{ route('patient.appointments.create') }}" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Book Your First Appointment
-                        </a>
                     </div>
                 </div>
-            @endif
-        </div>
+            </div>
+        @endif <!-- Appointments Grid -->
+        @if ($appointments->count() > 0)
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                @foreach ($appointments as $appointment)
+                    <div
+                        class="appointment-card bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
+                        <!-- Card Header -->
+                        <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center space-x-3">
+                                <div class="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg">
+                                    <i class="fas fa-calendar-alt text-blue-600 dark:text-blue-400"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                        {{ \Carbon\Carbon::parse($appointment->appointment_date)->format('M d, Y') }}
+                                    </h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                                        {{ \Carbon\Carbon::parse($appointment->appointment_time)->format('h:i A') }}
+                                    </p>
+                                </div>
+                            </div>
+                            <span
+                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+                            {{ $appointment->status == 'confirmed'
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                                : ($appointment->status == 'pending'
+                                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+                                    : ($appointment->status == 'cancelled'
+                                        ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                                        : ($appointment->status == 'completed'
+                                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
+                                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'))) }}">
+                                <div
+                                    class="w-2 h-2 rounded-full mr-2
+                                {{ $appointment->status == 'confirmed'
+                                    ? 'bg-green-500'
+                                    : ($appointment->status == 'pending'
+                                        ? 'bg-yellow-500'
+                                        : ($appointment->status == 'cancelled'
+                                            ? 'bg-red-500'
+                                            : ($appointment->status == 'completed'
+                                                ? 'bg-blue-500'
+                                                : 'bg-gray-500'))) }}">
+                                </div>
+                                {{ ucfirst($appointment->status) }}
+                            </span>
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="p-6 space-y-4">
+                            <!-- Doctor and Priority Row -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="bg-gray-100 dark:bg-gray-700 p-2 rounded-lg">
+                                        <i class="fas fa-user-md text-gray-600 dark:text-gray-400"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Doctor
+                                        </p>
+                                        <p class="text-sm font-semibold text-gray-900 dark:text-white">Dr.
+                                            {{ $appointment->doctor->user->name }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <div class="bg-gray-100 dark:bg-gray-700 p-2 rounded-lg">
+                                        <i class="fas fa-exclamation-triangle text-gray-600 dark:text-gray-400"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Priority
+                                        </p>
+                                        <span
+                                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                                        {{ $appointment->priority == 'high' || $appointment->priority == 'urgent'
+                                            ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+                                            : ($appointment->priority == 'medium'
+                                                ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+                                                : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300') }}">
+                                            {{ ucfirst($appointment->priority) }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Type and Reason -->
+                            <div class="space-y-3">
+                                <div>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Type
+                                    </p>
+                                    <p class="text-sm text-gray-900 dark:text-white">
+                                        {{ ucfirst(str_replace('_', ' ', $appointment->appointment_type)) }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Reason
+                                    </p>
+                                    <p class="text-sm text-gray-700 dark:text-gray-300">
+                                        {{ Str::limit($appointment->reason, 100) }}</p>
+                                </div>
+                            </div>
+
+                            @if ($appointment->symptoms)
+                                <div>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
+                                        Symptoms</p>
+                                    <p class="text-sm text-gray-700 dark:text-gray-300">
+                                        {{ Str::limit($appointment->symptoms, 80) }}</p>
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Card Footer -->
+                        <div
+                            class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-700 rounded-b-lg">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                <div class="flex flex-col sm:flex-row gap-2">
+                                    <a href="{{ route('patient.appointments.show', $appointment) }}"
+                                        class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
+                                        <i class="fas fa-eye mr-2"></i>
+                                        View Details
+                                    </a>
+
+                                    @if ($appointment->status == 'pending' && $config->allow_rescheduling && $appointment->canBeRescheduled())
+                                        <a href="{{ route('patient.appointments.reschedule', $appointment) }}"
+                                            class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
+                                            <i class="fas fa-calendar-alt mr-2"></i>
+                                            Reschedule
+                                        </a>
+                                    @endif
+                                </div>
+
+                                @if (
+                                    $appointment->status == 'pending' &&
+                                        $config->allow_cancellation &&
+                                        \Carbon\Carbon::parse($appointment->appointment_date . ' ' . $appointment->appointment_time)->gt(
+                                            \Carbon\Carbon::now()->addHours($config->cancellation_hours_limit ?? 24)))
+                                    <form action="{{ route('patient.appointments.cancel', $appointment) }}"
+                                        method="POST" class="inline-block"
+                                        onsubmit="return confirm('Are you sure you want to cancel this appointment?')">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="cancellation_reason" value="user_cancelled">
+                                        <button type="submit"
+                                            class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors duration-200">
+                                            <i class="fas fa-times mr-2"></i>
+                                            Cancel
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div> <!-- Pagination -->
+            <div class="flex justify-center">
+                {{ $appointments->withQueryString()->links() }}
+            </div>
+        @else
+            <!-- Empty State -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                <div class="text-center py-16 px-6">
+                    <div
+                        class="bg-gray-100 dark:bg-gray-700 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-calendar-times text-3xl text-gray-400 dark:text-gray-500"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No Appointments Found</h3>
+                    <p class="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto">
+                        You haven't booked any appointments yet or no appointments match your filter criteria.
+                    </p>
+                    <a href="{{ route('patient.appointments.create') }}"
+                        class="inline-flex items-center px-6 py-3 bg-gray-800 dark:bg-gray-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
+                        <i class="fas fa-plus mr-2"></i>
+                        Book Your First Appointment
+                    </a>
+                </div>
+            </div>
+        @endif
     </div>
-</div>
 @endsection
 
+
 @push('styles')
-<style>
-.card {
-    transition: transform 0.2s;
-}
+    <style>
+        /* Smooth transitions for all interactive elements */
+        .transition-all {
+            transition: all 0.2s ease-in-out;
+        }
 
-.card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
+        /* Enhanced hover effects for appointment cards */
+        .appointment-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
 
-.badge {
-    font-size: 0.75rem;
-}
+        /* Custom focus styles for accessibility */
+        .focus-ring:focus {
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+            box-shadow: 0 0 0 2px #3B82F6;
+        }
 
-.btn-sm {
-    font-size: 0.8rem;
-}
-
-.card-footer {
-    border-top: 1px solid rgba(0,0,0,0.125);
-}
-</style>
+        /* Dark mode enhancements */
+        @media (prefers-color-scheme: dark) {
+            .appointment-card:hover {
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+            }
+        }
+    </style>
 @endpush
