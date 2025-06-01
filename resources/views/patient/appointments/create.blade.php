@@ -2,7 +2,9 @@
 
 
 
-@ Hidden inputs for form data
+@section('title', 'Book Appointment')
+
+{{-- Preselected Doctor and Service --}}
 {{-- <input type="hidden" id="doctor_id" name="doctor_id" value="{{ $preselectedDoctor?->id ?? '' }}">
 <input type="hidden" id="selected_service_id" name="service_id" value="{{ $preselectedService?->id ?? '' }}">
 <input type="hidden" id="selected_date" name="appointment_date" value="">
@@ -12,9 +14,7 @@
 <input type="hidden" id="hidden_reason" name="reason" value="">
 <input type="hidden" id="hidden_symptoms" name="symptoms" value="">
 <input type="hidden" id="hidden_priority" name="priority" value="">
-<input type="hidden" id="hidden_appointment_type" name="appointment_type" value="">n('title', 'Book New
-Appointment - MediCare')
-
+<input type="hidden" id="hidden_appointment_type" name="appointment_type" value="">
 
 
 @section('content')
@@ -153,8 +153,17 @@ Appointment - MediCare')
                 </div>
             </form>
         </div>
-    </div>{{-- Enhanced Booking JavaScript --}}
+    </div>
+    {{-- Enhanced Booking JavaScript --}}
     <link rel="stylesheet" href="{{ asset('css/appointment-calendar.css') }}">
+    <script>
+        // Single variable
+        window.AppointmentConfig = @json($config);
+        
+
+        console.log('Config Object:', window.AppointmentConfig);
+      
+    </script>
     <script src="{{ asset('js/appointment-calendar.js') }}"></script>
     <script src="{{ asset('js/appointment-booking.js') }}"></script>
     {{-- @vite('resources/js/appointment-calendar.js') --}}

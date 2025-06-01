@@ -117,14 +117,6 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Show the enhanced appointment booking form.
-     */
-    public function createEnhanced(Request $request)
-    {
-        return $this->create($request);
-    }
-
-    /**
      * Store a new appointment booking.
      */
     public function store(BookAppointmentRequest $request)
@@ -160,6 +152,13 @@ class AppointmentController extends Controller
         $duration = $service->duration_minutes ?? $config->default_slot_duration ?? 15;
         $endTime = $appointmentDateTime->copy()->addMinutes($duration);
 
+        // Calculate tax values from config
+        $taxRate = ($config->tax_enabled ?? false) ? ($config->tax_rate ?? 0) : 0;
+        $taxAmount = 0;
+        if ($taxRate > 0) {
+            $taxAmount = round(($service->price * $taxRate), 2);
+        }
+
         // Generate appointment number
         $appointmentNumber = 'APT-' . now()->format('Ymd') . '-' . str_pad(
             Appointment::whereDate('created_at', now()->toDateString())->count() + 1,
@@ -178,15 +177,21 @@ class AppointmentController extends Controller
             'start_time' => $request->start_time,
             'end_time' => $endTime->format('H:i:s'),
             'duration_minutes' => $duration,
-            'patient_name' => $user->name,
-            'patient_email' => $user->email,
-            'patient_phone' => $user->phone_number ?? "",
-            'chief_complaint' => $request->reason,
+            'reason' => $request->reason,
+            'symptoms' => $request->symptoms,
             'notes' => $request->notes,
+            'priority' => $request->priority,
+            'appointment_type' => $request->appointment_type,
             'status' => 'pending',
             'payment_status' => 'pending',
-            'payment_amount' => $service->price,
-            'booking_source' => 'online'
+            'total_amount' => $service->price + $taxAmount,
+            'paid_amount' => 0,
+            'tax_amount' => $taxAmount,
+            'tax_percentage' => $taxRate * 100, // Store as percentage
+            'booked_at' => now(),
+            'booking_source' => 'online',
+            'special_instructions' => $request->special_instructions,
+            // cancellation and completion fields are nullable and not set at creation
         ]);
 
         // Send notification to doctor (implement notification system as needed)

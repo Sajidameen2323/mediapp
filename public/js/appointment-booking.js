@@ -11,7 +11,9 @@ class AppointmentBooking {
             time: null,
             details: {}
         };
-
+        // Initialize config object
+        this.appConfig = window.AppointmentConfig || {};
+        console.log('AppointmentBooking initialized with config:', this.Config);
         // Initialize custom calendar
         this.calendar = null;
 
@@ -89,7 +91,7 @@ class AppointmentBooking {
         } catch (error) {
             console.error('Error preselecting service:', error);
         }
-    } 
+    }
     goToStep(targetStep) {
         if (targetStep < 1 || targetStep > this.totalSteps) {
             return;
@@ -449,21 +451,21 @@ class AppointmentBooking {
 
     }
     async loadInitialDoctors() {
-        console.log('loadInitialDoctors called');
+        // console.log('loadInitialDoctors called');
         this.showDoctorsLoading(true);
 
         try {
-            console.log('Fetching initial doctors...');
+            // console.log('Fetching initial doctors...');
             const response = await fetch('/api/appointments/search-doctors?initial=1');
-            console.log('Response status:', response.status);
+            // console.log('Response status:', response.status);
             const data = await response.json();
-            console.log('API response data:', data);
+            // console.log('API response data:', data);
 
             if (data.success) {
-                console.log('Displaying doctors:', data.doctors.length);
+                // console.log('Displaying doctors:', data.doctors.length);
                 this.displayDoctors(data.doctors);
             } else {
-                console.error('API returned error:', data);
+                // console.error('API returned error:', data);
                 this.showDoctorsError();
             }
         } catch (error) {
@@ -517,13 +519,13 @@ class AppointmentBooking {
         return serviceFilter || specializationFilter;
     }
     displayDoctors(doctors) {
-        console.log('displayDoctors called with:', doctors);
+        // console.log('displayDoctors called with:', doctors);
         const container = document.getElementById('doctors_grid');
         const template = document.getElementById('doctor_card_template');
         const noResults = document.getElementById('no_doctors_found');
 
-        console.log('Container found:', !!container);
-        console.log('Template found:', !!template);
+        // console.log('Container found:', !!container);
+        // console.log('Template found:', !!template);
 
         if (!container || !template) {
             console.error('Missing container or template elements');
@@ -539,10 +541,10 @@ class AppointmentBooking {
         }
 
         noResults?.classList.add('hidden');
-        console.log('Processing', doctors.length, 'doctors');
+        // console.log('Processing', doctors.length, 'doctors');
 
         doctors.forEach((doctor, index) => {
-            console.log(`Processing doctor ${index}:`, doctor);
+            // console.log(`Processing doctor ${index}:`, doctor);
             const card = template.content.cloneNode(true);
 
             // Populate card data
@@ -573,6 +575,7 @@ class AppointmentBooking {
             container.appendChild(card);
         });
     }
+
     selectDoctor(doctor) {
         console.log('selectDoctor called with:', doctor);
         this.selectedData.doctor = doctor;
@@ -828,6 +831,17 @@ class AppointmentBooking {
         this.nextStep();
     }
 
+    formatTime(timeString) {
+        // Split the time string by colon
+        const parts = timeString.split(':');
+
+        // Extract hours and minutes (first two parts)
+        const hours = parts[0];
+        const minutes = parts[1];
+
+        // Return formatted HH:MM
+        return `${hours}:${minutes}`;
+    }
 
     updateConfirmationDetails() {
 
@@ -835,6 +849,8 @@ class AppointmentBooking {
             .selectedData.time) {
             return;
         }
+
+        console.log('Updating confirmation details with:', this.selectedData);
 
         // Update doctor info in confirmation
         const doctorName = document.getElementById('confirm_doctor_name');
@@ -847,18 +863,42 @@ class AppointmentBooking {
         // Update service info
         const serviceName = document.getElementById('confirm_service_name');
         const servicePrice = document.getElementById('confirm_service_price');
+        const serviceDuration = document.getElementById('confirm_service_duration');
 
         if (serviceName) serviceName.textContent = this.selectedData.service.name;
         if (servicePrice) servicePrice.textContent =
-            `$${this.selectedData.service.price || this.selectedData.service.consultation_fee || '0'}`;
+            `$${this.selectedData.service.price || this.selectedData.service.price || '0'}`;
+
+        if (serviceDuration) {
+            serviceDuration.textContent = `${this.selectedData.service.duration || 30} minutes`;
+        }
 
         // Update date and time
-        const appointmentDate = document.getElementById('confirm_appointment_date');
-        const appointmentTime = document.getElementById('confirm_appointment_time');
+        const appointmentDate = document.getElementById('confirm_date');
+        const appointmentTime = document.getElementById('confirm_day');
 
         if (appointmentDate) appointmentDate.textContent = new Date(this.selectedData.date)
             .toLocaleDateString();
-        if (appointmentTime) appointmentTime.textContent = this.selectedData.time;        // Update patient details in confirmation
+        appointmentTime.textContent = this.formatTime(this.selectedData.time);
+
+        const estimated_duration = document.getElementById('confirm_duration');
+
+        if (estimated_duration) {
+            estimated_duration.textContent = `${(this.selectedData.service.duration + 10) || 30} minutes`;
+        }
+
+        const confirm_fee = document.getElementById('confirm_fee');
+        const confirm_tax = document.getElementById('confirm_tax');
+
+        if (confirm_fee) {
+            confirm_fee.textContent = `$${this.selectedData.service.price || '0'}`;
+        }
+        if (confirm_tax) {
+            const taxRate = this.appConfig?.tax_rate || 0.01; // Example tax rate of 15%
+            const taxAmount = (this.selectedData.service.price || 0) * taxRate;
+            confirm_tax.textContent = `$${taxAmount.toFixed(2)}`;
+        }
+        // Update patient details in confirmation
         const confirmReason = document.getElementById('confirm_reason');
         const confirmSymptoms = document.getElementById('confirm_symptoms');
         const confirmPriority = document.getElementById('confirm_priority');

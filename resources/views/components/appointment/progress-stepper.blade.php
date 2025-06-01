@@ -26,9 +26,9 @@
                                 : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 shadow-md') }}">
 
                         @if ($step < $currentStep)
-                            <i class="fas fa-check text-sm font-bold"></i>
+                            <i class="fas fa-check text-sm font-bold text-gray-900"></i>
                         @elseif ($step === $currentStep)
-                            <i class="{{ $stepIcons[$step - 1] ?? 'fas fa-circle' }} text-sm"></i>
+                            <i class="{{ $stepIcons[$step - 1] ?? 'fas fa-circle' }} text-sm text-gray-900"></i>
                         @else
                             <span class="text-sm font-semibold">{{ $step }}</span>
                         @endif

@@ -25,16 +25,25 @@ return new class extends Migration
             $table->integer('duration_minutes');
             
             // Patient information
-            $table->string('patient_name');
-            $table->string('patient_phone');
-            $table->string('patient_email')->nullable();
-            $table->text('patient_notes')->nullable();
+            // Removed: $table->string('patient_name');
+            // Removed: $table->string('patient_phone');
+            // Removed: $table->string('patient_email')->nullable();
+            // Removed: $table->text('patient_notes')->nullable();
+
+            // Appointment request details
+            $table->string('reason', 500);
+            $table->string('symptoms', 1000)->nullable();
+            $table->string('notes', 500)->nullable();
+            $table->enum('priority', ['low', 'medium', 'high', 'urgent']);
+            $table->enum('appointment_type', ['consultation', 'follow_up', 'check_up', 'emergency']);
             
             // Appointment status and management
             $table->enum('status', ['pending', 'confirmed', 'cancelled', 'completed', 'no_show'])->default('pending');
             $table->enum('payment_status', ['pending', 'paid', 'partially_paid', 'refunded'])->default('pending');
             $table->decimal('total_amount', 8, 2);
             $table->decimal('paid_amount', 8, 2)->default(0.00);
+            $table->decimal('tax_amount', 8, 2)->nullable();
+            $table->decimal('tax_percentage', 5, 2)->nullable();
             
             // Booking details
             $table->timestamp('booked_at');

@@ -47,7 +47,7 @@
 
     {{-- Next/Submit Button --}}
     <div class="order-3 w-full sm:w-auto"> <button type="button" id="next_btn"
-            class="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+            class="w-full px-6 py-3 bg-gray-800 dark:bg-gray-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
             <span id="next_btn_text">
                 @if ($currentStep < 5)
                     Next
@@ -61,7 +61,7 @@
 
         {{-- Submit Button (Hidden by default) --}}
         <button type="submit" id="submit_btn"
-            class="hidden w-full px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 dark:from-green-500 dark:to-green-600 dark:hover:from-green-600 dark:hover:to-green-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
+            class="hidden w-full px-6 py-3 bg-gray-900 dark:bg-dark-700 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
             <i class="fas fa-calendar-check mr-2"></i>
             <span id="submit_btn_text">Confirm Appointment</span>
         </button>
