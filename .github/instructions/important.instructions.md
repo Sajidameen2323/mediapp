@@ -3,6 +3,8 @@ applyTo: '**'
 ---
 
 # Important Instructions
+Use windows commands
+
 when styling pages, please ensure that you follow these guidelines:
 - refer THEME.md for the theme design
 - Use dark tailwind attribute to support darm mode along with default light mode
@@ -17,5 +19,3 @@ When generating components, pages please ensure that you follow these guidelines
 - make use of layouting feature for consistent layout
 - try to seperate JS logic if necessary
 
-When writing terminal commands, please ensure that you follow these guidelines:
-- write in this example format: `command; command` (without backticks)

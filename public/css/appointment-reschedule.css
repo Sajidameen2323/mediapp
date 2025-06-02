@@ -1,0 +1,174 @@
+/* Appointment Reschedule Calendar Styles */
+
+/* Enhanced reschedule-specific styling */
+.reschedule-calendar .appointment-calendar {
+    position: relative;
+}
+
+/* Current appointment highlighting */
+.reschedule-calendar .current-appointment-indicator {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: #ef4444;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 10;
+}
+
+/* Reschedule deadline warning animations */
+.reschedule-warning {
+    animation: reschedule-pulse 2s infinite;
+}
+
+@keyframes reschedule-pulse {
+    0%, 100% { 
+        opacity: 1; 
+    }
+    50% { 
+        opacity: 0.8; 
+    }
+}
+
+/* Time slot exclusion styling */
+.time-slot-btn.excluded {
+    background: #f3f4f6 !important;
+    color: #9ca3af !important;
+    cursor: not-allowed !important;
+    opacity: 0.5;
+    position: relative;
+}
+
+.time-slot-btn.excluded::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    background: #ef4444;
+    transform: rotate(-45deg);
+}
+
+.time-slot-btn.excluded::after {
+    content: 'Current';
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: #ef4444;
+    font-weight: bold;
+}
+
+/* Validation message transitions */
+.reschedule-validation {
+    animation: slide-in 0.3s ease-out;
+}
+
+@keyframes slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Enhanced calendar day styling for reschedule context */
+.reschedule-calendar .calendar-day.current-appointment {
+    background: linear-gradient(135deg, #fef3c7, #fbbf24) !important;
+    color: #92400e !important;
+    border: 2px solid #f59e0b !important;
+    position: relative;
+}
+
+.reschedule-calendar .calendar-day.current-appointment::after {
+    content: 'Current';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 8px;
+    font-weight: bold;
+    color: #92400e;
+    background: #fbbf24;
+    padding: 1px 3px;
+    border-radius: 2px;
+}
+
+/* Loading state improvements for reschedule */
+.reschedule-calendar .calendar-loading {
+    backdrop-filter: blur(4px);
+}
+
+/* Mobile responsiveness for reschedule calendar */
+@media (max-width: 640px) {
+    .reschedule-calendar .reschedule-warning {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .reschedule-calendar .time-slot-btn {
+        padding: 0.75rem;
+        font-size: 0.875rem;
+    }
+    
+    .reschedule-calendar .time-slot-btn.excluded::after {
+        font-size: 8px;
+        bottom: -15px;
+    }
+}
+
+/* Dark mode enhancements */
+@media (prefers-color-scheme: dark) {
+    .reschedule-calendar .calendar-day.current-appointment {
+        background: linear-gradient(135deg, #451a03, #92400e) !important;
+        color: #fbbf24 !important;
+        border-color: #f59e0b !important;
+    }
+    
+    .reschedule-calendar .calendar-day.current-appointment::after {
+        background: #92400e;
+        color: #fbbf24;
+    }
+    
+    .time-slot-btn.excluded {
+        background: #374151 !important;
+        color: #6b7280 !important;
+    }
+}
+
+/* Success state styling */
+.reschedule-calendar .selection-complete {
+    border: 2px solid #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Hover effects for better UX */
+.reschedule-calendar .time-slot-btn:not(.excluded):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Focus improvements for accessibility */
+.reschedule-calendar .time-slot-btn:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+.reschedule-calendar .calendar-day:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    z-index: 10;
+    position: relative;
+}

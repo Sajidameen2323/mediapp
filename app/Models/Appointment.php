@@ -38,6 +38,11 @@ class Appointment extends Model
         'cancelled_by',
         'cancellation_reason',
         'rescheduled_from',
+        'rescheduled_at',
+        'rescheduled_by',
+        'reschedule_reason',
+        'original_date',
+        'original_time',
         'completed_at',
         'completion_notes',
     ];
@@ -52,6 +57,9 @@ class Appointment extends Model
         'tax_percentage' => 'decimal:2',
         'booked_at' => 'datetime',
         'cancelled_at' => 'datetime',
+        'rescheduled_at' => 'datetime',
+        'original_date' => 'date',
+        'original_time' => 'datetime:H:i',
         'completed_at' => 'datetime',
     ];
 
@@ -177,9 +185,15 @@ class Appointment extends Model
             return false;
         }
 
-        // Create proper datetime by combining date and time
+        // Create proper datetime by combining date and time, respecting config timezone
         $appointmentDateTime = $this->appointment_date->copy()->setTimeFromTimeString($this->getRawOriginal('start_time'));
-        $hoursUntilAppointment = now()->diffInHours($appointmentDateTime, false);
+        
+        // Get current time in the appointment config timezone
+        $configTimezone = $config->timezone ?? 'UTC';
+        $currentTime = now()->setTimezone($configTimezone);
+        $appointmentDateTime->setTimezone($configTimezone);
+        
+        $hoursUntilAppointment = $currentTime->diffInHours($appointmentDateTime, false);
 
         return $hoursUntilAppointment >= $config->cancellation_hours_limit;
     }
@@ -198,9 +212,15 @@ class Appointment extends Model
             return false;
         }
 
-        // Create proper datetime by combining date and time
+        // Create proper datetime by combining date and time, respecting config timezone
         $appointmentDateTime = $this->appointment_date->copy()->setTimeFromTimeString($this->getRawOriginal('start_time'));
-        $hoursUntilAppointment = now()->diffInHours($appointmentDateTime, false);
+        
+        // Get current time in the appointment config timezone
+        $configTimezone = $config->timezone ?? 'UTC';
+        $currentTime = now()->setTimezone($configTimezone);
+        $appointmentDateTime->setTimezone($configTimezone);
+        
+        $hoursUntilAppointment = $currentTime->diffInHours($appointmentDateTime, false);
 
         return $hoursUntilAppointment >= $config->reschedule_hours_limit;
     }
@@ -226,5 +246,39 @@ class Appointment extends Model
             'no_show' => 'gray',
             default => 'gray'
         };
+    }
+
+    /**
+     * Debug method to check timezone calculation differences
+     * This can be used to verify that timezone handling is working correctly
+     */
+    public function getTimezoneDebugInfo()
+    {
+        $config = AppointmentConfig::getActive();
+        if (!$config) {
+            return ['error' => 'No appointment config found'];
+        }
+
+        $appointmentDateTime = $this->appointment_date->copy()->setTimeFromTimeString($this->getRawOriginal('start_time'));
+        $configTimezone = $config->timezone ?? 'UTC';
+        
+        // Times in different contexts
+        $currentTimeDefault = now();
+        $currentTimeConfig = now()->setTimezone($configTimezone);
+        $appointmentTimeConfig = $appointmentDateTime->setTimezone($configTimezone);
+        
+        return [
+            'config_timezone' => $configTimezone,
+            'appointment_datetime_original' => $appointmentDateTime->toDateTimeString(),
+            'appointment_datetime_config_tz' => $appointmentTimeConfig->toDateTimeString(),
+            'current_time_default' => $currentTimeDefault->toDateTimeString(),
+            'current_time_config_tz' => $currentTimeConfig->toDateTimeString(),
+            'hours_until_appointment_default' => $currentTimeDefault->diffInHours($appointmentDateTime, false),
+            'hours_until_appointment_config_tz' => $currentTimeConfig->diffInHours($appointmentTimeConfig, false),
+            'can_be_cancelled' => $this->canBeCancelled(),
+            'can_be_rescheduled' => $this->canBeRescheduled(),
+            'cancellation_limit' => $config->cancellation_hours_limit,
+            'reschedule_limit' => $config->reschedule_hours_limit,
+        ];
     }
 }

@@ -60,9 +60,8 @@
                                 <div class="flex items-center mb-2">
                                     <i class="fas fa-calendar text-blue-600 dark:text-blue-400 mr-2"></i>
                                     <h3 class="font-medium text-gray-900 dark:text-white">Date & Time</h3>
-                                </div>
-                                <p class="text-lg font-semibold text-blue-900 dark:text-blue-300">
-                                    {{ \Carbon\Carbon::parse($appointment->appointment_date)->format('l, F d, Y') }}
+                                </div>                                <p class="text-lg font-semibold text-blue-900 dark:text-blue-300">
+                                    {{ \Carbon\Carbon::parse($appointment->appointment_date)->setTimezone($config->timezone ?? 'UTC')->format('l, F d, Y') }}
                                 </p>
                                 <p class="text-blue-700 dark:text-blue-400">
                                     {{ \Carbon\Carbon::parse($appointment->start_time)->format('g:i A') }}
@@ -267,8 +266,7 @@
         </div>
 
         <!-- Sidebar -->
-        <div class="space-y-6">
-            <!-- Quick Actions -->
+        <div class="space-y-6">            <!-- Quick Actions -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                 <div class="p-6">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
@@ -277,39 +275,14 @@
                     </h3>
                     
                     <div class="space-y-3">
-                        <!-- Reschedule Button -->
-                        @if($canReschedule && $appointment->status === 'pending')
-                            <a href="{{ route('patient.appointments.reschedule', $appointment) }}"
-                               class="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
-                                <i class="fas fa-calendar-alt mr-2"></i>
-                                Reschedule Appointment
-                            </a>
-                        @endif
-
-                        <!-- Cancel Button -->
-                        @if($canCancel && $appointment->status === 'pending')
-                            <button type="button" onclick="showCancelModal()"
-                                    class="w-full inline-flex items-center justify-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors duration-200">
-                                <i class="fas fa-times mr-2"></i>
-                                Cancel Appointment
-                            </button>
-                        @endif
-
-                        <!-- Print Button -->
-                        <button type="button" onclick="window.print()"
-                                class="w-full inline-flex items-center justify-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors duration-200">
-                            <i class="fas fa-print mr-2"></i>
-                            Print Details
-                        </button>
-
-                        <!-- Rate Appointment -->
-                        @if($appointment->status === 'completed' && !$appointment->rating)
-                            <button type="button" onclick="showRatingModal()"
-                                    class="w-full inline-flex items-center justify-center px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white font-medium rounded-lg transition-colors duration-200">
-                                <i class="fas fa-star mr-2"></i>
-                                Rate Appointment
-                            </button>
-                        @endif
+                        <x-appointment.action-buttons 
+                            :appointment="$appointment"
+                            layout="vertical"
+                            size="md"
+                            :show-print="true"
+                            :show-rating="$appointment->status === 'completed' && !$appointment->rating"
+                            cancel-action="showCancelModal()"
+                            rating-action="showRatingModal()" />
                     </div>
                 </div>
             </div>
@@ -336,10 +309,9 @@
                                             <div>
                                                 <p class="text-sm text-gray-900 dark:text-white font-medium">Appointment Booked</p>
                                                 <p class="text-xs text-gray-500 dark:text-gray-400">by {{ $appointment->patient->name }}</p>
-                                            </div>
-                                            <div class="text-right text-xs text-gray-400 dark:text-gray-500">
-                                                {{ $appointment->created_at->format('M d, Y g:i A') }}
-                                            </div>
+                                            </div>                            <div class="text-right text-xs text-gray-400 dark:text-gray-500">
+                                {{ $appointment->created_at->setTimezone($config->timezone ?? 'UTC')->format('M d, Y g:i A') }}
+                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -357,9 +329,8 @@
                                                 <div>
                                                     <p class="text-sm text-gray-900 dark:text-white font-medium">Appointment Confirmed</p>
                                                     <p class="text-xs text-gray-500 dark:text-gray-400">by doctor</p>
-                                                </div>
-                                                <div class="text-right text-xs text-gray-400 dark:text-gray-500">
-                                                    {{ \Carbon\Carbon::parse($appointment->confirmed_at)->format('M d, Y g:i A') }}
+                                                </div>                                                <div class="text-right text-xs text-gray-400 dark:text-gray-500">
+                                                    {{ \Carbon\Carbon::parse($appointment->confirmed_at)->setTimezone($config->timezone ?? 'UTC')->format('M d, Y g:i A') }}
                                                 </div>
                                             </div>
                                         </div>
@@ -379,9 +350,8 @@
                                                 <div>
                                                     <p class="text-sm text-gray-900 dark:text-white font-medium">Appointment Completed</p>
                                                     <p class="text-xs text-gray-500 dark:text-gray-400">by doctor</p>
-                                                </div>
-                                                <div class="text-right text-xs text-gray-400 dark:text-gray-500">
-                                                    {{ \Carbon\Carbon::parse($appointment->completed_at)->format('M d, Y g:i A') }}
+                                                </div>                                                <div class="text-right text-xs text-gray-400 dark:text-gray-500">
+                                                    {{ \Carbon\Carbon::parse($appointment->completed_at)->setTimezone($config->timezone ?? 'UTC')->format('M d, Y g:i A') }}
                                                 </div>
                                             </div>
                                         </div>
@@ -403,9 +373,8 @@
                                                     @if($appointment->cancellation_reason)
                                                         <p class="text-xs text-red-600 dark:text-red-400 mt-1">{{ $appointment->cancellation_reason }}</p>
                                                     @endif
-                                                </div>
-                                                <div class="text-right text-xs text-gray-400 dark:text-gray-500">
-                                                    {{ \Carbon\Carbon::parse($appointment->cancelled_at)->format('M d, Y g:i A') }}
+                                                </div>                                                <div class="text-right text-xs text-gray-400 dark:text-gray-500">
+                                                    {{ \Carbon\Carbon::parse($appointment->cancelled_at)->setTimezone($config->timezone ?? 'UTC')->format('M d, Y g:i A') }}
                                                 </div>
                                             </div>
                                         </div>
@@ -428,9 +397,8 @@
                                                     @if($appointment->reschedule_reason)
                                                         <p class="text-xs text-yellow-600 dark:text-yellow-400 mt-1">{{ $appointment->reschedule_reason }}</p>
                                                     @endif
-                                                </div>
-                                                <div class="text-right text-xs text-gray-400 dark:text-gray-500">
-                                                    {{ \Carbon\Carbon::parse($appointment->rescheduled_at)->format('M d, Y g:i A') }}
+                                                </div>                                                <div class="text-right text-xs text-gray-400 dark:text-gray-500">
+                                                    {{ \Carbon\Carbon::parse($appointment->rescheduled_at)->setTimezone($config->timezone ?? 'UTC')->format('M d, Y g:i A') }}
                                                 </div>
                                             </div>
                                         </div>
