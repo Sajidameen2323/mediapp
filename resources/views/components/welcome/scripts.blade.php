@@ -329,6 +329,8 @@
             const availability = doctor.is_available ? 'Available Now' : 'Next available: Soon';
             const rating = (4.5 + Math.random() * 0.4).toFixed(1); // Random rating between 4.5-4.9
             const reviewCount = Math.floor(Math.random() * 200) + 50; // Random review count
+            const bookUrl = `{{ route('patient.appointments.create', ['doctor_id' => 'doctor_id_placeholder']) }}`;
+            const bookUrlWithId = bookUrl.replace('doctor_id_placeholder', doctor.id);
             
             return `
                 <div class="bg-white dark:bg-gray-900 rounded-xl shadow-lg hover:shadow-xl transition-shadow overflow-hidden">
@@ -347,9 +349,11 @@
                             </div>
                             <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">${availability}</p>
                             ${doctor.consultation_fee ? `<p class="text-gray-600 dark:text-gray-400 text-sm">Consultation: $${doctor.consultation_fee}</p>` : ''}
-                            <button class="mt-4 w-full bg-${palette.color} text-white py-2 rounded-lg hover:bg-${palette.color.replace('600', '700')} transition-colors">
-                                Book Appointment
-                            </button>
+                            <a href="${bookUrlWithId}" class="block">
+                                <button class="mt-4 w-full bg-${palette.color} text-white py-2 rounded-lg hover:bg-${palette.color.replace('600', '700')} transition-colors">
+                                    Book Appointment
+                                </button>
+                            </a>
                         </div>
                     </div>
                 </div>

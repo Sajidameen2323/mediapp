@@ -77,7 +77,7 @@
             </div>
 
             {{-- Action Button --}}
-            <button class="select-doctor-btn w-full bg-gray-800 dark:bg-gray-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 transform group-hover:scale-105">
+            <button class="select-doctor-btn w-full bg-gray-800 dark:bg-gray-700 text-white font-semibold py-3 px-4 rounded-xl hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors">
                 <i class="fas fa-calendar-plus mr-2"></i>
                 Select Doctor
             </button>

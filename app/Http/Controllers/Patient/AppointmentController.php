@@ -12,6 +12,8 @@ use App\Models\DoctorHoliday;
 use App\Models\DoctorSchedule;
 use App\Services\AppointmentSlotService;
 use App\Http\Requests\Patient\BookAppointmentRequest;
+use App\Http\Requests\Patient\AppointmentRequest;
+use App\Http\Requests\Patient\AppointmentShowRequest;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Carbon\Carbon;
@@ -30,14 +32,20 @@ class AppointmentController extends Controller
     /**
      * Display patient's appointments.
      */
-    public function index(Request $request)
+    public function index(AppointmentRequest $request)
     {
         $this->authorize('patient-access');
 
         $user = auth()->user();
 
-        $status = $request->get('status', 'all');
-        $date = $request->get('date', 'upcoming');
+        // Get validated and sanitized filters
+        $filters = $request->getValidatedFilters();
+        
+        $status = $filters['status'];
+        $date = $filters['date'];
+        $fromDate = $filters['from_date'];
+        $toDate = $filters['to_date'];
+        $perPage = $filters['per_page'];
 
         $query = Appointment::where('patient_id', $user->id)->with(['doctor', 'service']);
 
@@ -50,6 +58,10 @@ class AppointmentController extends Controller
         switch ($date) {
             case 'upcoming':
                 $query->upcoming();
+                // If from_date is provided, use it as the starting point
+                if ($fromDate) {
+                    $query->where('appointment_date', '>=', $fromDate);
+                }
                 break;
             case 'past':
                 $query->where('appointment_date', '<', now()->toDateString());
@@ -62,11 +74,23 @@ class AppointmentController extends Controller
                 $endOfWeek = now()->endOfWeek();
                 $query->byDateRange($startOfWeek->toDateString(), $endOfWeek->toDateString());
                 break;
+            case 'custom':
+                if ($fromDate && $toDate) {
+                    $query->byDateRange($fromDate, $toDate);
+                } elseif ($fromDate) {
+                    $query->where('appointment_date', '>=', $fromDate);
+                } elseif ($toDate) {
+                    $query->where('appointment_date', '<=', $toDate);
+                }
+                break;
+            case 'all':
+                // No date filtering
+                break;
         }
 
         $appointments = $query->orderBy('appointment_date', 'desc')
             ->orderBy('start_time', 'desc')
-            ->paginate(10);
+            ->paginate($perPage);
 
         // Statistics
         $stats = [
@@ -79,7 +103,16 @@ class AppointmentController extends Controller
         // Get appointment configuration
         $config = AppointmentConfig::getActive();
 
-        return view('patient.appointments.index', compact('appointments', 'stats', 'status', 'date', 'config'));
+        return view('patient.appointments.index', compact(
+            'appointments', 
+            'stats', 
+            'status', 
+            'date', 
+            'fromDate',
+            'toDate',
+            'config',
+            'filters'
+        ));
     }
 
     /**
@@ -216,15 +249,36 @@ class AppointmentController extends Controller
             abort(403, 'Unauthorized access to appointment.');
         }
 
-        $appointment->load(['doctor', 'service']);
-
-        return view('patient.appointments.show', compact('appointment'));
+        // Load relationships without the profile array method
+        $appointment->load([
+            'doctor.user', 
+            'service', 
+            'patient',
+            'doctor.user.doctor', // For doctor profile data
+            'doctor.user.laboratory', // For laboratory profile data  
+            'doctor.user.pharmacy', // For pharmacy profile data
+            'doctor.user.healthProfile' // For patient profile data
+        ]);
+        
+        // Get appointment configuration for policy display
+        $config = AppointmentConfig::getActive();
+        
+        // Calculate time remaining for actions
+        $canCancel = $appointment->canBeCancelled();
+        $canReschedule = $appointment->canBeRescheduled();
+        
+        return view('patient.appointments.show', compact(
+            'appointment', 
+            'config', 
+            'canCancel', 
+            'canReschedule'
+        ));
     }
 
     /**
      * Cancel an appointment.
      */
-    public function cancel(Request $request, Appointment $appointment)
+    public function cancel(AppointmentRequest $request, Appointment $appointment)
     {
         $this->authorize('patient-access');
 
@@ -247,15 +301,13 @@ class AppointmentController extends Controller
             );
         }
 
-        $request->validate([
-            'cancellation_reason' => 'required|string|max:500'
-        ]);
+        $validated = $request->validated();
 
         $appointment->update([
             'status' => 'cancelled',
             'cancelled_at' => now(),
             'cancelled_by' => 'patient',
-            'cancellation_reason' => $request->cancellation_reason
+            'cancellation_reason' => $validated['cancellation_reason']
         ]);
 
         return redirect()->route('patient.appointments.index')
@@ -365,6 +417,38 @@ class AppointmentController extends Controller
     }
 
     /**
+     * Rate an appointment.
+     */
+    public function rate(AppointmentRequest $request, Appointment $appointment)
+    {
+        $this->authorize('patient-access');
+
+        $user = auth()->user();
+
+        if ($appointment->patient_id !== $user->id) {
+            abort(403, 'Unauthorized access to appointment.');
+        }
+
+        if ($appointment->status !== 'completed') {
+            return redirect()->back()->with('error', 'Only completed appointments can be rated.');
+        }
+
+        if ($appointment->rating) {
+            return redirect()->back()->with('error', 'This appointment has already been rated.');
+        }
+
+        $validated = $request->validated();
+
+        $appointment->update([
+            'rating' => $validated['rating'],
+            'review' => $validated['review'] ?? null,
+            'rated_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Thank you for rating this appointment!');
+    }
+
+    /**
      * Get available slots for a doctor on a specific date (AJAX).
      */
     public function getAvailableSlots(Request $request)
@@ -375,6 +459,7 @@ class AppointmentController extends Controller
             'service_id' => 'nullable|exists:services,id'
         ]);
 
+        /** @var Doctor $doctor */
         $doctor = Doctor::findOrFail($request->doctor_id);
         $slots = $this->slotService->getAvailableSlots(
             $doctor,

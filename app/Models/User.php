@@ -53,11 +53,22 @@ class User extends Authenticatable
     protected $dates = ['deleted_at'];
 
     /**
-     * Get the profile for the user.
+     * Get the profile for the user based on user type.
      */
     public function profile(): array
     {
-        return $this->morphTo()->toArray();
+        switch ($this->user_type) {
+            case 'doctor':
+                return $this->doctor ? $this->doctor->toArray() : [];
+            case 'laboratory':
+                return $this->laboratory ? $this->laboratory->toArray() : [];
+            case 'pharmacy':
+                return $this->pharmacy ? $this->pharmacy->toArray() : [];
+            case 'patient':
+                return $this->healthProfile ? $this->healthProfile->toArray() : [];
+            default:
+                return [];
+        }
     }
 
     /**

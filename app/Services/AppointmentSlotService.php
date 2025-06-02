@@ -15,17 +15,29 @@ use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class AppointmentSlotService
-{
-    /**
+{    /**
      * Generate available time slots for a doctor on a specific date.
      */
-    public function getAvailableSlots(Doctor $doctor, string $date, int $serviceId): Collection
+    public function getAvailableSlots(Doctor $doctor, string $date, ?int $serviceId = null): Collection
     {
         $config = AppointmentConfig::first();
-        $service = $doctor->services()->find($serviceId);
-        if (!$service) {
-            error_log("Service ID {$serviceId} not found for doctor ID: {$doctor->id}");
+        if (!$config) {
             return collect();
+        }
+        
+        // If no service ID provided, use the first available service for the doctor
+        if (!$serviceId) {
+            $service = $doctor->services()->where('is_active', true)->first();
+            if (!$service) {
+                error_log("No active services found for doctor ID: {$doctor->id}");
+                return collect();
+            }
+        } else {
+            $service = $doctor->services()->find($serviceId);
+            if (!$service) {
+                error_log("Service ID {$serviceId} not found for doctor ID: {$doctor->id}");
+                return collect();
+            }
         }
         if (!$config) {
             return collect();
@@ -66,9 +78,7 @@ class AppointmentSlotService
         $reindexedSlots = $slots->values();
 
         return $reindexedSlots;
-    }
-
-    /**
+    }    /**
      * Check if a specific time slot is available for booking.
      */
     public function isSlotAvailable(Doctor $doctor, string $datetime, ?int $serviceId = null): bool
@@ -111,9 +121,7 @@ class AppointmentSlotService
         }
 
         return null;
-    }
-
-    /**
+    }    /**
      * Get available slots for multiple days.
      */
     public function getAvailableSlotsForDateRange(Doctor $doctor, string $startDate, string $endDate, ?int $serviceId = null): Collection

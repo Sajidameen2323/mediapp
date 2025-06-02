@@ -28,38 +28,58 @@
 
         <!-- Filter Section -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
-            <div class="p-6">
-                <form method="GET" action="{{ route('patient.appointments.index') }}"
-                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="p-6">                <form method="GET" action="{{ route('patient.appointments.index') }}"
+                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
                     <div>
                         <label for="status"
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
                         <select name="status" id="status"
                             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                            <option value="">All Statuses</option>
-                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                            <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed
-                            </option>
-                            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed
-                            </option>
-                            <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled
-                            </option>
-                            <option value="no_show" {{ request('status') == 'no_show' ? 'selected' : '' }}>No Show</option>
+                            <option value="all" {{ ($filters['status'] ?? 'all') == 'all' ? 'selected' : '' }}>All Statuses</option>
+                            <option value="pending" {{ ($filters['status'] ?? '') == 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="confirmed" {{ ($filters['status'] ?? '') == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
+                            <option value="completed" {{ ($filters['status'] ?? '') == 'completed' ? 'selected' : '' }}>Completed</option>
+                            <option value="cancelled" {{ ($filters['status'] ?? '') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                            <option value="no_show" {{ ($filters['status'] ?? '') == 'no_show' ? 'selected' : '' }}>No Show</option>
                         </select>
                     </div>
                     <div>
-                        <label for="date_from" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">From
-                            Date</label>
-                        <input type="date" name="date_from" id="date_from"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                            value="{{ request('date_from') }}">
+                        <label for="date"
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date Filter</label>
+                        <select name="date" id="date"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="all" {{ ($filters['date'] ?? 'upcoming') == 'all' ? 'selected' : '' }}>All Dates</option>
+                            <option value="upcoming" {{ ($filters['date'] ?? 'upcoming') == 'upcoming' ? 'selected' : '' }}>Upcoming</option>
+                            <option value="past" {{ ($filters['date'] ?? '') == 'past' ? 'selected' : '' }}>Past</option>
+                            <option value="today" {{ ($filters['date'] ?? '') == 'today' ? 'selected' : '' }}>Today</option>
+                            <option value="week" {{ ($filters['date'] ?? '') == 'week' ? 'selected' : '' }}>This Week</option>
+                            <option value="custom" {{ ($filters['date'] ?? '') == 'custom' ? 'selected' : '' }}>Custom Range</option>
+                        </select>
                     </div>
-                    <div>
-                        <label for="date_to" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">To
+                    <div id="custom-date-fields" class="{{ ($filters['date'] ?? 'upcoming') == 'custom' ? '' : 'hidden' }}">
+                        <label for="from_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">From
                             Date</label>
-                        <input type="date" name="date_to" id="date_to"
+                        <input type="date" name="from_date" id="from_date"
                             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                            value="{{ request('date_to') }}">
+                            value="{{ $filters['from_date'] ?? '' }}">
+                    </div>
+                    <div id="custom-date-to-field" class="{{ ($filters['date'] ?? 'upcoming') == 'custom' ? '' : 'hidden' }}">
+                        <label for="to_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">To
+                            Date</label>
+                        <input type="date" name="to_date" id="to_date"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            value="{{ $filters['to_date'] ?? '' }}">
+                    </div>
+                    <div class="flex flex-col justify-end">
+                        <label for="per_page" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Records per page</label>
+                        <select name="per_page" id="per_page"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="5" {{ ($filters['per_page'] ?? 10) == 5 ? 'selected' : '' }}>5</option>
+                            <option value="10" {{ ($filters['per_page'] ?? 10) == 10 ? 'selected' : '' }}>10</option>
+                            <option value="15" {{ ($filters['per_page'] ?? 10) == 15 ? 'selected' : '' }}>15</option>
+                            <option value="25" {{ ($filters['per_page'] ?? 10) == 25 ? 'selected' : '' }}>25</option>
+                            <option value="50" {{ ($filters['per_page'] ?? 10) == 50 ? 'selected' : '' }}>50</option>
+                        </select>
                     </div>
                     <div class="flex flex-col justify-end">
                         <div class="flex flex-col sm:flex-row gap-3">
@@ -302,11 +322,31 @@
                             </div>
                         </div>
                     </div>
-                @endforeach
-            </div> <!-- Pagination -->
-            <div class="flex justify-center">
-                {{ $appointments->withQueryString()->links() }}
-            </div>
+                @endforeach            </div> 
+            
+            <!-- Pagination and Results Info -->
+            @if($appointments->total() > 0)
+                <div class="mt-8 mb-4">
+                    <!-- Results Summary -->
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 px-4 py-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div class="text-sm text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
+                            <i class="fas fa-info-circle mr-2 text-blue-500"></i>
+                            Showing <span class="font-semibold">{{ $appointments->firstItem() ?? 0 }}</span> 
+                            to <span class="font-semibold">{{ $appointments->lastItem() ?? 0 }}</span> 
+                            of <span class="font-semibold">{{ $appointments->total() }}</span> appointments
+                        </div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">
+                            <i class="fas fa-layer-group mr-1"></i>
+                            {{ $appointments->perPage() }} per page
+                        </div>
+                    </div>
+                    
+                    <!-- Pagination Controls -->
+                    <div class="flex justify-center">
+                        {{ $appointments->withQueryString()->links('pagination::custom') }}
+                    </div>
+                </div>
+            @endif
         @else
             <!-- Empty State -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
@@ -356,6 +396,37 @@
             .appointment-card:hover {
                 box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
             }
-        }
-    </style>
+        }    </style>
+@endpush
+
+@push('scripts')
+    <script>        document.addEventListener('DOMContentLoaded', function() {
+            const dateFilter = document.getElementById('date');
+            const customDateFields = document.getElementById('custom-date-fields');
+            const customDateToField = document.getElementById('custom-date-to-field');
+            const perPageSelect = document.getElementById('per_page');
+            const form = dateFilter.closest('form');
+            
+            function toggleCustomDateFields() {
+                if (dateFilter.value === 'custom') {
+                    customDateFields.classList.remove('hidden');
+                    customDateToField.classList.remove('hidden');
+                } else {
+                    customDateFields.classList.add('hidden');
+                    customDateToField.classList.add('hidden');
+                }
+            }
+            
+            // Initial state
+            toggleCustomDateFields();
+            
+            // Listen for changes
+            dateFilter.addEventListener('change', toggleCustomDateFields);
+            
+            // Auto-submit form when per_page changes
+            perPageSelect.addEventListener('change', function() {
+                form.submit();
+            });
+        });
+    </script>
 @endpush

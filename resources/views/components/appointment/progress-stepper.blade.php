@@ -20,22 +20,22 @@
                     <div
                         class="step-circle relative flex items-center justify-center w-10 h-10 rounded-full border-3 transition-all duration-300 transform group-hover:scale-110
                         {{ $step < $currentStep
-                            ? 'bg-gradient-to-r from-green-500 to-green-600 border-green-500 text-white shadow-lg'
+                            ? 'bg-green-500 dark:bg-green-600 border-green-500 dark:border-green-600 text-white shadow-lg'
                             : ($step === $currentStep
-                                ? 'bg-gradient-to-r from-blue-500 to-indigo-600 border-blue-500 text-white shadow-lg ring-4 ring-blue-200 dark:ring-blue-800'
-                                : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 shadow-md') }}">
+                                ? 'bg-blue-600 dark:bg-blue-500 border-blue-600 dark:border-blue-500 text-white shadow-lg ring-4 ring-blue-200 dark:ring-blue-800'
+                                : 'bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 shadow-md') }}">
 
                         @if ($step < $currentStep)
-                            <i class="fas fa-check text-sm font-bold text-gray-900"></i>
+                            <i class="fas fa-check text-sm font-bold text-white"></i>
                         @elseif ($step === $currentStep)
-                            <i class="{{ $stepIcons[$step - 1] ?? 'fas fa-circle' }} text-sm text-gray-900"></i>
+                            <i class="{{ $stepIcons[$step - 1] ?? 'fas fa-circle' }} text-sm text-white"></i>
                         @else
                             <span class="text-sm font-semibold">{{ $step }}</span>
                         @endif
 
                         {{-- Pulse Animation for Current Step --}}
                         @if ($step === $currentStep)
-                            <div class="absolute inset-0 rounded-full bg-blue-400 animate-ping opacity-25"></div>
+                            <div class="absolute inset-0 rounded-full bg-blue-400 dark:bg-blue-500 animate-ping opacity-25"></div>
                         @endif
                     </div>
 
