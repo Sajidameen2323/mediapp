@@ -77,28 +77,14 @@ class AppointmentController extends Controller
             'confirmed' => $doctor->appointments()->byStatus('confirmed')->count(),
         ];
 
-        // Handle JSON response for calendar
-        if ($request->get('format') === 'json') {
-            $appointmentData = $appointments->getCollection()->map(function ($appointment) {
-                return [
-                    'id' => $appointment->id,
-                    'appointment_date' => $appointment->appointment_date,
-                    'appointment_time' => $appointment->start_time,
-                    'patient_name' => $appointment->patient->name,
-                    'service_name' => $appointment->service->name,
-                    'status' => $appointment->status,
-                ];
-            });
-
-        }
-
+        // Get appointment configuration
         return view('doctor.appointments.index', compact(
             'appointments',
             'stats'
         ) + [
-            'status' => $filters['status'] ?? 'all',
-            'date' => $filters['date'] ?? 'today',
-            'search' => $filters['search'] ?? ''
+            'status' => $status ?? 'all',
+            'date' => $date ?? 'today',
+            'search' => $search ?? ''
         ]);
     }
 
