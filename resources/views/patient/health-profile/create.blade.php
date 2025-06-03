@@ -226,10 +226,10 @@
                     <select id="exercise_frequency" name="exercise_frequency" 
                             class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                         <option value="">Select exercise frequency</option>
-                        <option value="never" {{ old('exercise_frequency') == 'never' ? 'selected' : '' }}>Never</option>
-                        <option value="rarely" {{ old('exercise_frequency') == 'rarely' ? 'selected' : '' }}>Rarely (less than once a week)</option>
-                        <option value="weekly" {{ old('exercise_frequency') == 'weekly' ? 'selected' : '' }}>Weekly (1-3 times per week)</option>
-                        <option value="daily" {{ old('exercise_frequency') == 'daily' ? 'selected' : '' }}>Daily or almost daily</option>
+                        <option value="sedentary" {{ old('exercise_frequency') == 'sedentary' ? 'selected' : '' }}>Never</option>
+                        <option value="light" {{ old('exercise_frequency') == 'light' ? 'selected' : '' }}>Rarely (less than once a week)</option>
+                        <option value="moderate" {{ old('exercise_frequency') == 'moderate' ? 'selected' : '' }}>Weekly (1-3 times per week)</option>
+                        <option value="active" {{ old('exercise_frequency') == 'active' ? 'selected' : '' }}>Daily or almost daily</option>
                     </select>
                     @error('exercise_frequency')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

@@ -197,6 +197,26 @@
 
         <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border dark:border-gray-700">
             <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Holiday Request Management</h3>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Review and approve doctor holiday requests</p>
+                <div class="mt-4 space-y-2">
+                    <a href="{{ route('admin.holidays.index') }}" class="block w-full bg-purple-600 hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-4 py-2 rounded transition-colors duration-200 text-center">
+                        <i class="fas fa-calendar-check mr-2"></i>Manage Holiday Requests
+                    </a>
+                    <div class="flex space-x-2 mt-2">
+                        <span class="flex-1 text-center bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded text-xs">
+                            {{ \App\Models\DoctorHoliday::where('status', 'pending')->count() }} Pending
+                        </span>
+                        <span class="flex-1 text-center bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded text-xs">
+                            {{ \App\Models\DoctorHoliday::where('status', 'approved')->count() }} Approved
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border dark:border-gray-700">
+            <div class="px-4 py-5 sm:p-6">
                 <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">User Management</h3>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Manage all users in the system</p>
                 <div class="mt-4">

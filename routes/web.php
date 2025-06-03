@@ -11,14 +11,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Demo routes
-Route::get('/demo/appointment-booking', function () {
-    return view('demo.appointment-booking');
-})->name('demo.appointment-booking');
-
-// Temporary public appointment booking for testing
-Route::get('/test/appointment-booking', [\App\Http\Controllers\Patient\AppointmentController::class, 'create'])->name('test.appointment-booking');
-
 // Public doctor search routes
 Route::prefix('api')->group(function () {
     Route::get('/doctors/available', [DoctorController::class, 'getAvailableDoctors'])->name('api.doctors.available');
@@ -133,6 +125,16 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/blocked-slots', [\App\Http\Controllers\Admin\AppointmentConfigController::class, 'storeBlockedSlot'])->name('blocked-slots.store');
             Route::delete('/blocked-slots/{blockedSlot}', [\App\Http\Controllers\Admin\AppointmentConfigController::class, 'destroyBlockedSlot'])->name('blocked-slots.destroy');
         });
+        
+        // Doctor Holiday Request Management
+        Route::prefix('admin/holidays')->name('admin.holidays.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\HolidayController::class, 'index'])->name('index');
+            Route::get('/{holiday}', [\App\Http\Controllers\Admin\HolidayController::class, 'show'])->name('show');
+            Route::post('/{holiday}/approve', [\App\Http\Controllers\Admin\HolidayController::class, 'approve'])->name('approve');
+            Route::post('/{holiday}/reject', [\App\Http\Controllers\Admin\HolidayController::class, 'reject'])->name('reject');
+            Route::post('/bulk-approve', [\App\Http\Controllers\Admin\HolidayController::class, 'bulkApprove'])->name('bulk-approve');
+            Route::post('/bulk-reject', [\App\Http\Controllers\Admin\HolidayController::class, 'bulkReject'])->name('bulk-reject');
+        });
     });
     
     // Doctor routes
@@ -195,6 +197,8 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('doctor/appointments')->name('doctor.appointments.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Doctor\AppointmentController::class, 'index'])->name('index');
             Route::get('/calendar', [\App\Http\Controllers\Doctor\AppointmentController::class, 'calendar'])->name('calendar');
+            Route::get('/calendar/data', [\App\Http\Controllers\Doctor\AppointmentController::class, 'getCalendarAppointments'])->name('calendar.data');
+            Route::get('/calendar/date/{date}', [\App\Http\Controllers\Doctor\AppointmentController::class, 'getAppointmentsByDate'])->name('calendar.date');
             Route::get('/{appointment}', [\App\Http\Controllers\Doctor\AppointmentController::class, 'show'])->name('show');
             Route::patch('/{appointment}/confirm', [\App\Http\Controllers\Doctor\AppointmentController::class, 'confirm'])->name('confirm');
             Route::patch('/{appointment}/cancel', [\App\Http\Controllers\Doctor\AppointmentController::class, 'cancel'])->name('cancel');

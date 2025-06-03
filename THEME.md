@@ -26,7 +26,7 @@ The application primarily utilizes the **default Tailwind CSS color palette**. T
 
 ### Blue
 - **Shades:** 50, 100, 200, 300, 400, 500, 600, 700, 800, 900
-- **Typical Usage:** Primary color for call-to-action buttons (often in gradients), links, focus indicators, icons, and informational blocks. Frequently used for primary UI elements and to convey trust or standard actions.
+- **Typical Usage:** Primary color for call-to-action buttons, links, focus indicators, icons, and informational blocks. Frequently used for primary UI elements and to convey trust or standard actions.
 
 ### Cyan
 - **Shades:** 50
@@ -34,7 +34,7 @@ The application primarily utilizes the **default Tailwind CSS color palette**. T
 
 ### Emerald
 - **Shades:** 50, 600, 700
-- **Typical Usage:** Can be used as an accent color, potentially for success-adjacent indicators or unique UI elements. Part of some gradient button styles.
+- **Typical Usage:** Can be used as an accent color, potentially for success-adjacent indicators or unique UI elements.
 
 ### Fuchsia
 - **Shades:** 600
@@ -46,11 +46,11 @@ The application primarily utilizes the **default Tailwind CSS color palette**. T
 
 ### Green
 - **Shades:** 50, 100, 200, 300, 400, 500, 600, 700, 800, 900
-- **Typical Usage:** Primarily for success indicators, success alerts, positive action buttons (e.g., "Add New", "Create"), and sometimes as part of gradient button styles.
+- **Typical Usage:** Primarily for success indicators, success alerts, positive action buttons (e.g., "Add New", "Create"), and sometimes as part of button styles.
 
 ### Indigo
 - **Shades:** 50, 100, 500, 600, 700, 800, 900
-- **Typical Usage:** Often paired with Blue for primary action button gradients. Also used for links, icons, and other accent elements.
+- **Typical Usage:** Often paired with Blue for primary action button. Also used for links, icons, and other accent elements.
 
 ### Lime
 - **Shades:** 500
@@ -58,15 +58,15 @@ The application primarily utilizes the **default Tailwind CSS color palette**. T
 
 ### Orange
 - **Shades:** 50, 100, 200, 300, 400, 500, 600, 700, 800, 900
-- **Typical Usage:** Used for accents, highlights, and sometimes for "warning" or attention-grabbing (though not strictly error) elements like specific icons or section backgrounds. Part of some gradient styles.
+- **Typical Usage:** Used for accents, highlights, and sometimes for "warning" or attention-grabbing (though not strictly error) elements like specific icons or section backgrounds.
 
 ### Pink
 - **Shades:** 50, 600, 700
-- **Typical Usage:** Accent color, often used in gradients with Purple or other warm colors for buttons or highlights.
+- **Typical Usage:** Accent color, often used with Purple or other warm colors for buttons or highlights.
 
 ### Purple
 - **Shades:** 50, 100, 200, 400, 500, 600, 700, 800, 900
-- **Typical Usage:** Accent color used in primary action button gradients (often with Indigo or Pink), icons, and thematic highlights.
+- **Typical Usage:** Accent color used in primary action button , icons, and thematic highlights.
 
 ### Red
 - **Shades:** 50, 100, 200, 300, 400, 500, 600, 700, 800, 900
