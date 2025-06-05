@@ -135,6 +135,18 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/bulk-approve', [\App\Http\Controllers\Admin\HolidayController::class, 'bulkApprove'])->name('bulk-approve');
             Route::post('/bulk-reject', [\App\Http\Controllers\Admin\HolidayController::class, 'bulkReject'])->name('bulk-reject');
         });
+        
+        // Appointment Management
+        Route::prefix('admin/appointments')->name('admin.appointments.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\AppointmentController::class, 'index'])->name('index');
+            Route::get('/export', [\App\Http\Controllers\Admin\AppointmentController::class, 'export'])->name('export');
+            Route::get('/{appointment}', [\App\Http\Controllers\Admin\AppointmentController::class, 'show'])->name('show');
+            Route::post('/{appointment}/approve', [\App\Http\Controllers\Admin\AppointmentController::class, 'approve'])->name('approve');
+            Route::post('/{appointment}/cancel', [\App\Http\Controllers\Admin\AppointmentController::class, 'cancel'])->name('cancel');
+            Route::get('/{appointment}/reschedule', [\App\Http\Controllers\Admin\AppointmentController::class, 'reschedule'])->name('reschedule');
+            Route::post('/{appointment}/reschedule', [\App\Http\Controllers\Admin\AppointmentController::class, 'updateSchedule'])->name('update-schedule');
+            Route::post('/bulk-update', [\App\Http\Controllers\Admin\AppointmentController::class, 'bulkUpdate'])->name('bulk-update');
+        });
     });
     
     // Doctor routes

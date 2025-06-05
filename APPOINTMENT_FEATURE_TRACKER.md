@@ -149,9 +149,8 @@ This document tracks the implementation phases and details for the appointment b
   - ✅ Modern responsive UI with authorization
 - **Pending Items:**
   - ⚠️ Admin-side appointment management not implemented yet
-  - ⚠️ Admin approve/cancel/reschedule appointments not implemented yet
-  - ⚠️ Admin approving doctor holiday requests not implemented yet
-  - ⚠️ Admin block slots functionality not implemented yet
+  - ⚠️ Admin approve/cancel appointments not implemented yet
+ 
 
 ---
 
@@ -205,11 +204,9 @@ This document tracks the implementation phases and details for the appointment b
 - **Features:**
   - Doctor adds prescription for patient
   - Patient views prescription, orders from pharmacy
-  - Admin adds partner pharmacies
-  - Doctor uploads medical reports
 - **Implementation:**
   - Prescription and MedicalReport models
-  - Pharmacy model/table
+  - Pharmacy model/table (use existing)
   - Patient dashboard for viewing
 
 ---

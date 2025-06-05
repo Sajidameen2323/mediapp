@@ -103,6 +103,22 @@ class Appointment extends Model
     }
 
     /**
+     * Get the user who cancelled the appointment.
+     */
+    public function cancelledBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'cancelled_by');
+    }
+
+    /**
+     * Get the user who rescheduled the appointment.
+     */
+    public function rescheduledBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'rescheduled_by');
+    }
+
+    /**
      * Get the original appointment if this was rescheduled.
      */
     public function originalAppointment(): BelongsTo
