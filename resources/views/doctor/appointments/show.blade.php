@@ -394,10 +394,9 @@
                 <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
                     <i class="fas fa-file-medical text-blue-600 mr-2"></i>
                     Medical Reports
-                </h3>
-                <button onclick="openCreateReportModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+                </h3>                <a href="{{ route('doctor.medical-reports.create', ['patient_id' => $appointment->patient_id]) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 inline-flex items-center">
                     <i class="fas fa-plus mr-2"></i>Create Report
-                </button>
+                </a>
             </div>
             
             @php
@@ -415,8 +414,11 @@
                             <div class="flex justify-between items-start">
                                 <div class="flex-1">
                                     <h4 class="font-semibold text-gray-800 dark:text-white mb-2">
-                                        Report #{{ $report->id }} - {{ $report->consultation_date->format('M d, Y') }}
+                                        {{ Str::limit($report->title, 50) }}
                                     </h4>
+                                    <h5 class="font-semibold text-gray-800 dark:text-white mb-2">
+                                        {{ $report->consultation_date->format('M d, Y') }}
+                                    </h5>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-400">
                                         <div>
                                             <span class="font-medium">Chief Complaint:</span>
@@ -424,7 +426,7 @@
                                         </div>
                                         <div>
                                             <span class="font-medium">Diagnosis:</span>
-                                            <p class="mt-1">{{ Str::limit($report->diagnosis, 100) }}</p>
+                                            <p class="mt-1">{{ Str::limit($report->assessment_diagnosis, 100) }}</p>
                                         </div>
                                     </div>
                                     @if($report->prescription)
@@ -453,10 +455,9 @@
                     <div class="text-gray-400 dark:text-gray-500 mb-4">
                         <i class="fas fa-file-medical text-4xl"></i>
                     </div>
-                    <p class="text-gray-600 dark:text-gray-400 mb-4">No medical reports found for this patient.</p>
-                    <button onclick="openCreateReportModal()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition">
-                        Create First Report
-                    </button>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">No medical reports found for this patient.</p>                    <a href="{{ route('doctor.medical-reports.create', ['patient_id' => $appointment->patient_id]) }}" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition inline-flex items-center">
+                        <i class="fas fa-plus mr-2"></i>Create First Report
+                    </a>
                 </div>
             @endif
         </div>
@@ -765,178 +766,9 @@
                         @endif
                     </div>
                 </div>
-            @endif
+            @endif            </div>
         </div>
     </div>
-</div>
-
-<!-- Create Medical Report Modal -->
-<div id="createReportModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-    <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-xl font-bold text-white">Create Medical Report</h3>
-                    <button onclick="closeCreateReportModal()" class="text-white hover:text-gray-200">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <form action="{{ route('doctor.medical-reports.store') }}" method="POST" class="p-6">
-                @csrf
-                <input type="hidden" name="patient_id" value="{{ $appointment->patient_id }}">
-                <input type="hidden" name="consultation_date" value="{{ $appointment->appointment_date }}">
-                
-                <div class="space-y-6">                    <!-- Patient Information (Read-only) -->
-                    <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                        <h4 class="font-semibold text-gray-800 dark:text-white mb-2">Patient Information</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                            <div>
-                                <span class="font-medium text-gray-600 dark:text-gray-400">Name:</span>
-                                <p class="text-gray-800 dark:text-white">{{ $appointment->patient->name }}</p>
-                            </div>
-                            <div>
-                                <span class="font-medium text-gray-600 dark:text-gray-400">Phone:</span>
-                                <p class="text-gray-800 dark:text-white">{{ $appointment->patient->phone_number }}</p>
-                            </div>
-                            <div>
-                                <span class="font-medium text-gray-600 dark:text-gray-400">Appointment Date:</span>
-                                <p class="text-gray-800 dark:text-white">{{ $appointment->appointment_date->format('M d, Y') }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Chief Complaint -->
-                    <div>
-                        <label for="chief_complaint" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Chief Complaint <span class="text-red-500">*</span>
-                        </label>
-                        <textarea 
-                            name="chief_complaint" 
-                            id="chief_complaint" 
-                            rows="3" 
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Patient's main concern or reason for visit..."
-                            required
-                        ></textarea>
-                    </div>
-
-                    <!-- History of Present Illness -->
-                    <div>
-                        <label for="history_present_illness" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            History of Present Illness
-                        </label>
-                        <textarea 
-                            name="history_present_illness" 
-                            id="history_present_illness" 
-                            rows="3" 
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Details about the current illness..."
-                        ></textarea>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Past Medical History -->
-                        <div>
-                            <label for="past_medical_history" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Past Medical History
-                            </label>
-                            <textarea 
-                                name="past_medical_history" 
-                                id="past_medical_history" 
-                                rows="3" 
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="Previous medical conditions, surgeries, etc..."
-                            ></textarea>
-                        </div>
-
-                        <!-- Family History -->
-                        <div>
-                            <label for="family_history" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Family History
-                            </label>
-                            <textarea 
-                                name="family_history" 
-                                id="family_history" 
-                                rows="3" 
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="Relevant family medical history..."
-                            ></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Physical Examination -->
-                    <div>
-                        <label for="physical_examination" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Physical Examination <span class="text-red-500">*</span>
-                        </label>
-                        <textarea 
-                            name="physical_examination" 
-                            id="physical_examination" 
-                            rows="4" 
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Physical examination findings..."
-                            required
-                        ></textarea>
-                    </div>
-
-                    <!-- Diagnosis -->
-                    <div>
-                        <label for="diagnosis" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Diagnosis <span class="text-red-500">*</span>
-                        </label>
-                        <textarea 
-                            name="diagnosis" 
-                            id="diagnosis" 
-                            rows="3" 
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Primary and secondary diagnoses..."
-                            required
-                        ></textarea>
-                    </div>
-
-                    <!-- Prescription -->
-                    <div>
-                        <label for="prescription" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Prescription & Treatment Plan
-                        </label>
-                        <textarea 
-                            name="prescription" 
-                            id="prescription" 
-                            rows="4" 
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Medications, dosages, treatment plan, and follow-up instructions..."
-                        ></textarea>
-                    </div>
-
-                    <!-- Follow-up Instructions -->
-                    <div>
-                        <label for="follow_up_instructions" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Follow-up Instructions
-                        </label>
-                        <textarea 
-                            name="follow_up_instructions" 
-                            id="follow_up_instructions" 
-                            rows="3" 
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="When to return, what to watch for, lifestyle recommendations..."
-                        ></textarea>
-                    </div>
-                </div>
-
-                <div class="flex justify-end space-x-4 mt-6 pt-6 border-t border-gray-200 dark:border-gray-600">
-                    <button type="button" onclick="closeCreateReportModal()" class="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-medium transition">
-                        Cancel
-                    </button>
-                    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition">
-                        <i class="fas fa-save mr-2"></i>Create Report
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
 <!-- Complete Appointment Modal -->
 <div id="completeModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
@@ -1016,7 +848,7 @@
 
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
 function showCompleteModal() {
     document.getElementById('completeModal').classList.remove('hidden');
@@ -1033,14 +865,6 @@ function showCancelModal() {
 function hideCancelModal() {
     document.getElementById('cancelModal').classList.add('hidden');
 }
-
-function openCreateReportModal() {
-    document.getElementById('createReportModal').classList.remove('hidden');
-}
-
-function closeCreateReportModal() {
-    document.getElementById('createReportModal').classList.add('hidden');
-}
 </script>
 </div>
-@endsection
+

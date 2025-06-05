@@ -10,6 +10,7 @@ class MedicalReport extends Model
     protected $fillable = [
         'doctor_id',
         'patient_id',
+        'title',
         'report_type',
         'consultation_date',
         'chief_complaint',

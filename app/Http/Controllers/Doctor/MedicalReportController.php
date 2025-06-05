@@ -15,7 +15,8 @@ class MedicalReportController extends Controller
 {
     /**
      * Display a listing of the resource.
-     */    public function index(Request $request)
+     */
+    public function index(Request $request)
     {
         Gate::authorize('doctor-access');
         $doctor = auth()->user()->doctor;
@@ -52,8 +53,8 @@ class MedicalReportController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('diagnosis', 'like', "%{$search}%")
-                  ->orWhere('chief_complaint', 'like', "%{$search}%")
-                  ->orWhere('treatment_plan', 'like', "%{$search}%");
+                    ->orWhere('chief_complaint', 'like', "%{$search}%")
+                    ->orWhere('treatment_plan', 'like', "%{$search}%");
             });
         }
 
@@ -68,46 +69,47 @@ class MedicalReportController extends Controller
     public function create(Request $request)
     {
         Gate::authorize('doctor-access');
-        
+
         // Get patients for the dropdown
         $patients = User::role('patient')->select('id', 'name', 'email')->orderBy('name')->get();
-        
+
         // Pre-select patient if provided
         $selectedPatient = null;
         if ($request->has('patient_id')) {
             $selectedPatient = User::find($request->patient_id);
         }
-        
+
         return view('dashboard.doctor.medical-reports.create', compact('patients', 'selectedPatient'));
     }
 
     /**
      * Store a newly created resource in storage.
-     */    public function store(StoreMedicalReportRequest $request)
+     */
+    public function store(StoreMedicalReportRequest $request)
     {
         Gate::authorize('doctor-access');
-        
+
         $doctor = auth()->user()->doctor;
-        
+
         $data = $request->validated();
         $data['doctor_id'] = $doctor->id;
-        
+
         // Set status from button clicked (draft or completed)
         $status = $request->input('status', 'draft');
         $data['status'] = $status;
-        
+
         // Set completed_at if status is completed
         if ($status === 'completed') {
             $data['completed_at'] = now();
         }
-        
+
         $report = MedicalReport::create($data);
-        
+
         // Prepare success message based on status
-        $successMessage = $status === 'completed' 
-            ? 'Medical report completed successfully!' 
+        $successMessage = $status === 'completed'
+            ? 'Medical report completed successfully!'
             : 'Medical report saved as draft successfully!';
-        
+
         // Check if request came from appointment page (check for appointment_id or referrer)
         $referrer = $request->headers->get('referer');
         if ($referrer && strpos($referrer, '/appointments/') !== false) {
@@ -120,7 +122,7 @@ class MedicalReportController extends Controller
                     'status' => $report->status,
                 ]);
         }
-        
+
         // Default redirect to medical reports index
         return redirect()->route('doctor.medical-reports.index')
             ->with('success', $successMessage)
@@ -137,14 +139,14 @@ class MedicalReportController extends Controller
     public function show(MedicalReport $medicalReport)
     {
         Gate::authorize('doctor-access');
-        
+
         // Ensure the report belongs to the authenticated doctor
         if ($medicalReport->doctor_id !== auth()->user()->doctor->id) {
             abort(403);
         }
-        
+
         $medicalReport->load('patient', 'doctor.user');
-        
+
         return view('dashboard.doctor.medical-reports.show', compact('medicalReport'));
     }
 
@@ -154,49 +156,50 @@ class MedicalReportController extends Controller
     public function edit(MedicalReport $medicalReport)
     {
         Gate::authorize('doctor-access');
-        
+
         // Ensure the report belongs to the authenticated doctor
         if ($medicalReport->doctor_id !== auth()->user()->doctor->id) {
             abort(403);
         }
-        
+
         // Get patients for the dropdown
         $patients = User::role('patient')->select('id', 'name', 'email')->orderBy('name')->get();
-        
+
         return view('dashboard.doctor.medical-reports.edit', compact('medicalReport', 'patients'));
     }
 
     /**
      * Update the specified resource in storage.
-     */    public function update(UpdateMedicalReportRequest $request, MedicalReport $medicalReport)
+     */
+    public function update(UpdateMedicalReportRequest $request, MedicalReport $medicalReport)
     {
         Gate::authorize('doctor-access');
-        
+
         // Ensure the report belongs to the authenticated doctor
         if ($medicalReport->doctor_id !== auth()->user()->doctor->id) {
             abort(403);
         }
-        
+
         $data = $request->validated();
-        
+
         // Set status from button clicked (draft or completed)
         $status = $request->input('status', $medicalReport->status);
         $data['status'] = $status;
-        
+
         // Set completed_at if status is completed
         if ($status === 'completed' && $medicalReport->status !== 'completed') {
             $data['completed_at'] = now();
         } elseif ($status === 'draft') {
             $data['completed_at'] = null;
         }
-        
+
         $medicalReport->update($data);
-        
+
         // Prepare success message based on status
-        $successMessage = $status === 'completed' 
-            ? 'Medical report updated and completed successfully!' 
+        $successMessage = $status === 'completed'
+            ? 'Medical report updated and completed successfully!'
             : 'Medical report updated successfully!';
-        
+
         // Redirect to medical reports index with success message
         return redirect()->route('doctor.medical-reports.index')
             ->with('success', $successMessage)
@@ -213,18 +216,16 @@ class MedicalReportController extends Controller
     public function destroy(MedicalReport $medicalReport)
     {
         Gate::authorize('doctor-access');
-        
+
         // Ensure the report belongs to the authenticated doctor
         if ($medicalReport->doctor_id !== auth()->user()->doctor->id) {
             abort(403);
         }
-        
+
         $medicalReport->delete();
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Medical report deleted successfully.'
-        ]);
+
+        return redirect()->route('doctor.medical-reports.index')
+            ->with('success', 'Medical report deleted successfully.');
     }
 
     /**
@@ -233,14 +234,14 @@ class MedicalReportController extends Controller
     public function exportPdf(MedicalReport $medicalReport)
     {
         Gate::authorize('doctor-access');
-        
+
         // Ensure the report belongs to the authenticated doctor
         if ($medicalReport->doctor_id !== auth()->user()->doctor->id) {
             abort(403);
         }
-        
+
         $medicalReport->load('patient', 'doctor.user');
-        
+
         $pdf = Pdf::loadView('dashboard.doctor.medical-reports.pdf', compact('medicalReport'));
         $filename = 'Medical_Report_' . $medicalReport->patient->name . '_' . $medicalReport->consultation_date->format('Ymd') . '.pdf';
         return $pdf->download($filename);
@@ -252,18 +253,18 @@ class MedicalReportController extends Controller
     public function getPatients(Request $request)
     {
         Gate::authorize('doctor-access');
-        
+
         $search = $request->get('search', '');
-        
+
         $patients = User::role('patient')
             ->where(function ($query) use ($search) {
                 $query->where('name', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             })
             ->select('id', 'name', 'email')
             ->limit(10)
             ->get();
-        
+
         return response()->json([
             'patients' => $patients->map(function ($patient) {
                 return [

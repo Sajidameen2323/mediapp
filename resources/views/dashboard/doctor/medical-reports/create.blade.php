@@ -169,7 +169,7 @@
                             </div>
                         </div>
                     </div>                    <!-- Traditional Patient Selection (Fallback) -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div>
                             <label for="patient_id" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                 <i class="fas fa-user mr-2 text-blue-500"></i>Select Patient
@@ -185,6 +185,22 @@
                                 @endforeach
                             </select>
                             @error('patient_id')
+                                <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
+                                    <i class="fas fa-exclamation-circle mr-2"></i>
+                                    <span>{{ $message }}</span>
+                                </div>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="title" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                <i class="fas fa-heading mr-2 text-green-500"></i>Report Title <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="title" id="title" 
+                                value="{{ old('title') }}" required 
+                                placeholder="e.g., Annual Check-up, Follow-up Visit, Emergency Consultation"
+                                class="w-full border-2 @error('title') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4 transition-all duration-200">
+                            @error('title')
                                 <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
                                     <i class="fas fa-exclamation-circle mr-2"></i>
                                     <span>{{ $message }}</span>
@@ -930,7 +946,17 @@ function displaySearchResults(patients, query) {
 
 function selectPatient(patientId, encodedPatientData) {
     try {
-        const patientData = JSON.parse(decodeURIComponent(encodedPatientData));
+        let patientData;
+        
+        // Handle direct patient object (for preselection) vs encoded data (from search)
+        if (typeof patientId === 'object' && patientId !== null) {
+            // Direct patient object passed (from preselection)
+            patientData = patientId;
+            patientId = patientData.id;
+        } else {
+            // Encoded patient data from search results
+            patientData = JSON.parse(decodeURIComponent(encodedPatientData));
+        }
         
         // Update form fields
         document.getElementById('patient_id').value = patientId;
@@ -1149,6 +1175,13 @@ function showNotification(message, type = 'info', duration = 3000) {
 
 // Load saved draft on page load
 window.addEventListener('load', function() {
+    // Pre-select patient if provided via URL parameter
+    @if($selectedPatient)
+        const preSelectedPatient = @json($selectedPatient);
+        selectPatient(preSelectedPatient);
+        showNotification('Patient pre-selected from appointment', 'success');
+    @endif
+    
     const savedDraft = localStorage.getItem('medicalReportDraft');
     if (savedDraft) {
         try {
@@ -1159,7 +1192,7 @@ window.addEventListener('load', function() {
                     field.value = data[key];
                 }
             });
-            showNotification('Draft loaded from auto-save', 'info');
+            // showNotification('Draft loaded from auto-save', 'info');
         } catch (e) {
             console.error('Error loading draft:', e);
         }

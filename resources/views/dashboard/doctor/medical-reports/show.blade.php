@@ -2,12 +2,16 @@
 
 @section('content')
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">        <!-- Header -->
         <div class="mb-8">
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Medical Report</h1>
+                    @if($medicalReport->title)
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ $medicalReport->title }}</h1>
+                        <p class="mt-1 text-lg text-gray-700 dark:text-gray-300">Medical Report</p>
+                    @else
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Medical Report</h1>
+                    @endif
                     <p class="mt-2 text-gray-600 dark:text-gray-400">
                         Patient: {{ $medicalReport->patient->name }} | 
                         Date: {{ $medicalReport->consultation_date->format('M d, Y') }}

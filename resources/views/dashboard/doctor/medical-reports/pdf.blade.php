@@ -167,11 +167,15 @@
         }
     </style>
 </head>
-<body>
-    <!-- Header -->
+<body>    <!-- Header -->
     <div class="header">
         <div class="clinic-name">Medical Clinic</div>
-        <div class="report-title">Medical Report</div>
+        @if($medicalReport->title)
+            <div class="report-title">{{ $medicalReport->title }}</div>
+            <div style="font-size: 16px; color: #9ca3af; margin-top: 5px;">Medical Report</div>
+        @else
+            <div class="report-title">Medical Report</div>
+        @endif
     </div>
 
     <!-- Basic Information -->

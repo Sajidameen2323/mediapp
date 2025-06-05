@@ -180,9 +180,8 @@
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead class="bg-gray-50 dark:bg-gray-700">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                Patient & Report Details
+                        <tr>                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Report Title & Patient Details
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Consultation Date
@@ -200,24 +199,28 @@
                     </thead>
                     <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                         @foreach($reports as $report)
-                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
-                                <td class="px-6 py-4 whitespace-nowrap">
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">                                <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 h-10 w-10">
                                             <div class="h-10 w-10 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
-                                                <i class="fas fa-user text-purple-600 dark:text-purple-400"></i>
+                                                <i class="fas fa-file-medical text-purple-600 dark:text-purple-400"></i>
                                             </div>
                                         </div>
                                         <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                                {{ $report->patient->name }}
+                                            @if($report->title)
+                                                <div class="text-sm font-semibold text-gray-900 dark:text-white mb-1">
+                                                    <i class="fas fa-heading text-indigo-500 mr-1"></i>{{ $report->title }}
+                                                </div>
+                                            @endif
+                                            <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                <i class="fas fa-user text-blue-500 mr-1"></i>{{ $report->patient->name }}
                                             </div>
                                             <div class="text-sm text-gray-500 dark:text-gray-400">
-                                                {{ $report->patient->email }}
+                                                <i class="fas fa-envelope text-gray-400 mr-1"></i>{{ $report->patient->email }}
                                             </div>
                                             @if($report->chief_complaint)
                                                 <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                                                    {{ Str::limit($report->chief_complaint, 40) }}
+                                                    <i class="fas fa-comment-medical text-gray-400 mr-1"></i>{{ Str::limit($report->chief_complaint, 40) }}
                                                 </div>
                                             @endif
                                         </div>

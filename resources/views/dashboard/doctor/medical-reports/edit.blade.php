@@ -146,9 +146,25 @@
                                 <div class="font-medium text-gray-600 dark:text-gray-400">Patient ID:</div>
                                 <div class="text-gray-900 dark:text-white">#{{ $medicalReport->patient->id }}</div>
                             </div>
-                        </div>
-                    </div>
+                        </div>                    </div>
                     <input type="hidden" name="patient_id" value="{{ $medicalReport->patient_id }}">
+
+                    <!-- Title Field -->
+                    <div class="mb-6">
+                        <label for="title" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                            <i class="fas fa-heading mr-2 text-green-500"></i>Report Title <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="title" id="title" 
+                            value="{{ old('title', $medicalReport->title) }}" required 
+                            placeholder="e.g., Annual Check-up, Follow-up Visit, Emergency Consultation"
+                            class="w-full border-2 @error('title') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4 transition-all duration-200">
+                        @error('title')
+                            <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
+                                <i class="fas fa-exclamation-circle mr-2"></i>
+                                <span>{{ $message }}</span>
+                            </div>
+                        @enderror
+                    </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div>
