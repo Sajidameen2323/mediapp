@@ -219,6 +219,14 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/patient/health-profile', [\App\Http\Controllers\Patient\HealthProfileController::class, 'update'])->name('patient.health-profile.update');
         Route::delete('/patient/health-profile', [\App\Http\Controllers\Patient\HealthProfileController::class, 'destroy'])->name('patient.health-profile.destroy');
         
+        // Health Profile Permission Management
+        Route::prefix('patient/health-profile/permissions')->name('patient.health-profile.permissions.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Patient\HealthProfilePermissionController::class, 'index'])->name('index');
+            Route::post('/grant', [\App\Http\Controllers\Patient\HealthProfilePermissionController::class, 'grant'])->name('grant');
+            Route::patch('/{permission}/revoke', [\App\Http\Controllers\Patient\HealthProfilePermissionController::class, 'revoke'])->name('revoke');
+            Route::get('/{permission}', [\App\Http\Controllers\Patient\HealthProfilePermissionController::class, 'show'])->name('show');
+        });
+        
         // Appointment Management
         Route::prefix('patient/appointments')->name('patient.appointments.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Patient\AppointmentController::class, 'index'])->name('index');

@@ -10,6 +10,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -101,6 +102,44 @@ class User extends Authenticatable
     public function healthProfile(): HasOne
     {
         return $this->hasOne(HealthProfile::class);
+    }
+
+    /**
+     * Get health profile permissions granted by this patient to doctors
+     */
+    public function healthProfilePermissionsGranted(): HasMany
+    {
+        return $this->hasMany(HealthProfilePermission::class, 'patient_id');
+    }
+
+    /**
+     * Get health profile permissions this doctor has received from patients
+     */
+    public function healthProfilePermissionsReceived(): HasMany
+    {
+        return $this->hasMany(HealthProfilePermission::class, 'doctor_id');
+    }
+
+    /**
+     * Check if this user (patient) has granted health profile access to a specific doctor
+     */
+    public function hasGrantedHealthProfileAccessTo($doctorId): bool
+    {
+        return $this->healthProfilePermissionsGranted()
+            ->where('doctor_id', $doctorId)
+            ->granted()
+            ->exists();
+    }
+
+    /**
+     * Check if this user (doctor) has health profile access from a specific patient
+     */
+    public function hasHealthProfileAccessFrom($patientId): bool
+    {
+        return $this->healthProfilePermissionsReceived()
+            ->where('patient_id', $patientId)
+            ->granted()
+            ->exists();
     }
 
     // Scopes

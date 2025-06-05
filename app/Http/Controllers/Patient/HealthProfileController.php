@@ -30,7 +30,7 @@ class HealthProfileController extends Controller
     /**
      * Show the form for creating a new health profile.
      */
-    public function create(): View
+    public function create(): View | RedirectResponse
     {
         $this->authorize('patient-access');
         
@@ -77,7 +77,7 @@ class HealthProfileController extends Controller
     /**
      * Show the form for editing the health profile.
      */
-    public function edit(): View
+    public function edit(): View | RedirectResponse
     {
         $this->authorize('patient-access');
         

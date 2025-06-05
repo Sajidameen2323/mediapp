@@ -100,14 +100,28 @@ class MedicalReportController extends Controller
         if ($status === 'completed') {
             $data['completed_at'] = now();
         }
-          $report = MedicalReport::create($data);
+        
+        $report = MedicalReport::create($data);
         
         // Prepare success message based on status
         $successMessage = $status === 'completed' 
             ? 'Medical report completed successfully!' 
             : 'Medical report saved as draft successfully!';
         
-        // Redirect to medical reports index with success message
+        // Check if request came from appointment page (check for appointment_id or referrer)
+        $referrer = $request->headers->get('referer');
+        if ($referrer && strpos($referrer, '/appointments/') !== false) {
+            // If coming from appointment page, redirect back to appointments
+            return redirect()->back()
+                ->with('success', $successMessage)
+                ->with('report_details', [
+                    'patient_name' => $report->patient->name,
+                    'consultation_date' => $report->consultation_date->format('M d, Y'),
+                    'status' => $report->status,
+                ]);
+        }
+        
+        // Default redirect to medical reports index
         return redirect()->route('doctor.medical-reports.index')
             ->with('success', $successMessage)
             ->with('report_details', [

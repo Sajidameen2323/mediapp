@@ -135,7 +135,16 @@ class AppointmentController extends Controller
 
         $appointment->load(['patient', 'service']);
 
-        return view('doctor.appointments.show', compact('appointment'));
+        // Check if doctor has permission to view patient's health profile
+        $hasHealthProfileAccess = auth()->user()->hasHealthProfileAccessFrom($appointment->patient_id);
+        
+        // Load health profile if permission exists
+        $healthProfile = null;
+        if ($hasHealthProfileAccess) {
+            $healthProfile = $appointment->patient->healthProfile;
+        }
+
+        return view('doctor.appointments.show', compact('appointment', 'hasHealthProfileAccess', 'healthProfile'));
     }
 
     /**

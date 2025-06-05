@@ -3,13 +3,17 @@
 @section('title', 'Edit Health Profile - Medi App')
 
 @section('content')
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="mb-8">
-        <div class="flex items-center mb-4">
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">    <div class="mb-8">
+        <div class="flex items-center justify-between mb-4">
             <a href="{{ route('patient.health-profile.index') }}" 
-               class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors duration-200 mr-4">
+               class="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors duration-200">
                 <i class="fas fa-arrow-left mr-2"></i>
                 Back to Health Profile
+            </a>
+            <a href="{{ route('patient.health-profile.permissions.index') }}" 
+               class="inline-flex items-center gap-2 bg-blue-600 dark:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 dark:hover:bg-blue-800 transition-all duration-200">
+                <i class="fas fa-user-shield"></i>
+                Manage Access
             </a>
         </div>
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Edit Health Profile</h1>

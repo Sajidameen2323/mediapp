@@ -12,9 +12,13 @@
         <div>
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">My Health Profile</h1>
             <p class="mt-2 text-gray-600 dark:text-gray-400">Manage your comprehensive health information</p>
-        </div>
-        <div class="flex space-x-3">
+        </div>        <div class="flex space-x-3">
             @if($healthProfile)
+                <a href="{{ route('patient.health-profile.permissions.index') }}" 
+                   class="inline-flex items-center gap-2 bg-blue-600 dark:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 dark:hover:bg-blue-800 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
+                    <i class="fas fa-user-shield"></i>
+                    Manage Access
+                </a>
                 <a href="{{ route('patient.health-profile.edit') }}" 
                    class="inline-flex items-center gap-2 bg-gray-900 dark:bg-gray-800 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
                     <i class="fas fa-edit"></i>

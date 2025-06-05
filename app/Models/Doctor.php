@@ -84,6 +84,14 @@ class Doctor extends Model
     }
 
     /**
+     * Get health profile permissions this doctor has received from patients
+     */
+    public function healthProfilePermissionsReceived(): HasMany
+    {
+        return $this->hasMany(HealthProfilePermission::class, 'doctor_id', 'user_id');
+    }
+
+    /**
      * Scope to get available doctors.
      */
     public function scopeAvailable($query)
