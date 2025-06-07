@@ -54,8 +54,7 @@ This document tracks the implementation phases and details for the appointment b
   - ✅ Form validation classes for all features
   - ✅ Responsive UI with dark mode support
   - ✅ Authorization and security implementation
-- **Pending Items:**
-  - ⚠️ Admin approving doctor holiday requests not implemented yet (holidays can be requested but admin approval workflow missing)
+
 
 ---
 
@@ -76,10 +75,7 @@ This document tracks the implementation phases and details for the appointment b
   - ✅ Resolved doctor ID consistency issues
   - ✅ Complete appointment system verification
   - ✅ All models, controllers, routes, and views working
-- **Pending Items:**
-  - ⚠️ Doctor-side appointment management UI not implemented yet
-  - ⚠️ Doctor approve/cancel appointment functionality not implemented yet
-  - ⚠️ Doctor block slots functionality not implemented yet
+
 
 ---
 
@@ -135,7 +131,7 @@ This document tracks the implementation phases and details for the appointment b
 
 ---
 
-## Phase 8: Appointment Management (Admin) ✅ Partially Completed
+## Phase 8: Appointment Management (Admin) ✅ Completed
 - **Admin Actions:**
   - View, approve, cancel, reschedule, block slots, manage holidays
 - **Implementation:**
@@ -147,9 +143,13 @@ This document tracks the implementation phases and details for the appointment b
   - ✅ Doctor-service assignments
   - ✅ Professional information tracking
   - ✅ Modern responsive UI with authorization
-- **Pending Items:**
-  - ⚠️ Admin-side appointment management not implemented yet
-  - ⚠️ Admin approve/cancel appointments not implemented yet
+  - ✅ Admin Appointment Management Interface
+  - ✅ Payment Details Integration in Admin Views
+  - ✅ Payment Status Filtering and Statistics
+  - ✅ Enhanced CSV Export with Payment Information
+  - ✅ Horizontal Scroll Fix for Appointment Table
+  - ✅ Responsive Table Design with Custom Scrollbar
+  - ✅ Mobile-friendly Table Hints and Indicators
  
 
 ---
@@ -312,6 +312,22 @@ This document tracks the implementation phases and details for the appointment b
 - **Enhanced Styling**: Modern gradients, animations, dark mode support
 - **Safety Checks**: Conditional rendering with proper permission validation
 
+### Payment Details Integration
+- **Admin Show View**: Comprehensive payment information display with color-coded status badges
+- **Payment Column**: Added to appointments table with status and amount display
+- **Payment Filtering**: Added payment status dropdown filter (pending, paid, partially_paid, refunded)
+- **Statistics Enhancement**: Added "Unpaid" appointments count to admin statistics
+- **CSV Export**: Enhanced with payment-related columns (total amount, paid amount, payment status)
+- **Visual Design**: Icon-based payment information with consistent color coding
+
+### Table UI/UX Improvements
+- **Horizontal Scroll Fix**: Resolved page-wide scroll issue by constraining to table container
+- **Responsive Design**: Optimized column widths and padding for better mobile experience
+- **Custom Scrollbar**: Styled scrollbar with dark mode support and smooth interactions
+- **Scroll Indicators**: Added subtle shadows and hints for better scroll awareness
+- **Mobile Hints**: Added informational banner for horizontal scroll on smaller screens
+- **Performance**: Optimized table rendering with proper width constraints and overflow handling
+
 ### Doctor Service Implementation
 - **Database Schema**: Doctors, services, schedules, pivot tables
 - **CRUD Operations**: Full management system for doctors and services
@@ -384,4 +400,38 @@ This document tracks the implementation phases and details for the appointment b
 
 ---
 
-*This tracker is updated as each phase is implemented. Major implementations from Phases 1-9 are largely complete with robust infrastructure.*
+*This tracker is updated as each phase is implemented. Major implementations from Phases 1-9 are largely complete with robust infrastructure, including comprehensive payment management and responsive UI enhancements.*
+
+## Latest Updates (Phase 8 Completion)
+
+### Payment Details Integration ✅ Completed
+- **Date Completed**: Current session
+- **Scope**: Added comprehensive payment information to admin appointment management
+- **Files Modified**: 
+  - `resources/views/admin/appointments/show.blade.php` - Payment information section
+  - `resources/views/admin/appointments/index.blade.php` - Payment column, filter, and table improvements
+  - `app/Http/Controllers/Admin/AppointmentController.php` - Payment filtering and statistics
+- **Features Added**:
+  - Payment status display with color-coded badges
+  - Payment amount tracking (total, paid, outstanding)
+  - Tax information display when applicable
+  - Payment status filtering in appointment index
+  - Unpaid appointments statistics card
+  - Enhanced CSV export with payment data
+
+### Table UI/UX Improvements ✅ Completed
+- **Date Completed**: Current session
+- **Scope**: Fixed horizontal scroll issues and enhanced table responsiveness
+- **Key Improvements**:
+  - Fixed page-wide horizontal scroll by constraining to table container
+  - Added responsive column widths and optimized padding
+  - Implemented custom scrollbar styling with dark mode support
+  - Added scroll shadow effects and mobile-friendly hints
+  - Enhanced table performance with proper overflow handling
+  - Improved accessibility with better visual indicators
+
+### Technical Enhancements
+- **Responsive Design**: Table now properly handles overflow without affecting page layout
+- **Dark Mode**: Complete theme support for all new payment and table elements
+- **Performance**: Optimized table rendering with efficient scroll handling
+- **User Experience**: Added visual cues and hints for better navigation on all screen sizes
