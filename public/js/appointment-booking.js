@@ -474,9 +474,7 @@ class AppointmentBooking {
         } finally {
             this.showDoctorsLoading(false);
         }
-    }
-
-    async searchDoctors(query) {
+    }    async searchDoctors(query) {
         if (!query && !this.hasActiveFilters()) {
             this.loadInitialDoctors();
             return;
@@ -499,12 +497,62 @@ class AppointmentBooking {
 
             if (data.success) {
                 this.displayDoctors(data.doctors);
+                
+                // Show search feedback
+                this.showSearchFeedback(query, data.doctors.length, data.search_type);
+            } else {
+                this.showDoctorsError('Search failed: ' + (data.message || 'Unknown error'));
             }
         } catch (error) {
             console.error('Error searching doctors:', error);
-            this.showDoctorsError();
+            this.showDoctorsError('Network error occurred. Please try again.');
         } finally {
             this.showDoctorsLoading(false);
+        }
+    }
+
+    showSearchFeedback(query, resultCount, searchType) {
+        // Create or update search feedback element
+        let feedbackElement = document.getElementById('search_feedback');
+        if (!feedbackElement) {
+            feedbackElement = document.createElement('div');
+            feedbackElement.id = 'search_feedback';
+            feedbackElement.className = 'mb-4 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800';
+            
+            const doctorsGrid = document.getElementById('doctors_grid');
+            if (doctorsGrid && doctorsGrid.parentNode) {
+                doctorsGrid.parentNode.insertBefore(feedbackElement, doctorsGrid);
+            }
+        }
+
+        if (query && query.trim()) {
+            // Check if query might be symptom-related
+            const symptomKeywords = [
+                'headache', 'migraine', 'stomach pain', 'chest pain', 'back pain', 'knee pain',
+                'cough', 'fever', 'nausea', 'dizziness', 'shortness of breath', 'anxiety',
+                'depression', 'skin rash', 'acne', 'eye problems', 'ear pain', 'sore throat',
+                'joint pain', 'fatigue', 'bloating', 'constipation', 'diarrhea'
+            ];
+            
+            const isSymptomSearch = symptomKeywords.some(symptom => 
+                query.toLowerCase().includes(symptom.toLowerCase())
+            );
+
+            let feedbackMessage = '';
+            if (isSymptomSearch) {
+                if (resultCount > 0) {
+                    feedbackMessage = `<i class="fas fa-stethoscope text-green-600 mr-2"></i>Found ${resultCount} doctor(s) specializing in treating "${query}". Specialists are prioritized, with general consultants as additional options.`;
+                } else {
+                    feedbackMessage = `<i class="fas fa-info-circle text-blue-600 mr-2"></i>No specific specialists found for "${query}". Try searching for general practitioners or contact our support for assistance.`;
+                }
+            } else {
+                feedbackMessage = `<i class="fas fa-search text-blue-600 mr-2"></i>Found ${resultCount} doctor(s) matching "${query}".`;
+            }
+
+            feedbackElement.innerHTML = `<p class="text-sm text-gray-700 dark:text-gray-300">${feedbackMessage}</p>`;
+            feedbackElement.style.display = 'block';
+        } else {
+            feedbackElement.style.display = 'none';
         }
     }
 
@@ -1265,15 +1313,14 @@ class AppointmentBooking {
             loading?.classList.add('hidden');
             grid?.classList.remove('opacity-50');
         }
-    }
-
-    showDoctorsError() {
+    }    showDoctorsError(customMessage = null) {
         const container = document.getElementById('doctors_grid');
         if (container) {
+            const errorMessage = customMessage || 'Error loading doctors. Please try again.';
             container.innerHTML = `
                 <div class="col-span-full text-center py-8">
                     <i class="fas fa-exclamation-triangle text-red-500 text-3xl mb-4"></i>
-                    <p class="text-gray-600 dark:text-gray-400 mb-4">Error loading doctors. Please try again.</p>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">${errorMessage}</p>
                     <button onclick="window.appointmentBooking.loadInitialDoctors()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                         Retry
                     </button>

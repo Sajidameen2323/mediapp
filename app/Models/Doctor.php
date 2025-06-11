@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Laravel\Scout\Searchable;
 
 class Doctor extends Model
 {
+    use Searchable;
     protected $fillable = [
         'user_id',
         'specialization',
@@ -84,6 +86,48 @@ class Doctor extends Model
     }
 
     /**
+     * Get the ratings for the doctor.
+     */
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(DoctorRating::class);
+    }
+
+    /**
+     * Get published and verified ratings for the doctor.
+     */
+    public function publishedRatings(): HasMany
+    {
+        return $this->hasMany(DoctorRating::class)
+                    ->where('is_published', true)
+                    ->where('is_verified', true);
+    }
+
+    /**
+     * Get average rating for the doctor.
+     */
+    public function getAverageRatingAttribute()
+    {
+        return DoctorRating::getAverageRatingForDoctor($this->id);
+    }
+
+    /**
+     * Get rating count for the doctor.
+     */
+    public function getRatingCountAttribute()
+    {
+        return DoctorRating::getRatingCountForDoctor($this->id);
+    }
+
+    /**
+     * Get rating distribution for the doctor.
+     */
+    public function getRatingDistribution()
+    {
+        return DoctorRating::getRatingDistributionForDoctor($this->id);
+    }
+
+    /**
      * Get health profile permissions this doctor has received from patients
      */
     public function healthProfilePermissionsReceived(): HasMany
@@ -105,5 +149,111 @@ class Doctor extends Model
     public function scopeBySpecialization($query, $specialization)
     {
         return $query->where('specialization', $specialization);
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     */
+    public function toSearchableArray()
+    {
+        $array = $this->toArray();
+        
+        // Add user information for search
+        $array['user_name'] = $this->user->name ?? '';
+        $array['user_email'] = $this->user->email ?? '';
+        
+        // Add services for search
+        $array['services'] = $this->services->pluck('name')->toArray();
+        $array['service_names'] = $this->services->pluck('name')->implode(' ');
+        
+        // Add symptom keywords for specializations
+        $array['symptom_keywords'] = $this->getSymptomKeywords();
+        
+        // Add searchable content
+        $array['searchable_content'] = implode(' ', [
+            $this->user->name ?? '',
+            $this->specialization ?? '',
+            $this->bio ?? '',
+            $this->service_names ?? '',
+            implode(' ', $this->getSymptomKeywords())
+        ]);
+
+        return $array;
+    }
+
+    /**
+     * Get symptom keywords based on specialization
+     */
+    public function getSymptomKeywords()
+    {
+        $symptomMap = [
+            'Cardiology' => [
+                'chest pain', 'heart palpitations', 'shortness of breath', 'high blood pressure',
+                'irregular heartbeat', 'chest tightness', 'fatigue', 'dizziness', 'swollen ankles',
+                'heart attack', 'cardiac', 'cardiovascular'
+            ],
+            'Dermatology' => [
+                'skin rash', 'acne', 'eczema', 'psoriasis', 'moles', 'skin cancer', 'wrinkles',
+                'hair loss', 'dandruff', 'skin allergies', 'dermatitis', 'skin problems'
+            ],
+            'Gastroenterology' => [
+                'stomach pain', 'abdominal pain', 'nausea', 'vomiting', 'diarrhea', 'constipation',
+                'acid reflux', 'heartburn', 'bloating', 'digestive issues', 'stomach problems'
+            ],
+            'Neurology' => [
+                'headache', 'migraine', 'seizures', 'epilepsy', 'memory loss', 'confusion',
+                'dizziness', 'numbness', 'tingling', 'stroke', 'neurological', 'brain'
+            ],
+            'Orthopedics' => [
+                'joint pain', 'back pain', 'neck pain', 'knee pain', 'shoulder pain', 'arthritis',
+                'fractures', 'sports injury', 'muscle pain', 'bone problems', 'orthopedic'
+            ],
+            'Pediatrics' => [
+                'child fever', 'baby cough', 'vaccination', 'growth problems', 'childhood illness',
+                'pediatric care', 'infant care', 'child development', 'kids health'
+            ],
+            'Psychiatry' => [
+                'depression', 'anxiety', 'stress', 'panic attacks', 'mental health', 'therapy',
+                'counseling', 'mood disorders', 'psychiatric care', 'emotional problems'
+            ],
+            'Pulmonology' => [
+                'cough', 'breathing problems', 'asthma', 'pneumonia', 'lung problems',
+                'respiratory issues', 'chest congestion', 'wheezing', 'lung infection'
+            ],
+            'Urology' => [
+                'urinary problems', 'kidney stones', 'bladder issues', 'prostate problems',
+                'urinary tract infection', 'frequent urination', 'blood in urine', 'kidney disease'
+            ],
+            'Gynecology' => [
+                'menstrual problems', 'pregnancy', 'womens health', 'pap smear', 'contraception',
+                'fertility', 'gynecological exam', 'period problems', 'reproductive health'
+            ],
+            'Ophthalmology' => [
+                'eye problems', 'vision problems', 'blurred vision', 'eye pain', 'cataracts',
+                'glaucoma', 'eye exam', 'glasses', 'contact lenses', 'eye infection'
+            ],
+            'ENT' => [
+                'ear pain', 'sore throat', 'hearing problems', 'sinus problems', 'tonsillitis',
+                'ear infection', 'throat infection', 'nose problems', 'ENT issues'
+            ],
+            'General Practice' => [
+                'general checkup', 'routine examination', 'common cold', 'flu', 'fever',
+                'general consultation', 'health screening', 'physical exam', 'primary care',
+                'family medicine', 'preventive care'
+            ]
+        ];
+
+        $specialization = $this->specialization ?? 'General Practice';
+        
+        // Return keywords for the doctor's specialization, or general practice keywords as fallback
+        return $symptomMap[$specialization] ?? $symptomMap['General Practice'];
+    }
+
+    /**
+     * Determine if the model should be searchable.
+     */
+    public function shouldBeSearchable()
+    {
+        return $this->is_available;
     }
 }

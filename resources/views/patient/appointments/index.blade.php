@@ -299,17 +299,22 @@
 
                         <!-- Card Footer -->
                         <div
-                            class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-700 rounded-b-lg">                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                                <x-appointment.action-buttons 
-                                    :appointment="$appointment"
-                                    :config="$config"
-                                    layout="horizontal"
+                            class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-700 rounded-b-lg">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                <x-appointment.action-buttons :appointment="$appointment" :config="$config" layout="horizontal"
                                     size="sm" />
                             </div>
                         </div>
                     </div>
                 @endforeach
             </div>
+
+            <!-- Rating Modals for each appointment -->
+            @foreach ($appointments as $appointment)
+                @if ($appointment->canBeRated())
+                    <x-appointment.rating-modal :appointment="$appointment" modal-id="ratingModal_{{ $appointment->id }}" />
+                @endif
+            @endforeach
 
             <!-- Pagination and Results Info -->
             @if ($appointments->total() > 0)

@@ -132,21 +132,19 @@ class AppointmentShowRequest extends FormRequest
         if (!$config->allow_cancellation) {
             $validator->errors()->add('appointment', 'Appointment cancellation is not allowed.');
         }
-    }
-
-    /**
+    }    /**
      * Validate appointment rating.
      */
     protected function validateRating($validator, $appointment)
     {
-        // Check if appointment is completed
-        if ($appointment->status !== 'completed') {
-            $validator->errors()->add('appointment', 'Only completed appointments can be rated.');
+        // Use the new canBeRated method which includes all necessary checks
+        if (!$appointment->canBeRated()) {
+            $validator->errors()->add('appointment', 'This appointment cannot be rated at this time.');
             return;
         }
 
-        // Check if already rated
-        if ($appointment->rating) {
+        // Check if already rated using the new system
+        if ($appointment->isRated()) {
             $validator->errors()->add('appointment', 'This appointment has already been rated.');
             return;
         }

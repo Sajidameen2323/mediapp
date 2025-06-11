@@ -12,6 +12,9 @@
     - showRating: boolean (default: true for completed without rating)
     - cancelAction: string - custom action for cancel button (default: form submission)
     - ratingAction: string - custom action for rating button
+    
+    Note: When using the rating button, make sure to include the rating modal component:
+    <x-appointment.rating-modal :appointment="$appointment" modal-id="ratingModal_{{ $appointment->id }}" />
 --}}
 
 @props([
@@ -30,11 +33,9 @@
     // Get config if not provided
     if (!$config) {
         $config = \App\Models\AppointmentConfig::getActive();
-    }
-    
-    // Set default values for optional props
+    }    // Set default values for optional props
     $showPrint = $showPrint ?? in_array($appointment->status, ['confirmed', 'completed']);
-    $showRating = $showRating ?? ($appointment->status === 'completed' && !$appointment->rating);
+    $showRating = $showRating ?? $appointment->canBeRated();
     
     // Define size classes
     $sizeClasses = [
@@ -132,8 +133,7 @@
     @endif
 
     {{-- Print/Download Button --}}
-    @if ($showPrint)
-        <button type="button" onclick="window.print()"
+    @if ($showPrint)        <button type="button" onclick="window.print()"
                 class="inline-flex items-center justify-center {{ $buttonSize }} {{ $buttonWidth }} bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
             <i class="fas fa-print mr-2 {{ $iconSize }}"></i>
             <span>Print</span>
@@ -150,12 +150,12 @@
                 <span>Rate Appointment</span>
             </button>
         @else
-            {{-- Default Rating Link --}}
-            <a href="{{ route('patient.appointments.rate', $appointment) }}"
-               class="inline-flex items-center justify-center {{ $buttonSize }} {{ $buttonWidth }} bg-yellow-600 hover:bg-yellow-700 dark:bg-yellow-500 dark:hover:bg-yellow-600 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+            {{-- Default Rating Modal Button --}}
+            <button type="button" onclick="showRatingModal('ratingModal_{{ $appointment->id }}')"
+                    class="inline-flex items-center justify-center {{ $buttonSize }} {{ $buttonWidth }} bg-yellow-600 hover:bg-yellow-700 dark:bg-yellow-500 dark:hover:bg-yellow-600 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
                 <i class="fas fa-star mr-2 {{ $iconSize }}"></i>
                 <span>Rate Appointment</span>
-            </a>
+            </button>
         @endif
     @endif
 </div>

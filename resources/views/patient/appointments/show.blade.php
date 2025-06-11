@@ -294,10 +294,9 @@
                             Quick Actions
                         </h3>
 
-                        <div class="space-y-3">
-                            <x-appointment.action-buttons :appointment="$appointment" layout="vertical" size="md"
-                                :show-print="true" :show-rating="$appointment->status === 'completed' && !$appointment->rating" cancel-action="showCancelModal()"
-                                rating-action="showRatingModal()" />
+                        <div class="space-y-3">                            <x-appointment.action-buttons :appointment="$appointment" layout="vertical" size="md"
+                                :show-print="true" :show-rating="$appointment->canBeRated()" cancel-action="showCancelModal()"
+                                rating-action="showRatingModal('ratingModal_{{ $appointment->id }}')" />
                         </div>
                     </div>
                 </div>                <!-- Appointment Timeline -->
@@ -492,72 +491,9 @@
                 </form>
             </div>
         </div>
-    </div>
-
-    <!-- Rating Modal -->
-    @if ($appointment->status === 'completed' && !$appointment->rating)
-        <div id="ratingModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
-            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-lg bg-white dark:bg-gray-800">
-                <div class="mt-3">
-                    <div
-                        class="flex items-center justify-center mx-auto w-12 h-12 rounded-full bg-yellow-100 dark:bg-yellow-900/20">
-                        <i class="fas fa-star text-yellow-600 dark:text-yellow-400 text-xl"></i>
-                    </div>
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white text-center mt-5">Rate Your Appointment
-                    </h3>
-                    <div class="mt-2 px-7 py-3">
-                        <p class="text-sm text-gray-500 dark:text-gray-400 text-center">
-                            How was your experience with Dr. {{ $appointment->doctor->user->name }}?
-                        </p>
-                    </div>
-
-                    <form action="{{ route('patient.appointments.rate', $appointment) }}" method="POST"
-                        id="ratingForm">
-                        @csrf
-                        <div class="px-7 py-3 space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 text-center">
-                                    Overall Rating <span class="text-red-500">*</span>
-                                </label>
-                                <div class="rating-stars flex justify-center space-x-1">
-                                    @for ($i = 1; $i <= 5; $i++)
-                                        <span
-                                            class="star cursor-pointer text-2xl text-gray-300 hover:text-yellow-400 transition-colors duration-200"
-                                            data-rating="{{ $i }}">
-                                            <i class="far fa-star"></i>
-                                        </span>
-                                    @endfor
-                                </div>
-                                <input type="hidden" name="rating" id="rating" required>
-                            </div>
-
-                            <div>
-                                <label for="review"
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Review (Optional)
-                                </label>
-                                <textarea name="review" id="review" rows="3" maxlength="1000"
-                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                                    placeholder="Share your experience with this appointment..."></textarea>
-                            </div>
-                        </div>
-
-                        <div class="px-4 py-3 text-center space-x-3">
-                            <button type="submit" id="submitRating"
-                                class="px-6 py-2 bg-yellow-600 text-white text-sm font-medium rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-300 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                                disabled>
-                                <i class="fas fa-star mr-2"></i>
-                                Submit Rating
-                            </button>
-                            <button type="button" onclick="hideRatingModal()"
-                                class="px-6 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white text-sm font-medium rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors duration-200">
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+    </div>    <!-- Rating Modal -->
+    @if ($appointment->canBeRated())
+        <x-appointment.rating-modal :appointment="$appointment" modal-id="ratingModal_{{ $appointment->id }}" />
     @endif
 @endsection
 
@@ -609,35 +545,9 @@
 
         .card:hover {
             transform: translateY(-1px);
-        }
-
-        .badge.fs-6 {
+        }        .badge.fs-6 {
             font-size: 1rem !important;
             padding: 0.5rem 1rem;
-        }
-
-        .rating-stars {
-            font-size: 2rem;
-            color: #ffc107;
-        }
-
-        .rating-stars .star {
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-
-        .rating-stars .star:hover,
-        .rating-stars .star.active {
-            color: #ffc107;
-        }
-
-        .rating-stars .star i {
-            transition: all 0.2s;
-        }
-
-        .rating-stars .star:hover i,
-        .rating-stars .star.active i {
-            transform: scale(1.1);
         }
 
         @media print {
@@ -671,37 +581,12 @@
             document.getElementById('cancellation_reason').value = '';
         }
 
-        function showRatingModal() {
-            document.getElementById('ratingModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function hideRatingModal() {
-            document.getElementById('ratingModal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-            // Reset form
-            document.getElementById('rating').value = '';
-            document.getElementById('review').value = '';
-            document.getElementById('submitRating').disabled = true;
-            // Reset stars
-            document.querySelectorAll('.rating-stars .star').forEach(function(star) {
-                const icon = star.querySelector('i');
-                icon.classList.remove('fas');
-                icon.classList.add('far');
-                star.classList.remove('active');
-            });
-        }
-
         // Close modals when clicking outside
         window.onclick = function(event) {
             const cancelModal = document.getElementById('cancelModal');
-            const ratingModal = document.getElementById('ratingModal');
 
             if (event.target === cancelModal) {
                 hideCancelModal();
-            }
-            if (event.target === ratingModal) {
-                hideRatingModal();
             }
         }
 
@@ -709,70 +594,11 @@
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 const cancelModal = document.getElementById('cancelModal');
-                const ratingModal = document.getElementById('ratingModal');
 
                 if (!cancelModal.classList.contains('hidden')) {
                     hideCancelModal();
                 }
-                if (!ratingModal.classList.contains('hidden')) {
-                    hideRatingModal();
-                }
             }
-        });
-
-        $(document).ready(function() {
-            // Rating functionality
-            $('.rating-stars .star').click(function() {
-                const rating = $(this).data('rating');
-                $('#rating').val(rating);
-
-                // Enable submit button
-                $('#submitRating').prop('disabled', false);
-
-                // Update star display
-                $('.rating-stars .star').each(function(index) {
-                    const starRating = $(this).data('rating');
-                    const icon = $(this).find('i');
-
-                    if (starRating <= rating) {
-                        icon.removeClass('far').addClass('fas');
-                        $(this).addClass('active');
-                    } else {
-                        icon.removeClass('fas').addClass('far');
-                        $(this).removeClass('active');
-                    }
-                });
-            });
-
-            // Star hover effects
-            $('.rating-stars .star').hover(
-                function() {
-                    const rating = $(this).data('rating');
-                    $('.rating-stars .star').each(function() {
-                        const starRating = $(this).data('rating');
-                        const icon = $(this).find('i');
-
-                        if (starRating <= rating) {
-                            icon.removeClass('far').addClass('fas');
-                        } else {
-                            icon.removeClass('fas').addClass('far');
-                        }
-                    });
-                },
-                function() {
-                    const currentRating = $('#rating').val();
-                    $('.rating-stars .star').each(function() {
-                        const starRating = $(this).data('rating');
-                        const icon = $(this).find('i');
-
-                        if (currentRating && starRating <= currentRating) {
-                            icon.removeClass('far').addClass('fas');
-                        } else {
-                            icon.removeClass('fas').addClass('far');
-                        }
-                    });
-                }
-            );
         });
     </script>
 @endpush

@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Patient;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Doctor;
+use App\Models\DoctorRating;
 use App\Models\Service;
 use App\Models\AppointmentConfig;
 use App\Models\Holiday;
 use App\Models\DoctorHoliday;
 use App\Models\DoctorSchedule;
 use App\Services\AppointmentSlotService;
+use App\Services\DoctorSearchService;
 use App\Http\Requests\Patient\BookAppointmentRequest;
 use App\Http\Requests\Patient\AppointmentRequest;
 use App\Http\Requests\Patient\AppointmentShowRequest;
@@ -23,10 +25,12 @@ class AppointmentController extends Controller
     use AuthorizesRequests;
 
     protected $slotService;
+    protected $doctorSearchService;
 
-    public function __construct(AppointmentSlotService $slotService)
+    public function __construct(AppointmentSlotService $slotService, DoctorSearchService $doctorSearchService)
     {
         $this->slotService = $slotService;
+        $this->doctorSearchService = $doctorSearchService;
     }
 
     /**
@@ -426,26 +430,49 @@ class AppointmentController extends Controller
         $user = auth()->user();
 
         if ($appointment->patient_id !== $user->id) {
+            error_log('Unauthorized access attempt to appointment: ' . $appointment->id);
             abort(403, 'Unauthorized access to appointment.');
         }
 
-        if ($appointment->status !== 'completed') {
-            return redirect()->back()->with('error', 'Only completed appointments can be rated.');
+        if (!$appointment->canBeRated()) {
+            error_log('Appointment cannot be rated: ' . $appointment->id);
+            return redirect()->back()->with('error', 'This appointment cannot be rated at this time.');
         }
 
-        if ($appointment->rating) {
+        if ($appointment->isRated()) {
+            error_log('Appointment already rated: ' . $appointment->id);
             return redirect()->back()->with('error', 'This appointment has already been rated.');
         }
-
         $validated = $request->validated();
 
-        $appointment->update([
+        // Create doctor rating using the new system
+        $doctorRating = DoctorRating::create([
+            'doctor_id' => $appointment->doctor_id,
+            'patient_id' => $user->id,
+            'appointment_id' => $appointment->id,
             'rating' => $validated['rating'],
             'review' => $validated['review'] ?? null,
+            'is_published' => true, // Auto-publish unless spam detection triggers
             'rated_at' => now(),
         ]);
 
-        return redirect()->back()->with('success', 'Thank you for rating this appointment!');
+        // Check for spam and update status if needed
+        if ($doctorRating->isPotentialSpam()) {
+            $doctorRating->update([
+                'is_published' => false,
+                'spam_score' => $doctorRating->calculateSpamScore(),
+                'review_status' => 'pending'
+            ]);
+        }
+
+        // Mark appointment as rated
+        $appointment->markAsRated($doctorRating);
+
+        $message = $doctorRating->is_published 
+            ? 'Thank you for rating this appointment!' 
+            : 'Thank you for your rating! It is under review and will be published soon.';
+
+        return redirect()->back()->with('success', $message);
     }
 
     /**
@@ -475,6 +502,7 @@ class AppointmentController extends Controller
     }    /**
          * Search for doctors based on query and filters (AJAX).
          * Can be used both by authenticated patients and for public booking.
+         * Now uses Algolia search with symptom matching and fallback support.
          */
     public function searchDoctors(Request $request)
     {
@@ -483,78 +511,42 @@ class AppointmentController extends Controller
             $this->authorize('patient-access');
         }
 
-        $query = Doctor::query()->with(['user', 'services'])
-            ->where('is_available', true);
-
-        // Search by name or specialization
-        if ($request->filled('q')) {
-            $searchTerm = $request->get('q');
-            $query->where(function ($q) use ($searchTerm) {
-                $q->whereHas('user', function ($userQuery) use ($searchTerm) {
-                    $userQuery->where('name', 'LIKE', "%{$searchTerm}%");
-                })
-                    ->orWhere('specialization', 'LIKE', "%{$searchTerm}%")
-                    ->orWhere('bio', 'LIKE', "%{$searchTerm}%");
-            });
-        }
-
-        // Filter by service
-        if ($request->filled('service_id')) {
-            $query->whereHas('services', function ($q) use ($request) {
-                $q->where('services.id', $request->get('service_id'));
-            });
-        }
-
-        // Filter by specialization
-        if ($request->filled('specialization')) {
-            $query->where('specialization', $request->get('specialization'));
-        }
-
-        // Filter by availability (optional)
-        if ($request->filled('available_today')) {
-            $today = Carbon::today();
-            $query->whereHas('schedules', function ($q) use ($today) {
-                $q->where('day_of_week', $today->dayOfWeek)
-                    ->where('is_available', true);
-            });
-        }
-
-        // Order by relevance and rating
-        $doctors = $query
-            ->orderBy('experience_years', 'desc')
-            ->limit(20)
-            ->get();
-
-        // Transform data for frontend
-        $doctorsData = $doctors->map(function ($doctor) {
-            return [
-                'id' => $doctor->id,
-                'name' => $doctor->user->name ?? $doctor->name,
-                'specialization' => $doctor->specialization,
-                'experience_years' => $doctor->experience_years,
-                'consultation_fee' => $doctor->consultation_fee,
-                'rating' => $doctor->rating ?? 4.5,
-                'is_available' => $doctor->is_available,
-                'bio' => $doctor->bio,
-                'services' => $doctor->services->map(function ($service) {
-                    return [
-                        'id' => $service->id,
-                        'name' => $service->name,
-                        'price' => $service->price
-                    ];
-                }),
-                'user' => [
-                    'name' => $doctor->user->name ?? null,
-                    'email' => $doctor->user->email ?? null
-                ]
+        try {
+            $query = $request->get('q', '');
+            $filters = [
+                'service_id' => $request->get('service_id'),
+                'specialization' => $request->get('specialization'),
+                'available_today' => $request->get('available_today')
             ];
-        });
 
-        return response()->json([
-            'success' => true,
-            'doctors' => $doctorsData,
-            'total' => $doctors->count()
-        ]);
+            // Use the new DoctorSearchService for intelligent symptom-based search
+            $doctors = $this->doctorSearchService->searchDoctors($query, $filters);
+
+            // Transform data for frontend
+            $doctorsData = $this->doctorSearchService->transformDoctorData($doctors);
+
+            return response()->json([
+                'success' => true,
+                'doctors' => $doctorsData,
+                'total' => $doctors->count(),
+                'search_type' => empty($query) ? 'all' : 'search',
+                'query' => $query
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Doctor search failed', [
+                'error' => $e->getMessage(),
+                'query' => $request->get('q'),
+                'filters' => $request->only(['service_id', 'specialization', 'available_today'])
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Search temporarily unavailable. Please try again.',
+                'doctors' => [],
+                'total' => 0
+            ], 500);
+        }
     }    /**
          * Get services for a specific doctor (AJAX).
          * Can be used both by authenticated patients and for public booking.

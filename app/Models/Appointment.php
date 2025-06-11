@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
 
@@ -45,6 +46,9 @@ class Appointment extends Model
         'original_time',
         'completed_at',
         'completion_notes',
+        'is_rated',
+        'rated_at',
+        'doctor_rating_id',
     ];
 
     protected $casts = [
@@ -61,6 +65,8 @@ class Appointment extends Model
         'original_date' => 'date',
         'original_time' => 'datetime:H:i',
         'completed_at' => 'datetime',
+        'is_rated' => 'boolean',
+        'rated_at' => 'datetime',
     ];
 
     /**
@@ -100,6 +106,14 @@ class Appointment extends Model
     public function service(): BelongsTo
     {
         return $this->belongsTo(Service::class);
+    }
+
+    /**
+     * Get the rating for this appointment.
+     */
+    public function doctorRating(): HasOne
+    {
+        return $this->hasOne(DoctorRating::class);
     }
 
     /**
@@ -239,6 +253,59 @@ class Appointment extends Model
         $hoursUntilAppointment = $currentTime->diffInHours($appointmentDateTime, false);
 
         return $hoursUntilAppointment >= $config->reschedule_hours_limit;
+    }
+
+    /**
+     * Check if appointment can be rated.
+     */
+    public function canBeRated()
+    {
+        // Appointment must be completed to be rated
+        if ($this->status !== 'completed') {
+            return false;
+        }
+
+        // Appointment must not be already rated
+        if ($this->is_rated) {
+            return false;
+        }
+
+        // For testing purposes, no time restriction
+        // In production, you might want to add a minimum time delay:
+        // $completedAt = $this->completed_at ?: $this->updated_at;
+        // if (!$completedAt || $completedAt->diffInHours(now()) < 1) {
+        //     return false;
+        // }
+
+        return true;
+    }
+
+    /**
+     * Check if appointment has been rated.
+     */
+    public function isRated()
+    {
+        return $this->is_rated || $this->doctorRating()->exists();
+    }
+
+    /**
+     * Get the rating for this appointment.
+     */
+    public function getRating()
+    {
+        return $this->doctorRating;
+    }
+
+    /**
+     * Mark appointment as rated.
+     */
+    public function markAsRated(DoctorRating $rating)
+    {
+        $this->update([
+            'is_rated' => true,
+            'rated_at' => now(),
+            'doctor_rating_id' => $rating->id
+        ]);
     }
 
     /**

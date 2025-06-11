@@ -6,7 +6,7 @@
         const mobileMenu = document.getElementById('mobile-menu');
         const menuIcon = document.getElementById('menu-icon');
         const closeIcon = document.getElementById('close-icon');
-
+        
         if (mobileMenuButton && mobileMenu) {
             mobileMenuButton.addEventListener('click', function() {
                 mobileMenu.classList.toggle('hidden');
@@ -26,7 +26,7 @@
 
         // Add smooth scrolling to anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
+            anchor.addEventListener('click', function (e) {
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
                 if (target) {
@@ -104,7 +104,7 @@
                     message.style.opacity = '0';
                     message.style.transform = 'translateY(10px)';
                     message.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-
+                    
                     setTimeout(() => {
                         message.style.opacity = '1';
                         message.style.transform = 'translateY(0)';
@@ -139,28 +139,28 @@
         if (feedbackForm) {
             feedbackForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-
+                
                 const name = this.querySelector('input[type="text"]').value;
                 const feedback = this.querySelector('textarea').value;
                 const selectedStars = this.querySelectorAll('.text-yellow-400').length;
-
+                
                 if (!name || !feedback || selectedStars === 0) {
                     alert('Please fill in all fields and provide a rating.');
                     return;
                 }
-
+                
                 // Simulate form submission
                 const submitBtn = this.querySelector('button[type="submit"]');
                 const originalText = submitBtn.textContent;
                 submitBtn.textContent = 'Submitting...';
                 submitBtn.disabled = true;
-
+                
                 setTimeout(() => {
                     alert('Thank you for your feedback!');
                     this.reset();
                     submitBtn.textContent = originalText;
                     submitBtn.disabled = false;
-
+                    
                     // Reset stars
                     this.querySelectorAll('.text-3xl').forEach(star => {
                         star.classList.remove('text-yellow-400');
@@ -173,8 +173,7 @@
         // Add scroll to top functionality
         const scrollToTopBtn = document.createElement('button');
         scrollToTopBtn.innerHTML = '↑';
-        scrollToTopBtn.className =
-            'fixed bottom-8 right-8 bg-blue-600 text-white w-12 h-12 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 opacity-0 pointer-events-none z-50';
+        scrollToTopBtn.className = 'fixed bottom-8 right-8 bg-blue-600 text-white w-12 h-12 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 opacity-0 pointer-events-none z-50';
         scrollToTopBtn.style.fontSize = '20px';
         scrollToTopBtn.style.fontWeight = 'bold';
         document.body.appendChild(scrollToTopBtn);
@@ -199,16 +198,14 @@
 
         // Add loading animation for buttons
         document.querySelectorAll('button').forEach(button => {
-            if (button.textContent.includes('Book') || button.textContent.includes('Schedule') || button
-                .textContent.includes('Order')) {
+            if (button.textContent.includes('Book') || button.textContent.includes('Schedule') || button.textContent.includes('Order')) {
                 button.addEventListener('click', function(e) {
                     if (this.getAttribute('type') !== 'submit') {
                         e.preventDefault();
                         const originalText = this.textContent;
-                        this.innerHTML =
-                            '<span class="inline-block animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span>Loading...';
+                        this.innerHTML = '<span class="inline-block animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></span>Loading...';
                         this.disabled = true;
-
+                        
                         // Navigate to booking page
                         // setTimeout(() => {
                         //     this.textContent = originalText;
@@ -223,7 +220,7 @@
         // Add navigation highlight on scroll
         const sections = document.querySelectorAll('section[id]');
         const navLinks = document.querySelectorAll('nav a[href^="#"]');
-
+        
         window.addEventListener('scroll', function() {
             let current = '';
             sections.forEach(section => {
@@ -243,10 +240,9 @@
         });
 
         // ==== DOCTOR SEARCH FUNCTIONALITY ====
-
+        
         // Get form elements
         const searchForm = document.getElementById('doctorSearchForm');
-        const searchDoctorsBtn = document.getElementById('searchDoctorsBtn');
         const doctorSearchInput = document.getElementById('doctorSearchInput');
         const specialtyFilter = document.getElementById('specialtyFilter');
         const clearSearchBtn = document.getElementById('clearSearchBtn');
@@ -272,30 +268,13 @@
         ];
 
         // Color palettes for doctor cards
-        const colorPalettes = [{
-                gradient: 'from-blue-500 to-purple-600',
-                color: 'blue-600'
-            },
-            {
-                gradient: 'from-green-500 to-blue-600',
-                color: 'green-600'
-            },
-            {
-                gradient: 'from-purple-500 to-pink-600',
-                color: 'purple-600'
-            },
-            {
-                gradient: 'from-red-500 to-orange-600',
-                color: 'red-600'
-            },
-            {
-                gradient: 'from-indigo-500 to-purple-600',
-                color: 'indigo-600'
-            },
-            {
-                gradient: 'from-teal-500 to-blue-600',
-                color: 'teal-600'
-            }
+        const colorPalettes = [
+            { gradient: 'from-blue-500 to-purple-600', color: 'blue-600' },
+            { gradient: 'from-green-500 to-blue-600', color: 'green-600' },
+            { gradient: 'from-purple-500 to-pink-600', color: 'purple-600' },
+            { gradient: 'from-red-500 to-orange-600', color: 'red-600' },
+            { gradient: 'from-indigo-500 to-purple-600', color: 'indigo-600' },
+            { gradient: 'from-teal-500 to-blue-600', color: 'teal-600' }
         ];
 
         // Show/hide clear button on input (without triggering search)
@@ -369,12 +348,12 @@
 
             try {
                 const params = new URLSearchParams();
-
+                
                 // Add query parameter
                 if (query && query.trim()) {
                     params.append('q', query.trim());
                 }
-
+                
                 // Add specialty filter
                 const specialty = specialtyFilter.value;
                 if (specialty && specialty !== '') {
@@ -421,27 +400,23 @@
             }
 
             let feedbackMessage = '';
-
+            
             if (query && query.trim()) {
-                const isSymptomSearch = symptomKeywords.some(symptom =>
+                const isSymptomSearch = symptomKeywords.some(symptom => 
                     query.toLowerCase().includes(symptom.toLowerCase())
                 );
 
                 if (isSymptomSearch) {
                     if (resultCount > 0) {
-                        feedbackMessage =
-                            `<i class="fas fa-stethoscope text-green-600 mr-2"></i>Found ${resultCount} doctor(s) specializing in treating "${query}". Specialists are prioritized, with general practitioners as additional options.`;
+                        feedbackMessage = `<i class="fas fa-stethoscope text-green-600 mr-2"></i>Found ${resultCount} doctor(s) specializing in treating "${query}". Specialists are prioritized, with general practitioners as additional options.`;
                     } else {
-                        feedbackMessage =
-                            `<i class="fas fa-info-circle text-blue-600 mr-2"></i>No specific specialists found for "${query}". Try searching for general practitioners or contact our support for assistance.`;
+                        feedbackMessage = `<i class="fas fa-info-circle text-blue-600 mr-2"></i>No specific specialists found for "${query}". Try searching for general practitioners or contact our support for assistance.`;
                     }
                 } else {
-                    feedbackMessage =
-                        `<i class="fas fa-search text-blue-600 mr-2"></i>Found ${resultCount} doctor(s) matching "${query}".`;
+                    feedbackMessage = `<i class="fas fa-search text-blue-600 mr-2"></i>Found ${resultCount} doctor(s) matching "${query}".`;
                 }
             } else if (specialtyFilter.value) {
-                feedbackMessage =
-                    `<i class="fas fa-filter text-blue-600 mr-2"></i>Showing ${resultCount} ${specialtyFilter.value.toLowerCase()} specialist(s).`;
+                feedbackMessage = `<i class="fas fa-filter text-blue-600 mr-2"></i>Showing ${resultCount} ${specialtyFilter.value.toLowerCase()} specialist(s).`;
             }
 
             if (feedbackMessage) {
@@ -460,18 +435,17 @@
             const availability = doctor.is_available ? 'Available Now' : 'Next available: Soon';
             const rating = (4.5 + Math.random() * 0.4).toFixed(1); // Random rating between 4.5-4.9
             const reviewCount = Math.floor(Math.random() * 200) + 50; // Random review count
-
+            
             // Handle both direct doctor data and nested user data
             const doctorName = doctor.name || (doctor.user ? doctor.user.name : 'Unknown Doctor');
             const doctorId = doctor.id;
-
+            
             // Generate initials from name
             const initials = doctorName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-
-            const bookUrl =
-                `{{ route('patient.appointments.create', ['doctor_id' => 'doctor_id_placeholder']) }}`;
+            
+            const bookUrl = `{{ route('patient.appointments.create', ['doctor_id' => 'doctor_id_placeholder']) }}`;
             const bookUrlWithId = bookUrl.replace('doctor_id_placeholder', doctorId);
-
+            
             return `
                 <div class="bg-white dark:bg-gray-900 rounded-xl shadow-lg hover:shadow-xl transition-shadow overflow-hidden">
                     <div class="bg-gradient-to-r ${palette.gradient} h-32"></div>
@@ -508,13 +482,7 @@
                 searchDoctors(query);
             });
         }
-        if (searchDoctorsBtn) {
-            searchDoctorsBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const query = doctorSearchInput.value.trim();
-                searchDoctors(query);
-            });
-        }
+
         // Reset filters
         if (resetFiltersBtn) {
             resetFiltersBtn.addEventListener('click', function() {
