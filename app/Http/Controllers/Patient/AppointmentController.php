@@ -512,7 +512,7 @@ class AppointmentController extends Controller
         }
 
         try {
-            $query = $request->get('q', '');
+            $query = $request->get('q', '') ?: '';
             $filters = [
                 'service_id' => $request->get('service_id'),
                 'specialization' => $request->get('specialization'),

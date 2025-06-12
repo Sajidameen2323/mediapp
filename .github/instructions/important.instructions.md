@@ -19,3 +19,4 @@ When generating components, pages please ensure that you follow these guidelines
 - make use of layouting feature for consistent layout
 - try to seperate JS logic if necessary
 
+Always cleanup test files and debug code after successful implementation.

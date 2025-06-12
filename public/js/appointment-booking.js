@@ -474,7 +474,7 @@ class AppointmentBooking {
         } finally {
             this.showDoctorsLoading(false);
         }
-    }    async searchDoctors(query) {
+    } async searchDoctors(query) {
         if (!query && !this.hasActiveFilters()) {
             this.loadInitialDoctors();
             return;
@@ -497,7 +497,7 @@ class AppointmentBooking {
 
             if (data.success) {
                 this.displayDoctors(data.doctors);
-                
+
                 // Show search feedback
                 this.showSearchFeedback(query, data.doctors.length, data.search_type);
             } else {
@@ -518,7 +518,7 @@ class AppointmentBooking {
             feedbackElement = document.createElement('div');
             feedbackElement.id = 'search_feedback';
             feedbackElement.className = 'mb-4 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800';
-            
+
             const doctorsGrid = document.getElementById('doctors_grid');
             if (doctorsGrid && doctorsGrid.parentNode) {
                 doctorsGrid.parentNode.insertBefore(feedbackElement, doctorsGrid);
@@ -533,8 +533,8 @@ class AppointmentBooking {
                 'depression', 'skin rash', 'acne', 'eye problems', 'ear pain', 'sore throat',
                 'joint pain', 'fatigue', 'bloating', 'constipation', 'diarrhea'
             ];
-            
-            const isSymptomSearch = symptomKeywords.some(symptom => 
+
+            const isSymptomSearch = symptomKeywords.some(symptom =>
                 query.toLowerCase().includes(symptom.toLowerCase())
             );
 
@@ -565,8 +565,7 @@ class AppointmentBooking {
         const serviceFilter = document.getElementById('service_filter')?.value;
         const specializationFilter = document.getElementById('specialization_filter')?.value;
         return serviceFilter || specializationFilter;
-    }
-    displayDoctors(doctors) {
+    } displayDoctors(doctors) {
         // console.log('displayDoctors called with:', doctors);
         const container = document.getElementById('doctors_grid');
         const template = document.getElementById('doctor_card_template');
@@ -607,6 +606,34 @@ class AppointmentBooking {
             card.querySelector('.doctor-availability').textContent = doctor.is_available ?
                 'Available today' : 'Schedule in advance';
 
+            // Update rating display with actual data
+            const rating = doctor?.rating ? Number(doctor.rating) : 0;
+            const reviewCount = doctor?.rating_count ?? 0;
+
+            // Update rating value
+            const ratingValue = card.querySelector('.rating-value');
+            if (ratingValue) {
+                ratingValue.textContent = rating.toFixed(1);
+            }
+
+            // Update review count
+            const reviewsCount = card.querySelector('.reviews-count');
+            if (reviewsCount) {
+                reviewsCount.textContent = reviewCount;
+            }
+
+            // Generate dynamic star rating
+            const doctorRatingContainer = card.querySelector('.doctor-rating');
+            if (doctorRatingContainer) {
+                const starRating = this.generateStarRating(rating);
+                doctorRatingContainer.innerHTML = `
+                    <div class="flex items-center space-x-0.5">
+                        ${starRating}
+                    </div>
+                    <span class="ml-1 rating-value">${rating.toFixed(1)}</span>
+                `;
+            }
+
             // Services tags
             const servicesContainer = card.querySelector('.doctor-services');
             if (doctor.services && doctor.services.length > 0) {
@@ -622,6 +649,31 @@ class AppointmentBooking {
 
             container.appendChild(card);
         });
+    }
+
+    generateStarRating(rating) {
+        const fullStars = Math.floor(rating);
+        const hasHalfStar = rating % 1 >= 0.5;
+        const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+        let stars = '';
+
+        // Full stars
+        for (let i = 0; i < fullStars; i++) {
+            stars += '<i class="fas fa-star text-yellow-400"></i>';
+        }
+
+        // Half star
+        if (hasHalfStar) {
+            stars += '<i class="fas fa-star-half-alt text-yellow-400"></i>';
+        }
+
+        // Empty stars
+        for (let i = 0; i < emptyStars; i++) {
+            stars += '<i class="far fa-star text-gray-300 dark:text-gray-600"></i>';
+        }
+
+        return stars;
     }
 
     selectDoctor(doctor) {
@@ -1313,7 +1365,7 @@ class AppointmentBooking {
             loading?.classList.add('hidden');
             grid?.classList.remove('opacity-50');
         }
-    }    showDoctorsError(customMessage = null) {
+    } showDoctorsError(customMessage = null) {
         const container = document.getElementById('doctors_grid');
         if (container) {
             const errorMessage = customMessage || 'Error loading doctors. Please try again.';

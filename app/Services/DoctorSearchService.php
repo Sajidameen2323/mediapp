@@ -60,12 +60,11 @@ class DoctorSearchService
         
         // Always filter for available doctors
         $searchQuery->where('is_available', true);
-        
-        // Get results and load relationships
+          // Get results and load relationships
         $results = $searchQuery->get();
         
         // Load necessary relationships
-        $results->load(['user', 'services']);
+        $results->load(['user', 'services', 'ratings']);
         
         // If we have specific symptom matches, prioritize them
         $prioritizedResults = $this->prioritizeSymptomMatches($results, $query);
@@ -81,11 +80,10 @@ class DoctorSearchService
 
     /**
      * Fallback database search when Algolia is not available
-     */
-    private function fallbackDatabaseSearch(string $query, array $filters = []): Collection
+     */    private function fallbackDatabaseSearch(string $query, array $filters = []): Collection
     {
         $searchQuery = Doctor::query()
-            ->with(['user', 'services'])
+            ->with(['user', 'services', 'ratings'])
             ->where('is_available', true);
 
         // Search by name, specialization, or bio
@@ -149,10 +147,9 @@ class DoctorSearchService
         if (empty($matchedSpecializations)) {
             return collect();
         }
-        
-        // Find doctors with matching specializations
+          // Find doctors with matching specializations
         $doctorQuery = Doctor::query()
-            ->with(['user', 'services'])
+            ->with(['user', 'services', 'ratings'])
             ->where('is_available', true)
             ->whereIn('specialization', $matchedSpecializations);
             
@@ -171,11 +168,10 @@ class DoctorSearchService
 
     /**
      * Get general consultants as fallback
-     */
-    private function getGeneralConsultants(array $filters = []): Collection
+     */    private function getGeneralConsultants(array $filters = []): Collection
     {
         $query = Doctor::query()
-            ->with(['user', 'services'])
+            ->with(['user', 'services', 'ratings'])
             ->where('is_available', true)
             ->where(function ($q) {
                 $q->where('specialization', 'General Practice')
@@ -198,11 +194,10 @@ class DoctorSearchService
 
     /**
      * Get all available doctors with filters
-     */
-    private function getAllAvailableDoctors(array $filters = []): Collection
+     */    private function getAllAvailableDoctors(array $filters = []): Collection
     {
         $query = Doctor::query()
-            ->with(['user', 'services'])
+            ->with(['user', 'services', 'ratings'])
             ->where('is_available', true);
 
         // Apply filters
@@ -307,9 +302,7 @@ class DoctorSearchService
                 'ear infection', 'throat infection', 'nose problems', 'ENT issues'
             ]
         ];
-    }
-
-    /**
+    }    /**
      * Transform doctor data for frontend
      */
     public function transformDoctorData(Collection $doctors): array
@@ -321,7 +314,8 @@ class DoctorSearchService
                 'specialization' => $doctor->specialization,
                 'experience_years' => $doctor->experience_years,
                 'consultation_fee' => $doctor->consultation_fee,
-                'rating' => $doctor->rating ?? 4.5,
+                'rating' => $doctor->average_rating ?? 0,
+                'rating_count' => $doctor->rating_count ?? 0,
                 'is_available' => $doctor->is_available,
                 'bio' => $doctor->bio,
                 'services' => $doctor->services->map(function ($service) {

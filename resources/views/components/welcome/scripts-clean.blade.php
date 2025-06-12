@@ -427,14 +427,12 @@
 
         function hideSearchFeedback() {
             if (searchFeedback) searchFeedback.classList.add('hidden');
-        }
-
-        // Create doctor card HTML with enhanced data structure
+        }        // Create doctor card HTML with enhanced data structure
         function createDoctorCard(doctor, index) {
             const palette = colorPalettes[index % colorPalettes.length];
             const availability = doctor.is_available ? 'Available Now' : 'Next available: Soon';
-            const rating = (4.5 + Math.random() * 0.4).toFixed(1); // Random rating between 4.5-4.9
-            const reviewCount = Math.floor(Math.random() * 200) + 50; // Random review count
+            const rating = doctor?.rating ? Number(doctor.rating).toFixed(1) : 0;
+            const reviewCount = doctor?.rating_count ?? 0; 
             
             // Handle both direct doctor data and nested user data
             const doctorName = doctor.name || (doctor.user ? doctor.user.name : 'Unknown Doctor');
@@ -442,10 +440,38 @@
             
             // Generate initials from name
             const initials = doctorName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-            
+
+            // Generate star rating display based on actual rating
+            function generateStarRating(rating) {
+                const fullStars = Math.floor(rating);
+                const hasHalfStar = rating % 1 >= 0.5;
+                const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+                
+                let stars = '';
+                
+                // Full stars
+                for (let i = 0; i < fullStars; i++) {
+                    stars += '<i class="fas fa-star text-yellow-400"></i>';
+                }
+                
+                // Half star
+                if (hasHalfStar) {
+                    stars += '<i class="fas fa-star-half-alt text-yellow-400"></i>';
+                }
+                
+                // Empty stars
+                for (let i = 0; i < emptyStars; i++) {
+                    stars += '<i class="far fa-star text-gray-300 dark:text-gray-600"></i>';
+                }
+                
+                return stars;
+            }
+
+            const starRating = generateStarRating(Number(rating));
+
             const bookUrl = `{{ route('patient.appointments.create', ['doctor_id' => 'doctor_id_placeholder']) }}`;
             const bookUrlWithId = bookUrl.replace('doctor_id_placeholder', doctorId);
-            
+
             return `
                 <div class="bg-white dark:bg-gray-900 rounded-xl shadow-lg hover:shadow-xl transition-shadow overflow-hidden">
                     <div class="bg-gradient-to-r ${palette.gradient} h-32"></div>
@@ -457,9 +483,11 @@
                             <h3 class="text-xl font-semibold text-gray-900 dark:text-white">${doctorName}</h3>
                             <p class="text-${palette.color} dark:text-${palette.color.replace('600', '400')} font-medium">${doctor.specialization || 'General Practice'}</p>
                             ${doctor.experience_years ? `<p class="text-gray-600 dark:text-gray-400 text-sm mt-2">${doctor.experience_years} years experience</p>` : ''}
-                            <div class="flex items-center justify-center mt-2">
-                                <span class="text-yellow-400">⭐⭐⭐⭐⭐</span>
-                                <span class="text-gray-600 dark:text-gray-400 text-sm ml-2">${rating} (${reviewCount} reviews)</span>
+                            <div class="flex items-center justify-center mt-2 space-x-1">
+                                <div class="flex items-center space-x-0.5">
+                                    ${starRating}
+                                </div>
+                                <span class="text-gray-600 dark:text-gray-400 text-sm ml-2">${rating} ${reviewCount > 0 ? `(${reviewCount} reviews)` : '(No reviews yet)'}</span>
                             </div>
                             <p class="text-gray-600 dark:text-gray-400 text-sm mt-2">${availability}</p>
                             ${doctor.consultation_fee ? `<p class="text-gray-600 dark:text-gray-400 text-sm">Consultation: $${doctor.consultation_fee}</p>` : ''}
