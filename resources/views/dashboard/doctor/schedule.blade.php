@@ -9,15 +9,12 @@
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Schedule Management</h1>
-                <p class="mt-2 text-gray-600 dark:text-gray-400">Manage your working hours and availability</p>
+                <p class="mt-2 text-gray-600 dark:text-gray-400">View your working hours and availability</p>
             </div>
             <div class="flex items-center space-x-3">
                 <a href="{{ route('doctor.dashboard') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
                     <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
                 </a>
-                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
-                    <i class="fas fa-plus mr-2"></i>Add Schedule
-                </button>
             </div>
         </div>
     </div>
@@ -52,23 +49,23 @@
                                     <div class="text-xs text-{{ $schedule->is_available ? 'green' : 'red' }}-600 dark:text-{{ $schedule->is_available ? 'green' : 'red' }}-300">
                                         {{ $schedule->is_available ? 'Available' : 'Unavailable' }}
                                     </div>
-                                    <div class="mt-1 flex justify-center space-x-1">
+                                    {{-- <div class="mt-1 flex justify-center space-x-1">
                                         <button class="text-blue-600 hover:text-blue-800 text-xs">
                                             <i class="fas fa-edit"></i>
                                         </button>
                                         <button class="text-red-600 hover:text-red-800 text-xs">
                                             <i class="fas fa-trash"></i>
                                         </button>
-                                    </div>
+                                    </div> --}}
                                 </div>
                             @endforeach
                         @else
                             <div class="p-4 text-gray-400 dark:text-gray-600 text-sm">
                                 No schedule set
                             </div>
-                            <button class="text-blue-600 hover:text-blue-800 text-sm">
+                            {{-- <button class="text-blue-600 hover:text-blue-800 text-sm">
                                 <i class="fas fa-plus mr-1"></i>Add
-                            </button>
+                            </button> --}}
                         @endif
                     </div>
                 @endforeach
@@ -142,7 +139,7 @@
     </div>
 
     <!-- Quick Actions -->
-    <div class="mt-8">
+    {{-- <div class="mt-8">
         <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">Quick Actions</h3>
@@ -168,6 +165,6 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 </div>
 @endsection

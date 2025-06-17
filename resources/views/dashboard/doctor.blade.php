@@ -96,10 +96,10 @@
                     <i class="fas fa-calendar-week text-2xl text-blue-600 mr-3"></i>
                     <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Schedule Management</h3>
                 </div>
-                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Manage your working hours and availability</p>
+                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">View your working hours and availability</p>
                 <div class="mt-4">
                     <a href="{{ route('doctor.schedule') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
-                        <i class="fas fa-cog mr-2"></i>Manage Schedule
+                        <i class="fas fa-cog mr-2"></i>View Schedule
                     </a>
                 </div>
             </div>
