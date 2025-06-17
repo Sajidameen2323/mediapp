@@ -226,10 +226,90 @@
                     <div class="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-md p-4">
                         <p class="text-blue-800 dark:text-blue-200 whitespace-pre-wrap">{{ $medicalReport->treatment_plan }}</p>
                     </div>
+                </div>                <!-- Enhanced Prescriptions Section -->
+                @if($medicalReport->prescriptions->count() > 0)
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                        <i class="fas fa-prescription-bottle-alt mr-2 text-blue-500"></i>Prescriptions
+                    </h3>
+                    <div class="space-y-4">
+                        @foreach($medicalReport->prescriptions as $prescription)
+                            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div>
+                                        <span class="text-sm font-medium text-blue-800 dark:text-blue-300">
+                                            Prescription #{{ $prescription->prescription_number }}
+                                        </span>
+                                        <span class="ml-2 px-2 py-1 text-xs rounded-full {{ 
+                                            $prescription->status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
+                                            ($prescription->status === 'dispensed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                                            ($prescription->status === 'partial' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' :
+                                            'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'))
+                                        }}">
+                                            {{ ucfirst($prescription->status) }}
+                                        </span>
+                                    </div>
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">
+                                        Valid until: {{ $prescription->valid_until?->format('M d, Y') ?? 'No expiry' }}
+                                    </span>
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    @foreach($prescription->prescriptionMedications as $prescriptionMed)
+                                        <div class="bg-white dark:bg-gray-700 rounded-md p-3 border-l-4 border-blue-400">
+                                            <div class="flex justify-between items-start">
+                                                <div class="flex-1">
+                                                    <h4 class="font-semibold text-gray-900 dark:text-white">
+                                                        {{ $prescriptionMed->medication->name }}
+                                                    </h4>
+                                                    @if($prescriptionMed->medication->generic_name && $prescriptionMed->medication->generic_name !== $prescriptionMed->medication->name)
+                                                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                                                            Generic: {{ $prescriptionMed->medication->generic_name }}
+                                                        </p>
+                                                    @endif
+                                                    <div class="mt-2 grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
+                                                        <div>
+                                                            <span class="font-medium text-gray-700 dark:text-gray-300">Dosage:</span>
+                                                            <span class="text-gray-900 dark:text-white">{{ $prescriptionMed->dosage }}</span>
+                                                        </div>
+                                                        <div>
+                                                            <span class="font-medium text-gray-700 dark:text-gray-300">Frequency:</span>
+                                                            <span class="text-gray-900 dark:text-white">{{ $prescriptionMed->frequency }}</span>
+                                                        </div>
+                                                        <div>
+                                                            <span class="font-medium text-gray-700 dark:text-gray-300">Duration:</span>
+                                                            <span class="text-gray-900 dark:text-white">{{ $prescriptionMed->duration }}</span>
+                                                        </div>
+                                                    </div>
+                                                    @if($prescriptionMed->instructions)
+                                                        <div class="mt-2 p-2 bg-gray-50 dark:bg-gray-600 rounded text-sm">
+                                                            <span class="font-medium text-gray-700 dark:text-gray-300">Instructions:</span>
+                                                            <span class="text-gray-900 dark:text-white">{{ $prescriptionMed->instructions }}</span>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                                @if($prescriptionMed->quantity_prescribed)
+                                                    <div class="text-right text-sm text-gray-600 dark:text-gray-400">
+                                                        Qty: {{ $prescriptionMed->quantity_prescribed }}
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                
+                                @if($prescription->notes)
+                                    <div class="mt-3 p-2 bg-blue-100 dark:bg-blue-800/30 rounded text-sm">
+                                        <span class="font-medium text-blue-800 dark:text-blue-300">Notes:</span>
+                                        <span class="text-blue-900 dark:text-blue-200">{{ $prescription->notes }}</span>
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
-
-                <!-- Medications Prescribed -->
-                @if($medicalReport->medications_prescribed)
+                @elseif($medicalReport->medications_prescribed)
+                <!-- Fallback to legacy text display if no structured prescriptions -->
                 <div>
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Medications Prescribed</h3>
                     <div class="bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded-md p-4">
@@ -261,10 +341,88 @@
                     <div class="bg-gray-50 dark:bg-gray-700 rounded-md p-4">
                         <p class="text-gray-700 dark:text-gray-300">{{ $medicalReport->report_type }}</p>
                     </div>
+                </div>                <!-- Enhanced Lab Test Requests Section -->
+                @if($medicalReport->labTestRequests->count() > 0)
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                        <i class="fas fa-flask mr-2 text-green-500"></i>Lab Test Requests
+                    </h3>
+                    <div class="space-y-4">
+                        @foreach($medicalReport->labTestRequests as $labTest)
+                            <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900 dark:text-white">{{ $labTest->test_name }}</h4>
+                                        <span class="text-sm text-green-600 dark:text-green-400">
+                                            Request #{{ $labTest->request_number }}
+                                        </span>
+                                    </div>
+                                    <div class="flex flex-col items-end space-y-1">
+                                        <span class="px-2 py-1 text-xs rounded-full {{ $labTest->priority_badge_class }}">
+                                            {{ strtoupper($labTest->priority) }}
+                                        </span>
+                                        <span class="px-2 py-1 text-xs rounded-full {{ $labTest->status_badge_class }}">
+                                            {{ ucfirst($labTest->status) }}
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span class="font-medium text-gray-700 dark:text-gray-300">Test Type:</span>
+                                        <span class="text-gray-900 dark:text-white ml-2">{{ ucfirst($labTest->test_type) }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="font-medium text-gray-700 dark:text-gray-300">Requested Date:</span>
+                                        <span class="text-gray-900 dark:text-white ml-2">{{ $labTest->requested_date->format('M d, Y') }}</span>
+                                    </div>
+                                    @if($labTest->preferred_date)
+                                    <div>
+                                        <span class="font-medium text-gray-700 dark:text-gray-300">Preferred Date:</span>
+                                        <span class="text-gray-900 dark:text-white ml-2">{{ $labTest->preferred_date->format('M d, Y') }}</span>
+                                    </div>
+                                    @endif
+                                    @if($labTest->scheduled_at)
+                                    <div>
+                                        <span class="font-medium text-gray-700 dark:text-gray-300">Scheduled:</span>
+                                        <span class="text-gray-900 dark:text-white ml-2">{{ $labTest->scheduled_at->format('M d, Y \a\t H:i') }}</span>
+                                    </div>
+                                    @endif
+                                </div>
+                                
+                                @if($labTest->clinical_notes)
+                                    <div class="mt-3 p-2 bg-green-100 dark:bg-green-800/30 rounded text-sm">
+                                        <span class="font-medium text-green-800 dark:text-green-300">Clinical Notes:</span>
+                                        <span class="text-green-900 dark:text-green-200">{{ $labTest->clinical_notes }}</span>
+                                    </div>
+                                @endif
+                                
+                                @if($labTest->test_results)
+                                    <div class="mt-3 p-3 bg-white dark:bg-gray-700 border border-green-200 dark:border-green-600 rounded">
+                                        <h5 class="font-medium text-gray-900 dark:text-white mb-2">Test Results:</h5>
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">
+                                            @foreach($labTest->test_results as $key => $value)
+                                                <div class="flex justify-between py-1">
+                                                    <span>{{ ucfirst(str_replace('_', ' ', $key)) }}:</span>
+                                                    <span class="font-medium">{{ $value }}</span>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+                                
+                                @if($labTest->laboratory)
+                                    <div class="mt-3 text-sm text-gray-600 dark:text-gray-400">
+                                        <i class="fas fa-building mr-1"></i>
+                                        Laboratory: {{ $labTest->laboratory->name }}
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
-
-                <!-- Lab Tests Ordered -->
-                @if($medicalReport->lab_tests_ordered)
+                @elseif($medicalReport->lab_tests_ordered)
+                <!-- Fallback to legacy text display if no structured lab tests -->
                 <div>
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Lab Tests Ordered</h3>
                     <div class="bg-gray-50 dark:bg-gray-700 rounded-md p-4">

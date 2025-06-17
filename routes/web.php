@@ -261,6 +261,25 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('api')->group(function () {
             Route::get('/doctors/{doctor}/services', [\App\Http\Controllers\Patient\AppointmentController::class, 'getDoctorServices'])->name('api.doctors.services');
         });
+        
+        // Prescription Management
+        Route::prefix('patient/prescriptions')->name('patient.prescriptions.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Patient\PrescriptionController::class, 'index'])->name('index');
+            Route::get('/{prescription}', [\App\Http\Controllers\Patient\PrescriptionController::class, 'show'])->name('show');
+        });
+        
+        // Lab Test Management
+        Route::prefix('patient/lab-tests')->name('patient.lab-tests.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Patient\LabTestController::class, 'index'])->name('index');
+            Route::get('/{labTest}', [\App\Http\Controllers\Patient\LabTestController::class, 'show'])->name('show');
+        });
+        
+        // Medical Reports (Patient View)
+        Route::prefix('patient/medical-reports')->name('patient.medical-reports.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Patient\MedicalReportController::class, 'index'])->name('index');
+            Route::get('/{medicalReport}', [\App\Http\Controllers\Patient\MedicalReportController::class, 'show'])->name('show');
+            Route::get('/{medicalReport}/pdf', [\App\Http\Controllers\Patient\MedicalReportController::class, 'downloadPdf'])->name('pdf');
+        });
     });
     
     // Laboratory staff routes

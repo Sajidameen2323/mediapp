@@ -45,7 +45,20 @@ class DashboardController extends Controller
         
         $user = auth()->user();
         
-        return view('dashboard.patient', compact('user'));
+        // Get patient statistics
+        $stats = [
+            'totalAppointments' => $user->appointments()->count(),
+            'upcomingAppointments' => $user->appointments()->where('appointment_date', '>', now())->count(),
+            'totalPrescriptions' => $user->prescriptions()->count(),
+            'activePrescriptions' => $user->prescriptions()->where('status', 'active')->count(),
+            'totalLabTests' => $user->labTestRequests()->count(),
+            'pendingLabTests' => $user->labTestRequests()->where('status', 'pending')->count(),
+            'completedLabTests' => $user->labTestRequests()->where('status', 'completed')->count(),
+            'totalMedicalReports' => $user->medicalReports()->count(),
+            'recentMedicalReports' => $user->medicalReports()->latest()->take(3)->count(),
+        ];
+        
+        return view('dashboard.patient', compact('user', 'stats'));
     }
 
     /**

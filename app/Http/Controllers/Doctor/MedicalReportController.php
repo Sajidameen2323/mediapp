@@ -5,7 +5,11 @@ namespace App\Http\Controllers\Doctor;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Doctor\StoreMedicalReportRequest;
 use App\Http\Requests\Doctor\UpdateMedicalReportRequest;
+use App\Models\LabTestRequest;
 use App\Models\MedicalReport;
+use App\Models\Medication;
+use App\Models\Prescription;
+use App\Models\PrescriptionMedication;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -105,6 +109,12 @@ class MedicalReportController extends Controller
 
         $report = MedicalReport::create($data);
 
+        // Process prescriptions if provided
+        $this->processPrescriptions($request, $report);
+
+        // Process lab test requests if provided
+        $this->processLabTestRequests($request, $report);
+
         // Prepare success message based on status
         $successMessage = $status === 'completed'
             ? 'Medical report completed successfully!'
@@ -145,7 +155,12 @@ class MedicalReportController extends Controller
             abort(403);
         }
 
-        $medicalReport->load('patient', 'doctor.user');
+        $medicalReport->load([
+            'patient', 
+            'doctor.user',
+            'prescriptions.prescriptionMedications.medication',
+            'labTestRequests.laboratory'
+        ]);
 
         return view('dashboard.doctor.medical-reports.show', compact('medicalReport'));
     }
@@ -194,6 +209,12 @@ class MedicalReportController extends Controller
         }
 
         $medicalReport->update($data);
+
+        // Update prescriptions if provided
+        $this->updatePrescriptions($request, $medicalReport);
+
+        // Update lab test requests if provided
+        $this->updateLabTestRequests($request, $medicalReport);
 
         // Prepare success message based on status
         $successMessage = $status === 'completed'
@@ -275,5 +296,145 @@ class MedicalReportController extends Controller
                 ];
             })
         ]);
+    }
+
+    /**
+     * Process prescription data from the medical report form.
+     */
+    private function processPrescriptions($request, $report)
+    {
+        $prescriptions = $request->input('prescriptions', []);
+        
+        if (empty($prescriptions)) {
+            return;
+        }
+
+        // Create a prescription record
+        $prescription = Prescription::create([
+            'doctor_id' => $report->doctor_id,
+            'patient_id' => $report->patient_id,
+            'medical_report_id' => $report->id,
+            'prescription_number' => Prescription::generatePrescriptionNumber(),
+            'notes' => 'Prescribed as part of medical consultation',
+            'status' => 'pending',
+            'prescribed_date' => $report->consultation_date,
+            'valid_until' => $report->consultation_date->addDays(30), // Valid for 30 days
+            'is_repeatable' => false,
+            'refills_allowed' => 0,
+            'refills_remaining' => 0,
+        ]);
+
+        // Process each medication
+        foreach ($prescriptions as $medicationData) {
+            if (empty($medicationData['medication_name'])) {
+                continue;
+            }
+
+            // Find or create medication
+            $medication = $this->findOrCreateMedication($medicationData['medication_name']);
+
+            // Create prescription medication record
+            PrescriptionMedication::create([
+                'prescription_id' => $prescription->id,
+                'medication_id' => $medication->id,
+                'dosage' => $medicationData['dosage'] ?? '',
+                'frequency' => $medicationData['frequency'] ?? '',
+                'duration' => $medicationData['duration'] ?? '',
+                'instructions' => $medicationData['instructions'] ?? '',
+                'quantity_prescribed' => $medicationData['quantity'] ?? 1,
+                'quantity_dispensed' => 0,
+            ]);
+        }
+    }
+
+    /**
+     * Process lab test request data from the medical report form.
+     */
+    private function processLabTestRequests($request, $report)
+    {
+        $labTests = $request->input('lab_tests', []);
+        
+        if (empty($labTests)) {
+            return;
+        }
+
+        // Process each lab test request
+        foreach ($labTests as $testData) {
+            if (empty($testData['test_name'])) {
+                continue;
+            }
+
+            LabTestRequest::create([
+                'doctor_id' => $report->doctor_id,
+                'patient_id' => $report->patient_id,
+                'medical_report_id' => $report->id,
+                'laboratory_id' => null, // Will be assigned later
+                'request_number' => LabTestRequest::generateRequestNumber(),
+                'test_name' => $testData['test_name'],
+                'test_type' => $testData['test_type'] ?? 'other',
+                'test_description' => null,
+                'clinical_notes' => $testData['clinical_notes'] ?? '',
+                'priority' => $testData['priority'] ?? 'routine',
+                'status' => 'pending',
+                'requested_date' => $report->consultation_date,
+                'preferred_date' => isset($testData['preferred_date']) ? 
+                    \Carbon\Carbon::parse($testData['preferred_date']) : null,
+            ]);
+        }
+    }
+
+    /**
+     * Find existing medication or create a new one.
+     */
+    private function findOrCreateMedication($medicationName)
+    {
+        // Try to find existing medication by name
+        $medication = Medication::where('name', 'like', "%{$medicationName}%")
+            ->orWhere('generic_name', 'like', "%{$medicationName}%")
+            ->orWhere('brand_name', 'like', "%{$medicationName}%")
+            ->first();
+
+        if (!$medication) {
+            // Create a new medication if not found
+            $medication = Medication::create([
+                'name' => $medicationName,
+                'generic_name' => $medicationName,
+                'dosage_form' => 'Unknown',
+                'strength' => 'As prescribed',
+                'description' => 'Added from medical report',
+                'requires_prescription' => true,
+                'is_controlled' => false,
+                'is_active' => true,
+            ]);
+        }
+
+        return $medication;
+    }
+
+    /**
+     * Update prescription data from the medical report form.
+     */
+    private function updatePrescriptions($request, $report)
+    {
+        // Delete existing prescriptions for this medical report
+        $report->prescriptions()->each(function ($prescription) {
+            $prescription->prescriptionMedications()->delete();
+            $prescription->delete();
+        });
+
+        // Process new prescriptions
+        $this->processPrescriptions($request, $report);
+    }
+
+    /**
+     * Update lab test request data from the medical report form.
+     */
+    private function updateLabTestRequests($request, $report)
+    {
+        // Delete existing lab test requests for this medical report
+        $report->labTestRequests()->delete();
+
+        // Process new lab test requests
+        $this->processLabTestRequests($request, $report);
     }
 }

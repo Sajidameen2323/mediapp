@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MedicalReport extends Model
 {
@@ -50,6 +51,22 @@ class MedicalReport extends Model
     public function patient(): BelongsTo
     {
         return $this->belongsTo(User::class, 'patient_id');
+    }
+
+    /**
+     * Get the prescriptions for this medical report.
+     */
+    public function prescriptions(): HasMany
+    {
+        return $this->hasMany(Prescription::class);
+    }
+
+    /**
+     * Get the lab test requests for this medical report.
+     */
+    public function labTestRequests(): HasMany
+    {
+        return $this->hasMany(LabTestRequest::class);
     }
 
     /**

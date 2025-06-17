@@ -39,6 +39,24 @@ class UpdateMedicalReportRequest extends FormRequest
             'priority_level' => 'nullable|string|in:routine,urgent,emergency',
             'follow_up_required' => 'nullable|string',
             'status' => 'nullable|string|in:draft,completed',
+            
+            // Prescription validation rules
+            'prescriptions' => 'nullable|array',
+            'prescriptions.*.medication_name' => 'required_with:prescriptions|string|max:255',
+            'prescriptions.*.dosage' => 'required_with:prescriptions|string|max:100',
+            'prescriptions.*.frequency' => 'required_with:prescriptions|string|max:100',
+            'prescriptions.*.duration' => 'required_with:prescriptions|string|max:100',
+            'prescriptions.*.instructions' => 'nullable|string',
+            'prescriptions.*.quantity' => 'nullable|integer|min:1',
+            'prescriptions.*.refills' => 'nullable|integer|min:0|max:5',
+            
+            // Lab test validation rules
+            'lab_tests' => 'nullable|array',
+            'lab_tests.*.test_name' => 'required_with:lab_tests|string|max:255',
+            'lab_tests.*.test_type' => 'required_with:lab_tests|string|in:blood,urine,stool,imaging,biopsy,culture,serology,molecular,other',
+            'lab_tests.*.priority' => 'nullable|string|in:routine,urgent,stat',
+            'lab_tests.*.preferred_date' => 'nullable|date|after_or_equal:today',
+            'lab_tests.*.clinical_notes' => 'nullable|string',
         ];
     }
 

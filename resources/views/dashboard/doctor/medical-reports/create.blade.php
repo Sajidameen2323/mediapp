@@ -501,49 +501,68 @@
                         </div>
                     </div>
                     
-                    <div>
-                        <label for="medications_prescribed" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                            <i class="fas fa-pills mr-2 text-blue-500"></i>Medications Prescribed
-                        </label>
-                        <textarea name="medications_prescribed" id="medications_prescribed" rows="4" 
-                            placeholder="List of prescribed medications with dosage and instructions..." 
-                            class="w-full border-2 @error('medications_prescribed') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-4 resize-none transition-all duration-200">{{ old('medications_prescribed') }}</textarea>
-                        @error('medications_prescribed')
-                            <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
-                                <i class="fas fa-exclamation-circle mr-2"></i>
-                                <span>{{ $message }}</span>
-                            </div>
-                        @enderror
-                        <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    <!-- Enhanced Prescription Section -->
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-700">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-semibold text-blue-800 dark:text-blue-300">
+                                <i class="fas fa-prescription-bottle-alt mr-2"></i>Prescription Management
+                            </h4>
+                            <button type="button" onclick="addPrescriptionMedication()" 
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                                <i class="fas fa-plus mr-2"></i>Add Medication
+                            </button>
+                        </div>
+                        
+                        <!-- Prescription Medications List -->
+                        <div id="prescription-medications" class="space-y-4">
+                            <!-- Dynamic medication entries will be added here -->
+                        </div>
+                        
+                        <!-- Add first medication if none exist -->
+                        <div id="no-medications-message" class="text-center py-8 text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-pills text-4xl mb-4"></i>
+                            <p>No medications added yet. Click "Add Medication" to start prescribing.</p>
+                        </div>
+                        
+                        <!-- Legacy textarea for medical report display -->
+                        <input type="hidden" name="medications_prescribed" id="medications_prescribed_hidden">
+                        
+                        <div class="mt-4 text-sm text-blue-600 dark:text-blue-400">
                             <i class="fas fa-info-circle mr-1"></i>
-                            Format: Medication name - Dosage - Frequency - Duration
+                            Medications will be saved separately for patient medication management and included in the medical report.
                         </div>
                     </div>
 
-                    <!-- Lab Tests and Investigations -->
-                    <div class="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-700">
-                        <h4 class="text-lg font-semibold text-blue-800 dark:text-blue-300 mb-4">
-                            <i class="fas fa-flask mr-2"></i>Lab Tests & Investigations
-                        </h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tests Ordered</label>
-                                <textarea name="lab_tests_ordered" rows="3" 
-                                    placeholder="List any lab tests or investigations ordered..." 
-                                    class="w-full border @error('lab_tests_ordered') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white">{{ old('lab_tests_ordered') }}</textarea>
-                                @error('lab_tests_ordered')
-                                    <div class="mt-1 text-red-600 dark:text-red-400 text-xs">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Imaging Studies</label>
-                                <textarea name="imaging_studies" rows="3" 
-                                    placeholder="X-rays, CT scans, MRI, etc..." 
-                                    class="w-full border @error('imaging_studies') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white">{{ old('imaging_studies') }}</textarea>
-                                @error('imaging_studies')
-                                    <div class="mt-1 text-red-600 dark:text-red-400 text-xs">{{ $message }}</div>
-                                @enderror
-                            </div>
+                    <!-- Enhanced Lab Tests Section -->
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-6 rounded-xl border border-green-200 dark:border-green-700">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-semibold text-green-800 dark:text-green-300">
+                                <i class="fas fa-flask mr-2"></i>Lab Test Requests
+                            </h4>
+                            <button type="button" onclick="addLabTestRequest()" 
+                                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                                <i class="fas fa-plus mr-2"></i>Add Lab Test
+                            </button>
+                        </div>
+                        
+                        <!-- Lab Test Requests List -->
+                        <div id="lab-test-requests" class="space-y-4">
+                            <!-- Dynamic lab test entries will be added here -->
+                        </div>
+                        
+                        <!-- Add first lab test if none exist -->
+                        <div id="no-lab-tests-message" class="text-center py-8 text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-vials text-4xl mb-4"></i>
+                            <p>No lab tests ordered yet. Click "Add Lab Test" to request tests.</p>
+                        </div>
+                        
+                        <!-- Legacy fields for medical report display -->
+                        <input type="hidden" name="lab_tests_ordered" id="lab_tests_ordered_hidden">
+                        <input type="hidden" name="imaging_studies" id="imaging_studies_hidden">
+                        
+                        <div class="mt-4 text-sm text-green-600 dark:text-green-400">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Lab tests will be saved separately for lab management and included in the medical report.
                         </div>
                     </div>
                 </div>
@@ -1197,7 +1216,277 @@ window.addEventListener('load', function() {
             console.error('Error loading draft:', e);
         }
     }
+    
+    // Initialize prescription and lab test management
+    initializePrescriptionManagement();
+    initializeLabTestManagement();
+});
+
+// Prescription Management Functions
+let prescriptionMedicationCount = 0;
+let labTestRequestCount = 0;
+
+function initializePrescriptionManagement() {
+    updatePrescriptionDisplay();
+}
+
+function addPrescriptionMedication() {
+    prescriptionMedicationCount++;
+    const container = document.getElementById('prescription-medications');
+    const noMessage = document.getElementById('no-medications-message');
+    
+    const medicationHtml = `
+        <div class="prescription-medication border border-blue-200 dark:border-blue-600 rounded-lg p-4 bg-white dark:bg-gray-700" id="prescription-${prescriptionMedicationCount}">
+            <div class="flex justify-between items-start mb-4">
+                <h5 class="text-md font-semibold text-blue-800 dark:text-blue-300">
+                    <i class="fas fa-pills mr-2"></i>Medication ${prescriptionMedicationCount}
+                </h5>
+                <button type="button" onclick="removePrescriptionMedication(${prescriptionMedicationCount})" 
+                    class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Medication Name *</label>
+                    <input type="text" name="prescriptions[${prescriptionMedicationCount}][medication_name]" 
+                        placeholder="Search medication..." list="medications-datalist"
+                        class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dosage *</label>
+                    <input type="text" name="prescriptions[${prescriptionMedicationCount}][dosage]" 
+                        placeholder="e.g., 500mg, 2 tablets"
+                        class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Frequency *</label>
+                    <select name="prescriptions[${prescriptionMedicationCount}][frequency]" 
+                        class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                        <option value="">Select frequency</option>
+                        <option value="once daily">Once daily</option>
+                        <option value="twice daily">Twice daily</option>
+                        <option value="three times daily">Three times daily</option>
+                        <option value="four times daily">Four times daily</option>
+                        <option value="every 4 hours">Every 4 hours</option>
+                        <option value="every 6 hours">Every 6 hours</option>
+                        <option value="every 8 hours">Every 8 hours</option>
+                        <option value="every 12 hours">Every 12 hours</option>
+                        <option value="as needed">As needed</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Duration *</label>
+                    <input type="text" name="prescriptions[${prescriptionMedicationCount}][duration]" 
+                        placeholder="e.g., 7 days, 2 weeks, 1 month"
+                        class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Special Instructions</label>
+                    <textarea name="prescriptions[${prescriptionMedicationCount}][instructions]" rows="2" 
+                        placeholder="Special instructions, warnings, or notes..."
+                        class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity</label>
+                    <input type="number" name="prescriptions[${prescriptionMedicationCount}][quantity]" min="1" 
+                        placeholder="Number of units"
+                        class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Refills</label>
+                    <input type="number" name="prescriptions[${prescriptionMedicationCount}][refills]" min="0" max="5" value="0"
+                        class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', medicationHtml);
+    noMessage.classList.add('hidden');
+    updatePrescriptionSummary();
+}
+
+function removePrescriptionMedication(id) {
+    const element = document.getElementById(`prescription-${id}`);
+    if (element) {
+        element.remove();
+        updatePrescriptionDisplay();
+        updatePrescriptionSummary();
+    }
+}
+
+function updatePrescriptionDisplay() {
+    const container = document.getElementById('prescription-medications');
+    const noMessage = document.getElementById('no-medications-message');
+    
+    if (container.children.length === 0) {
+        noMessage.classList.remove('hidden');
+    } else {
+        noMessage.classList.add('hidden');
+    }
+}
+
+function updatePrescriptionSummary() {
+    const medications = document.querySelectorAll('.prescription-medication');
+    let summary = '';
+    
+    medications.forEach((med, index) => {
+        const name = med.querySelector('[name*="[medication_name]"]').value;
+        const dosage = med.querySelector('[name*="[dosage]"]').value;
+        const frequency = med.querySelector('[name*="[frequency]"]').value;
+        const duration = med.querySelector('[name*="[duration]"]').value;
+        
+        if (name || dosage || frequency || duration) {
+            summary += `${index + 1}. ${name} - ${dosage} - ${frequency} for ${duration}\n`;
+        }
+    });
+    
+    document.getElementById('medications_prescribed_hidden').value = summary;
+}
+
+// Lab Test Management Functions
+function initializeLabTestManagement() {
+    updateLabTestDisplay();
+}
+
+function addLabTestRequest() {
+    labTestRequestCount++;
+    const container = document.getElementById('lab-test-requests');
+    const noMessage = document.getElementById('no-lab-tests-message');
+    
+    const labTestHtml = `
+        <div class="lab-test-request border border-green-200 dark:border-green-600 rounded-lg p-4 bg-white dark:bg-gray-700" id="lab-test-${labTestRequestCount}">
+            <div class="flex justify-between items-start mb-4">
+                <h5 class="text-md font-semibold text-green-800 dark:text-green-300">
+                    <i class="fas fa-vials mr-2"></i>Lab Test ${labTestRequestCount}
+                </h5>
+                <button type="button" onclick="removeLabTestRequest(${labTestRequestCount})" 
+                    class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Test Name *</label>
+                    <input type="text" name="lab_tests[${labTestRequestCount}][test_name]" 
+                        placeholder="e.g., Complete Blood Count"
+                        class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Test Type *</label>
+                    <select name="lab_tests[${labTestRequestCount}][test_type]" 
+                        class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500" required>
+                        <option value="">Select type</option>
+                        <option value="blood">Blood Test</option>
+                        <option value="urine">Urine Test</option>
+                        <option value="stool">Stool Test</option>
+                        <option value="imaging">Imaging Study</option>
+                        <option value="biopsy">Biopsy</option>
+                        <option value="culture">Culture</option>
+                        <option value="serology">Serology</option>
+                        <option value="molecular">Molecular Test</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Priority</label>
+                    <select name="lab_tests[${labTestRequestCount}][priority]" 
+                        class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                        <option value="routine">Routine</option>
+                        <option value="urgent">Urgent</option>
+                        <option value="stat">STAT (Immediate)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Preferred Date</label>
+                    <input type="date" name="lab_tests[${labTestRequestCount}][preferred_date]" 
+                        min="${new Date().toISOString().split('T')[0]}"
+                        class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Clinical Notes</label>
+                    <textarea name="lab_tests[${labTestRequestCount}][clinical_notes]" rows="2" 
+                        placeholder="Clinical indication, specific requirements, or notes for the laboratory..."
+                        class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-600 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500"></textarea>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', labTestHtml);
+    noMessage.classList.add('hidden');
+    updateLabTestSummary();
+}
+
+function removeLabTestRequest(id) {
+    const element = document.getElementById(`lab-test-${id}`);
+    if (element) {
+        element.remove();
+        updateLabTestDisplay();
+        updateLabTestSummary();
+    }
+}
+
+function updateLabTestDisplay() {
+    const container = document.getElementById('lab-test-requests');
+    const noMessage = document.getElementById('no-lab-tests-message');
+    
+    if (container.children.length === 0) {
+        noMessage.classList.remove('hidden');
+    } else {
+        noMessage.classList.add('hidden');
+    }
+}
+
+function updateLabTestSummary() {
+    const labTests = document.querySelectorAll('.lab-test-request');
+    let summary = '';
+    
+    labTests.forEach((test, index) => {
+        const name = test.querySelector('[name*="[test_name]"]').value;
+        const type = test.querySelector('[name*="[test_type]"]').value;
+        const priority = test.querySelector('[name*="[priority]"]').value;
+        
+        if (name || type) {
+            summary += `${index + 1}. ${name} (${type})${priority !== 'routine' ? ' - ' + priority.toUpperCase() : ''}\n`;
+        }
+    });
+    
+    document.getElementById('lab_tests_ordered_hidden').value = summary;
+}
+
+// Update summaries when form fields change
+document.addEventListener('input', function(e) {
+    if (e.target.name && e.target.name.includes('prescriptions[')) {
+        updatePrescriptionSummary();
+    }
+    if (e.target.name && e.target.name.includes('lab_tests[')) {
+        updateLabTestSummary();
+    }
+});
+
+document.addEventListener('change', function(e) {
+    if (e.target.name && e.target.name.includes('prescriptions[')) {
+        updatePrescriptionSummary();
+    }
+    if (e.target.name && e.target.name.includes('lab_tests[')) {
+        updateLabTestSummary();
+    }
 });
 </script>
+
+<!-- Medications Datalist for autocomplete -->
+<datalist id="medications-datalist">
+    @foreach(\App\Models\Medication::active()->get() as $medication)
+        <option value="{{ $medication->full_name }}" data-id="{{ $medication->id }}">
+            {{ $medication->generic_name ? $medication->generic_name . ' - ' : '' }}{{ $medication->brand_name }}
+        </option>
+    @endforeach
+</datalist>
 @endpush
 @endsection

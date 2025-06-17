@@ -142,6 +142,38 @@ class User extends Authenticatable
             ->exists();
     }
 
+    /**
+     * Get the prescriptions for this patient.
+     */
+    public function prescriptions(): HasMany
+    {
+        return $this->hasMany(Prescription::class, 'patient_id');
+    }
+
+    /**
+     * Get the lab test requests for this patient.
+     */
+    public function labTestRequests(): HasMany
+    {
+        return $this->hasMany(LabTestRequest::class, 'patient_id');
+    }
+
+    /**
+     * Get the medical reports for this patient.
+     */
+    public function medicalReports(): HasMany
+    {
+        return $this->hasMany(MedicalReport::class, 'patient_id');
+    }
+
+    /**
+     * Get the appointments for this patient.
+     */
+    public function appointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class, 'patient_id');
+    }
+
     // Scopes
     public function scopeActive($query)
     {

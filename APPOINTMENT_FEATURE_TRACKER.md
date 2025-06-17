@@ -201,14 +201,29 @@ This document tracks the implementation phases and details for the appointment b
   - ✅ Patient allows doctor/lab staff to view health profile/medications
 ---
 
-## Phase 13: Doctor Prescription & Lab Test Request
+## Phase 13: Doctor Prescription & Lab Test Request ✅ Completed
 - **Features:**
-  - Doctor adds prescription for patient (includes lab tests optionally)
+  - Doctor adds prescription for patient (includes lab tests optionally) in medical report creation form
+  - In controller save medication separately from medical report for patient side medication management
+  - Also list prescription in medical report for report patient view 
   - Patient views prescription, orders from pharmacy, book appointment for lab test
 - **Implementation:**
   - Prescription and Lab Test result models
   - Pharmacy model/table (use existing)
   - Patient dashboard for viewing
+- **Completed Items:**
+  - ✅ Enhanced Medical Report Form with dynamic prescription section
+  - ✅ Dynamic medication prescription management with autocomplete
+  - ✅ Lab test request management with priority and scheduling
+  - ✅ Structured prescription and lab test data storage
+  - ✅ Enhanced medical report display with structured prescription view
+  - ✅ Prescription and lab test models with proper relationships
+  - ✅ Database migrations for prescriptions, medications, and lab test requests
+  - ✅ Sample medication data seeding
+  - ✅ Form validation for prescription and lab test data
+  - ✅ JavaScript-powered dynamic form sections
+  - ✅ Automatic prescription number and request number generation
+  - ✅ Integration with medical report creation and editing workflow
 
 ---
 
@@ -436,3 +451,206 @@ This document tracks the implementation phases and details for the appointment b
 - **Dark Mode**: Complete theme support for all new payment and table elements
 - **Performance**: Optimized table rendering with efficient scroll handling
 - **User Experience**: Added visual cues and hints for better navigation on all screen sizes
+
+---
+
+## Phase 13: Enhanced Medical Report Creation with Prescription & Lab Test Management ✅ Completed
+
+### Overview
+**Date Completed**: December 2024  
+**Objective**: Optimize and enhance the medical report creation form so doctors can prescribe medications and order lab tests directly within the form. Implement patient-side interfaces for viewing and managing prescriptions and lab tests.
+
+### Database Structure Enhancement ✅ Completed
+- **New Tables Created**:
+  - `prescriptions` - Main prescription records linked to medical reports
+  - `medications` - Master list of available medications
+  - `prescription_medications` - Junction table for prescriptions with dosage details
+  - `lab_test_requests` - Lab test orders linked to medical reports
+
+- **Seeder Implementation**:
+  - `MedicationSeeder` - Populated common medications for autocomplete functionality
+  - Sample data for testing medication search and prescription creation
+
+### Models & Relationships ✅ Completed
+- **New Eloquent Models**:
+  - `Prescription` - Manages prescription records with status tracking
+  - `Medication` - Master medication catalog with search capabilities
+  - `PrescriptionMedication` - Pivot model with dosage, frequency, duration fields
+  - `LabTestRequest` - Lab test requests with priority and status tracking
+
+- **Enhanced Existing Models**:
+  - `MedicalReport` - Added relationships to prescriptions and lab test requests
+  - `User` - Added patient-side relationships for accessing prescriptions and lab tests
+
+### Doctor Interface Enhancement ✅ Completed
+- **Medical Report Creation Form** (`resources/views/dashboard/doctor/medical-reports/create.blade.php`):
+  - Dynamic prescription section with JavaScript-powered add/remove functionality
+  - Medication autocomplete search with real-time suggestions
+  - Comprehensive prescription fields (dosage, frequency, duration, instructions)
+  - Dynamic lab test request section with configurable priority levels
+  - Enhanced form validation and user experience
+
+- **Medical Report Display** (`resources/views/dashboard/doctor/medical-reports/show.blade.php`):
+  - Structured display of prescribed medications with full details
+  - Lab test requests with status and priority indicators
+  - Fallback display for legacy text-based prescriptions and lab tests
+  - Clean, professional layout for medical documentation
+
+### Backend Implementation ✅ Completed
+- **Enhanced MedicalReportController**:
+  - `store()` method processes structured prescription and lab test data
+  - `update()` method handles modification of existing prescriptions and lab tests
+  - Helper methods for creating/updating prescriptions and lab test requests
+  - Proper eager loading for efficient data retrieval
+
+- **Validation Enhancements**:
+  - `StoreMedicalReportRequest` - Added validation for prescription and lab test arrays
+  - `UpdateMedicalReportRequest` - Comprehensive validation for structured medical data
+  - Medication existence validation and dosage format validation
+
+### Patient Interface Implementation ✅ Completed
+- **New Patient Controllers**:
+  - `Patient\PrescriptionController` - Handles patient prescription viewing with filtering
+  - `Patient\LabTestController` - Manages patient lab test request viewing
+  - `Patient\MedicalReportController` - Patient-side medical report access
+
+- **Patient Dashboard Views**:
+  - **Prescription Management**:
+    - `dashboard/patient/prescriptions/index.blade.php` - Grid view of all prescriptions
+    - `dashboard/patient/prescriptions/show.blade.php` - Detailed prescription view with medication list
+  - **Lab Test Management**:
+    - `dashboard/patient/lab-tests/index.blade.php` - Lab test requests overview
+    - `dashboard/patient/lab-tests/show.blade.php` - Detailed test request with progress timeline
+  - **Medical Reports**:
+    - `dashboard/patient/medical-reports/index.blade.php` - Patient medical report history
+    - `dashboard/patient/medical-reports/show.blade.php` - Comprehensive report view with linked prescriptions/lab tests
+
+### Key Features Implemented ✅ Completed
+
+#### For Doctors:
+1. **Smart Medication Prescribing**:
+   - Autocomplete medication search from seeded database
+   - Structured dosage, frequency, and duration fields
+   - Prescription notes and special instructions
+   - Multiple medications per prescription support
+
+2. **Lab Test Ordering**:
+   - Standardized test name entry with autocomplete suggestions
+   - Test type categorization (Blood, Urine, Imaging, etc.)
+   - Priority levels (Normal, High, Urgent)
+   - Special preparation instructions for patients
+
+3. **Enhanced Medical Documentation**:
+   - Legacy text field support maintained for backward compatibility
+   - Structured data storage for advanced features
+   - Seamless integration with existing medical report workflow
+
+#### For Patients:
+1. **Prescription Management**:
+   - Visual prescription cards with status indicators (Active/Completed)
+   - Detailed medication lists with dosage instructions
+   - Doctor information and prescription date tracking
+   - Print functionality for pharmacy visits
+   - Medication reminder notes and safety warnings
+
+2. **Lab Test Tracking**:
+   - Test request cards with priority and status badges
+   - Progress timeline showing request → booking → completion stages
+   - Special instruction display for test preparation
+   - Print functionality for lab appointment booking
+
+3. **Medical History Access**:
+   - Comprehensive medical report viewing
+   - Direct links to associated prescriptions and lab tests
+   - Organized chronological history
+   - Print/export capabilities for personal records
+
+### Technical Implementation Details ✅ Completed
+
+#### Frontend Enhancement:
+- **JavaScript Functionality**:
+  - Dynamic form field addition/removal for prescriptions and lab tests
+  - Real-time medication search with debounced API calls
+  - Form validation with user-friendly error messages
+  - Responsive design for mobile and desktop access
+
+- **UI/UX Design**:
+  - Consistent with existing design system (THEME.md)
+  - Tailwind CSS classes for responsive layouts
+  - Accessibility considerations with proper ARIA labels
+  - Print-friendly stylesheets for medical documents
+
+#### Backend Architecture:
+- **Data Integrity**:
+  - Foreign key constraints ensure referential integrity
+  - Soft delete support for prescription and lab test history
+  - Status tracking for workflow management
+  - Timestamp auditing for all medical records
+
+- **API Endpoints**:
+  - Medication search API for autocomplete functionality
+  - Patient filtering APIs for prescription and lab test lists
+  - Proper authorization middleware for patient data access
+
+### Route Structure ✅ Completed
+- **Patient Routes**:
+  ```php
+  // Prescription Management
+  Route::get('/patient/prescriptions', [PrescriptionController::class, 'index'])->name('patient.prescriptions.index');
+  Route::get('/patient/prescriptions/{prescription}', [PrescriptionController::class, 'show'])->name('patient.prescriptions.show');
+  
+  // Lab Test Management  
+  Route::get('/patient/lab-tests', [LabTestController::class, 'index'])->name('patient.lab-tests.index');
+  Route::get('/patient/lab-tests/{labTest}', [LabTestController::class, 'show'])->name('patient.lab-tests.show');
+  
+  // Medical Reports (Patient View)
+  Route::get('/patient/medical-reports', [MedicalReportController::class, 'index'])->name('patient.medical-reports.index');
+  Route::get('/patient/medical-reports/{medicalReport}', [MedicalReportController::class, 'show'])->name('patient.medical-reports.show');
+  ```
+
+### Future Enhancement Opportunities
+1. **Pharmacy Integration**: Direct prescription forwarding to partner pharmacies
+2. **Lab Integration**: Automated lab appointment booking with partner laboratories  
+3. **Medication Reminders**: SMS/Email reminders for medication schedules
+4. **Test Result Integration**: Automatic result upload from lab partners
+5. **Prescription History Analytics**: Patient medication compliance tracking
+
+### Files Modified/Created in Phase 13:
+#### Database:
+- `database/migrations/2025_06_17_054743_create_prescriptions_table.php`
+- `database/migrations/2025_06_17_054754_create_medications_table.php`
+- `database/migrations/2025_06_17_054804_create_prescription_medications_table.php`
+- `database/migrations/2025_06_17_054814_create_lab_test_requests_table.php`
+- `database/seeders/MedicationSeeder.php`
+
+#### Models:
+- `app/Models/Prescription.php`
+- `app/Models/Medication.php`
+- `app/Models/PrescriptionMedication.php`
+- `app/Models/LabTestRequest.php`
+- Enhanced: `app/Models/MedicalReport.php`, `app/Models/User.php`
+
+#### Controllers:
+- `app/Http/Controllers/Patient/PrescriptionController.php`
+- `app/Http/Controllers/Patient/LabTestController.php`
+- `app/Http/Controllers/Patient/MedicalReportController.php`
+- Enhanced: `app/Http/Controllers/Doctor/MedicalReportController.php`
+
+#### Requests:
+- Enhanced: `app/Http/Requests/Doctor/StoreMedicalReportRequest.php`
+- Enhanced: `app/Http/Requests/Doctor/UpdateMedicalReportRequest.php`
+
+#### Views:
+- Enhanced: `resources/views/dashboard/doctor/medical-reports/create.blade.php`
+- Enhanced: `resources/views/dashboard/doctor/medical-reports/show.blade.php`
+- `resources/views/dashboard/patient/prescriptions/index.blade.php`
+- `resources/views/dashboard/patient/prescriptions/show.blade.php`
+- `resources/views/dashboard/patient/lab-tests/index.blade.php`
+- `resources/views/dashboard/patient/lab-tests/show.blade.php`
+- `resources/views/dashboard/patient/medical-reports/index.blade.php`
+- `resources/views/dashboard/patient/medical-reports/show.blade.php`
+
+#### Routes:
+- Enhanced: `routes/web.php` (Added patient prescription, lab test, and medical report routes)
+
+**Phase 13 Status**: ✅ **COMPLETED** - Enhanced medical report creation with comprehensive prescription and lab test management, including full patient-side interfaces for viewing and managing medical history.
