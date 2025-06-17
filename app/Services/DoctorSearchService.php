@@ -176,7 +176,8 @@ class DoctorSearchService
             ->where(function ($q) {
                 $q->where('specialization', 'General Practice')
                   ->orWhere('specialization', 'Family Medicine')
-                  ->orWhere('specialization', 'Internal Medicine');
+                  ->orWhere('specialization', 'Internal Medicine')
+                  ->orWhere('specialization', 'General Medicine');
             });
 
         // Apply service filter if provided
@@ -238,7 +239,7 @@ class DoctorSearchService
             }
             
             // General practitioners get medium priority
-            if (in_array($specialization, ['General Practice', 'Family Medicine', 'Internal Medicine'])) {
+            if (in_array($specialization, ['General Practice', 'Family Medicine', 'Internal Medicine','General Medicine'])) {
                 return 1;
             }
             
@@ -249,60 +250,96 @@ class DoctorSearchService
     /**
      * Get symptom to specialization mapping
      */
-    private function getSymptomSpecializationMap(): array
+  private function getSymptomSpecializationMap(): array
     {
         return [
             'Cardiology' => [
                 'chest pain', 'heart palpitations', 'shortness of breath', 'high blood pressure',
                 'irregular heartbeat', 'chest tightness', 'fatigue', 'dizziness', 'swollen ankles',
-                'heart attack', 'cardiac', 'cardiovascular'
+                'heart attack', 'cardiac arrest', 'cardiovascular disease', 'arrhythmia', 'angina'
             ],
             'Dermatology' => [
                 'skin rash', 'acne', 'eczema', 'psoriasis', 'moles', 'skin cancer', 'wrinkles',
-                'hair loss', 'dandruff', 'skin allergies', 'dermatitis', 'skin problems'
+                'hair loss', 'dandruff', 'skin allergies', 'dermatitis', 'skin problems',
+                'hives', 'sunburn', 'warts', 'fungal infection', 'nail problems'
             ],
             'Gastroenterology' => [
                 'stomach pain', 'abdominal pain', 'nausea', 'vomiting', 'diarrhea', 'constipation',
-                'acid reflux', 'heartburn', 'bloating', 'digestive issues', 'stomach problems'
+                'acid reflux', 'heartburn', 'bloating', 'digestive issues', 'stomach problems',
+                'irritable bowel syndrome', 'Crohn\'s disease', 'ulcer', 'gastritis', 'bloody stool'
             ],
             'Neurology' => [
                 'headache', 'migraine', 'seizures', 'epilepsy', 'memory loss', 'confusion',
-                'dizziness', 'numbness', 'tingling', 'stroke', 'neurological', 'brain'
+                'dizziness', 'numbness', 'tingling', 'stroke', 'neurological disorder', 'brain injury',
+                'tremors', 'Parkinson\'s', 'Alzheimer\'s', 'vertigo', 'weakness'
             ],
             'Orthopedics' => [
                 'joint pain', 'back pain', 'neck pain', 'knee pain', 'shoulder pain', 'arthritis',
-                'fractures', 'sports injury', 'muscle pain', 'bone problems', 'orthopedic'
+                'fractures', 'sports injury', 'muscle pain', 'bone problems', 'orthopedic injury',
+                'sprain', 'strain', 'tendonitis', 'ligament tear', 'sciatica', 'posture problems'
             ],
             'Pediatrics' => [
                 'child fever', 'baby cough', 'vaccination', 'growth problems', 'childhood illness',
-                'pediatric care', 'infant care', 'child development', 'kids health'
+                'pediatric care', 'infant care', 'child development', 'kids health',
+                'chickenpox', 'measles', 'mumps', 'colic', 'feeding issues', 'developmental delay'
             ],
             'Psychiatry' => [
                 'depression', 'anxiety', 'stress', 'panic attacks', 'mental health', 'therapy',
-                'counseling', 'mood disorders', 'psychiatric care', 'emotional problems'
+                'counseling', 'mood disorders', 'psychiatric care', 'emotional problems',
+                'bipolar disorder', 'schizophrenia', 'PTSD', 'insomnia', 'eating disorder'
             ],
             'Pulmonology' => [
                 'cough', 'breathing problems', 'asthma', 'pneumonia', 'lung problems',
-                'respiratory issues', 'chest congestion', 'wheezing', 'lung infection'
+                'respiratory issues', 'chest congestion', 'wheezing', 'lung infection',
+                'bronchitis', 'COPD', 'tuberculosis', 'sleep apnea', 'shortness of breath'
             ],
             'Urology' => [
                 'urinary problems', 'kidney stones', 'bladder issues', 'prostate problems',
-                'urinary tract infection', 'frequent urination', 'blood in urine', 'kidney disease'
+                'urinary tract infection', 'frequent urination', 'blood in urine', 'kidney disease',
+                'incontinence', 'erectile dysfunction', 'testicular pain', 'bladder infection'
             ],
             'Gynecology' => [
                 'menstrual problems', 'pregnancy', 'womens health', 'pap smear', 'contraception',
-                'fertility', 'gynecological exam', 'period problems', 'reproductive health'
+                'fertility issues', 'gynecological exam', 'period problems', 'reproductive health',
+                'PCOS', 'endometriosis', 'menopause', 'vaginal discharge', 'pelvic pain'
             ],
             'Ophthalmology' => [
                 'eye problems', 'vision problems', 'blurred vision', 'eye pain', 'cataracts',
-                'glaucoma', 'eye exam', 'glasses', 'contact lenses', 'eye infection'
+                'glaucoma', 'eye exam', 'glasses', 'contact lenses', 'eye infection',
+                'conjunctivitis', 'dry eyes', 'retinal detachment', 'diabetic retinopathy'
             ],
-            'ENT' => [
+            'ENT' => [ // Ear, Nose, and Throat (Otolaryngology)
                 'ear pain', 'sore throat', 'hearing problems', 'sinus problems', 'tonsillitis',
-                'ear infection', 'throat infection', 'nose problems', 'ENT issues'
+                'ear infection', 'throat infection', 'nose problems', 'ENT issues',
+                'vertigo', 'dizziness', 'tinnitus', 'allergies', 'difficulty swallowing', 'hoarseness'
+            ],
+            'Endocrinology' => [
+                'diabetes', 'thyroid problems', 'hormonal imbalance', 'weight gain', 'weight loss',
+                'fatigue', 'excessive thirst', 'frequent urination', 'adrenal problems', 'metabolism issues'
+            ],
+            'Rheumatology' => [
+                'joint inflammation', 'arthritis', 'autoimmune disease', 'muscle stiffness',
+                'lupus', 'rheumatoid arthritis', 'gout', 'fibromyalgia', 'connective tissue disease'
+            ],
+            'Oncology' => [
+                'cancer', 'tumor', 'unexplained weight loss', 'persistent fatigue', 'unusual lumps',
+                'abnormal bleeding', 'skin changes', 'oncology consultation', 'chemotherapy', 'radiation'
+            ],
+            'Infectious Disease' => [
+                'fever', 'chills', 'body aches', 'infection', 'flu', 'cold', 'virus', 'bacterial infection',
+                'parasitic infection', 'travel-related illness', 'HIV', 'hepatitis', 'tuberculosis'
+            ],
+            'Nephrology' => [
+                'kidney disease', 'kidney failure', 'dialysis', 'swelling', 'high blood pressure',
+                'blood in urine', 'protein in urine', 'fluid retention', 'renal problems'
+            ],
+            'General Medicine' => [
+                'general check-up', 'routine exam', 'common cold', 'flu symptoms', 'fever', 'fatigue',
+                'minor injuries', 'wellness visit', 'preventative care', 'unknown symptoms',
+                'prescription refill', 'immunization', 'general health concerns', 'referral', 'basic consultation'
             ]
         ];
-    }    /**
+    }   /**
      * Transform doctor data for frontend
      */
     public function transformDoctorData(Collection $doctors): array

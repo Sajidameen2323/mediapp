@@ -192,20 +192,21 @@ This document tracks the implementation phases and details for the appointment b
 
 ---
 
-## Phase 12: Patient Sharing Health Profile
+## Phase 12: Patient Sharing Health Profile ✅ Completed
 - **Features:**
   - Patient allows doctor/lab staff to view health profile/medications
 - **Implementation:**
   - Permission system (use existing or extend)
-
+- **Completed Items:**
+  - ✅ Patient allows doctor/lab staff to view health profile/medications
 ---
 
-## Phase 13: Doctor Prescription & Pharmacy Integration
+## Phase 13: Doctor Prescription & Lab Test Request
 - **Features:**
-  - Doctor adds prescription for patient
-  - Patient views prescription, orders from pharmacy
+  - Doctor adds prescription for patient (includes lab tests optionally)
+  - Patient views prescription, orders from pharmacy, book appointment for lab test
 - **Implementation:**
-  - Prescription and MedicalReport models
+  - Prescription and Lab Test result models
   - Pharmacy model/table (use existing)
   - Patient dashboard for viewing
 

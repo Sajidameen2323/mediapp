@@ -182,11 +182,31 @@
                 <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="specialization"
-                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Specialization</label>
-                        <input type="text" id="specialization" name="specialization"
-                            value="{{ old('specialization', $doctor->specialization) }}"
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-                            placeholder="e.g., Cardiologist, Neurologist" required>
+                            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <i class="fas fa-stethoscope mr-2 text-green-500"></i>Specialization
+                        </label>
+                        <select name="specialization" id="specialization" required
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="">Select a specialization...</option>
+                            <option value="Cardiology" {{ old('specialization', $doctor->specialization) == 'Cardiology' ? 'selected' : '' }}>Cardiology</option>
+                            <option value="Dermatology" {{ old('specialization', $doctor->specialization) == 'Dermatology' ? 'selected' : '' }}>Dermatology</option>
+                            <option value="Gastroenterology" {{ old('specialization', $doctor->specialization) == 'Gastroenterology' ? 'selected' : '' }}>Gastroenterology</option>
+                            <option value="Neurology" {{ old('specialization', $doctor->specialization) == 'Neurology' ? 'selected' : '' }}>Neurology</option>
+                            <option value="Orthopedics" {{ old('specialization', $doctor->specialization) == 'Orthopedics' ? 'selected' : '' }}>Orthopedics</option>
+                            <option value="Pediatrics" {{ old('specialization', $doctor->specialization) == 'Pediatrics' ? 'selected' : '' }}>Pediatrics</option>
+                            <option value="Psychiatry" {{ old('specialization', $doctor->specialization) == 'Psychiatry' ? 'selected' : '' }}>Psychiatry</option>
+                            <option value="Pulmonology" {{ old('specialization', $doctor->specialization) == 'Pulmonology' ? 'selected' : '' }}>Pulmonology</option>
+                            <option value="Urology" {{ old('specialization', $doctor->specialization) == 'Urology' ? 'selected' : '' }}>Urology</option>
+                            <option value="Gynecology" {{ old('specialization', $doctor->specialization) == 'Gynecology' ? 'selected' : '' }}>Gynecology</option>
+                            <option value="Ophthalmology" {{ old('specialization', $doctor->specialization) == 'Ophthalmology' ? 'selected' : '' }}>Ophthalmology</option>
+                            <option value="ENT (Ear, Nose, and Throat)" {{ old('specialization', $doctor->specialization) == 'ENT (Ear, Nose, and Throat)' ? 'selected' : '' }}>ENT (Ear, Nose, and Throat)</option>
+                            <option value="Endocrinology" {{ old('specialization', $doctor->specialization) == 'Endocrinology' ? 'selected' : '' }}>Endocrinology</option>
+                            <option value="Rheumatology" {{ old('specialization', $doctor->specialization) == 'Rheumatology' ? 'selected' : '' }}>Rheumatology</option>
+                            <option value="Oncology" {{ old('specialization', $doctor->specialization) == 'Oncology' ? 'selected' : '' }}>Oncology</option>
+                            <option value="Infectious Disease" {{ old('specialization', $doctor->specialization) == 'Infectious Disease' ? 'selected' : '' }}>Infectious Disease</option>
+                            <option value="Nephrology" {{ old('specialization', $doctor->specialization) == 'Nephrology' ? 'selected' : '' }}>Nephrology</option>
+                            <option value="General Medicine" {{ old('specialization', $doctor->specialization) == 'General Medicine' ? 'selected' : '' }}>General Medicine</option>
+                        </select>
                         @error('specialization')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror

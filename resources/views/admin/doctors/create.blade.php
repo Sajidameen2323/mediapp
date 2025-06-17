@@ -192,9 +192,28 @@
                                 class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 <i class="fas fa-stethoscope mr-2 text-green-500"></i>Specialization
                             </label>
-                            <input type="text" name="specialization" id="specialization"
-                                value="{{ old('specialization') }}" required
+                            <select name="specialization" id="specialization" required
                                 class="block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all duration-200">
+                                <option value="">Select a specialization...</option>
+                                <option value="Cardiology" {{ old('specialization') == 'Cardiology' ? 'selected' : '' }}>Cardiology</option>
+                                <option value="Dermatology" {{ old('specialization') == 'Dermatology' ? 'selected' : '' }}>Dermatology</option>
+                                <option value="Gastroenterology" {{ old('specialization') == 'Gastroenterology' ? 'selected' : '' }}>Gastroenterology</option>
+                                <option value="Neurology" {{ old('specialization') == 'Neurology' ? 'selected' : '' }}>Neurology</option>
+                                <option value="Orthopedics" {{ old('specialization') == 'Orthopedics' ? 'selected' : '' }}>Orthopedics</option>
+                                <option value="Pediatrics" {{ old('specialization') == 'Pediatrics' ? 'selected' : '' }}>Pediatrics</option>
+                                <option value="Psychiatry" {{ old('specialization') == 'Psychiatry' ? 'selected' : '' }}>Psychiatry</option>
+                                <option value="Pulmonology" {{ old('specialization') == 'Pulmonology' ? 'selected' : '' }}>Pulmonology</option>
+                                <option value="Urology" {{ old('specialization') == 'Urology' ? 'selected' : '' }}>Urology</option>
+                                <option value="Gynecology" {{ old('specialization') == 'Gynecology' ? 'selected' : '' }}>Gynecology</option>
+                                <option value="Ophthalmology" {{ old('specialization') == 'Ophthalmology' ? 'selected' : '' }}>Ophthalmology</option>
+                                <option value="ENT (Ear, Nose, and Throat)" {{ old('specialization') == 'ENT (Ear, Nose, and Throat)' ? 'selected' : '' }}>ENT (Ear, Nose, and Throat)</option>
+                                <option value="Endocrinology" {{ old('specialization') == 'Endocrinology' ? 'selected' : '' }}>Endocrinology</option>
+                                <option value="Rheumatology" {{ old('specialization') == 'Rheumatology' ? 'selected' : '' }}>Rheumatology</option>
+                                <option value="Oncology" {{ old('specialization') == 'Oncology' ? 'selected' : '' }}>Oncology</option>
+                                <option value="Infectious Disease" {{ old('specialization') == 'Infectious Disease' ? 'selected' : '' }}>Infectious Disease</option>
+                                <option value="Nephrology" {{ old('specialization') == 'Nephrology' ? 'selected' : '' }}>Nephrology</option>
+                                <option value="General Medicine" {{ old('specialization') == 'General Medicine' ? 'selected' : '' }}>General Medicine</option>
+                            </select>
                             @error('specialization')
                                 <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                             @enderror
