@@ -279,6 +279,15 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/', [\App\Http\Controllers\Patient\MedicalReportController::class, 'index'])->name('index');
             Route::get('/{medicalReport}', [\App\Http\Controllers\Patient\MedicalReportController::class, 'show'])->name('show');
             Route::get('/{medicalReport}/pdf', [\App\Http\Controllers\Patient\MedicalReportController::class, 'downloadPdf'])->name('pdf');
+            
+            // Access Management Routes
+            Route::prefix('{medicalReport}/access')->name('access.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Patient\MedicalReportAccessController::class, 'index'])->name('index');
+                Route::post('/grant', [\App\Http\Controllers\Patient\MedicalReportAccessController::class, 'grant'])->name('grant');
+                Route::put('/{access}', [\App\Http\Controllers\Patient\MedicalReportAccessController::class, 'update'])->name('update');
+                Route::delete('/{access}', [\App\Http\Controllers\Patient\MedicalReportAccessController::class, 'revoke'])->name('revoke');
+                Route::post('/bulk', [\App\Http\Controllers\Patient\MedicalReportAccessController::class, 'bulkManage'])->name('bulk');
+            });
         });
     });
     

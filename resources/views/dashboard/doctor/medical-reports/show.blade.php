@@ -11,18 +11,32 @@
                         <p class="mt-1 text-lg text-gray-700 dark:text-gray-300">Medical Report</p>
                     @else
                         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Medical Report</h1>
-                    @endif
-                    <p class="mt-2 text-gray-600 dark:text-gray-400">
-                        Patient: {{ $medicalReport->patient->name }} | 
-                        Date: {{ $medicalReport->consultation_date->format('M d, Y') }}
-                    </p>
+                    @endif                    <div class="flex items-center gap-3">
+                        <p class="mt-2 text-gray-600 dark:text-gray-400">
+                            Patient: {{ $medicalReport->patient->name }} | 
+                            Date: {{ $medicalReport->consultation_date->format('M d, Y') }}
+                        </p>
+                        @if(!$isAuthor)
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                <i class="fas fa-share-alt mr-1.5"></i>
+                                Shared Access
+                            </span>
+                        @endif
+                    </div>
                 </div>
                 <div class="flex space-x-3">
-                    <a href="{{ route('doctor.medical-reports.edit', $medicalReport) }}" 
-                       class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
-                        <i class="fas fa-edit mr-2"></i>
-                        Edit Report
-                    </a>                    <a href="{{ route('doctor.reports.pdf', $medicalReport) }}" 
+                    @if($hasEditAccess)
+                        <a href="{{ route('doctor.medical-reports.edit', $medicalReport) }}" 
+                           class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
+                            <i class="fas fa-edit mr-2"></i>
+                            Edit Report
+                        </a>
+                    @else
+                        <span class="inline-flex items-center px-4 py-2 bg-gray-300 text-gray-500 text-sm font-medium rounded-md cursor-not-allowed">
+                            <i class="fas fa-lock mr-2"></i>
+                            Read Only
+                        </span>
+                    @endif<a href="{{ route('doctor.reports.pdf', $medicalReport) }}" 
                        target="_blank"
                        class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
                         <i class="fas fa-file-pdf mr-2"></i>
@@ -39,10 +53,9 @@
 
         <!-- Report Content -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-            <div class="p-8 space-y-8">
-                <!-- Header Information -->
+            <div class="p-8 space-y-8">                <!-- Header Information -->
                 <div class="border-b border-gray-200 dark:border-gray-700 pb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div>
                             <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Patient Information</h3>
                             <div class="mt-2">
@@ -51,7 +64,7 @@
                             </div>
                         </div>
                         <div>
-                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Doctor</h3>
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Report Author</h3>
                             <div class="mt-2">
                                 <p class="text-lg font-semibold text-gray-900 dark:text-white">Dr. {{ $medicalReport->doctor->user->name }}</p>
                                 <p class="text-sm text-gray-600 dark:text-gray-400">{{ $medicalReport->doctor->specialization ?? 'General Practice' }}</p>
@@ -64,7 +77,36 @@
                                 <p class="text-sm text-gray-600 dark:text-gray-400">{{ $medicalReport->consultation_date->format('g:i A') }}</p>
                             </div>
                         </div>
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Your Access</h3>
+                            <div class="mt-2">
+                                @if($isAuthor)
+                                    <p class="text-lg font-semibold text-green-600 dark:text-green-400">Report Author</p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Full Access</p>
+                                @else
+                                    <p class="text-lg font-semibold text-blue-600 dark:text-blue-400">Shared Access</p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Read Only</p>
+                                    @if($accessDetails && $accessDetails['granted_at'])
+                                        <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                                            Granted: {{ $accessDetails['granted_at']->format('M d, Y') }}
+                                        </p>
+                                        @if($accessDetails['expires_at'])
+                                            <p class="text-xs text-gray-500 dark:text-gray-500">
+                                                Expires: {{ $accessDetails['expires_at']->format('M d, Y') }}
+                                            </p>
+                                        @endif
+                                    @endif
+                                @endif
+                            </div>
+                        </div>
                     </div>
+                    
+                    @if(!$isAuthor && $accessDetails && $accessDetails['notes'])
+                        <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                            <h4 class="text-sm font-medium text-blue-800 dark:text-blue-200 mb-1">Access Notes</h4>
+                            <p class="text-sm text-blue-700 dark:text-blue-300">{{ $accessDetails['notes'] }}</p>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Chief Complaint -->

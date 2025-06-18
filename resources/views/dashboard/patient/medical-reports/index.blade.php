@@ -47,7 +47,7 @@
                             class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             <option value="">All Doctors</option>
                             @foreach ($medicalReports->pluck('doctor.user.name')->unique() as $doctorName)
-                                <option value="{{ $doctorName }}">Dr. {{ $doctorName }}</option>
+                                <option value="{{ $doctorName }}">{{ $doctorName }}</option>
                             @endforeach
                         </select>
 
@@ -107,7 +107,8 @@
                 <div id="reportsContainer" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3" data-view-mode="grid">
                     @foreach ($medicalReports as $report)
                         <div class="report-card bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg dark:hover:shadow-gray-900/25 transition-all duration-300 hover:scale-[1.02]"
-                            data-report-id="{{ $report->id }}" data-doctor="{{ $report->doctor->name }}"
+                            data-report-id="{{ $report->id }}" 
+                            data-doctor="{{ $report->doctor->user->name }}"
                             data-diagnosis="{{ $report->diagnosis ?? '' }}" data-symptoms="{{ $report->symptoms ?? '' }}"
                             data-treatment="{{ $report->treatment ?? '' }}"
                             data-date="{{ $report->created_at->format('Y-m-d') }}">
@@ -123,7 +124,7 @@
                                         </h3>
                                         <div class="flex items-center text-sm text-gray-600 dark:text-gray-300">
                                             <i class="fas fa-user-md mr-1"></i>
-                                            <span class="font-medium">Dr. {{ $report->doctor->user->name }}</span>
+                                            <span class="font-medium">{{ $report->doctor->user->name }}</span>
                                         </div>
                                     </div>
                                     <div class="ml-4">
@@ -218,36 +219,44 @@
                             </div>
 
                             <!-- Card Footer -->
-                            <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-600">
+                            <div
+                                class="px-6 py-4 bg-gray-50 dark:bg-gray-700/50 border-t border-gray-200 dark:border-gray-600">
                                 <div class="flex flex-col space-y-3">
                                     <!-- Primary Action Button -->
                                     <a href="{{ route('patient.medical-reports.show', $report) }}"
                                         class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white text-sm font-semibold rounded-lg shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-all duration-200">
                                         <i class="fas fa-eye mr-2"></i>
                                         View Full Report
-                                    </a>
-
+                                    </a>                                    
                                     <!-- Secondary Action Buttons -->
-                                    @if ($report->prescriptions_count > 0 || $report->lab_test_requests_count > 0)
-                                        <div class="flex flex-col sm:flex-row gap-2">
-                                            @if ($report->prescriptions_count > 0)
-                                                <a href="{{ route('patient.prescriptions.index', ['medical_report' => $report->id]) }}"
-                                                    class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-800/30 hover:bg-green-100 dark:hover:bg-green-800/50 rounded-md border border-green-200 dark:border-green-700 transition-colors duration-200">
-                                                    <i class="fas fa-prescription-bottle-alt mr-1.5 text-sm"></i>
-                                                    <span>Prescriptions ({{ $report->prescriptions_count }})</span>
-                                                </a>
-                                            @endif
-                                            @if ($report->lab_test_requests_count > 0)
-                                                <a href="{{ route('patient.lab-tests.index', ['medical_report' => $report->id]) }}"
-                                                    class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-800/30 hover:bg-purple-100 dark:hover:bg-purple-800/50 rounded-md border border-purple-200 dark:border-purple-700 transition-colors duration-200">
-                                                    <i class="fas fa-flask mr-1.5 text-sm"></i>
-                                                    <span>Lab Tests ({{ $report->lab_test_requests_count }})</span>
-                                                </a>
-                                            @endif
-                                        </div>
-                                    @else
+                                    <div class="flex flex-col sm:flex-row gap-2">
+                                        {{-- <!-- Access Management Button -->
+                                        <a href="{{ route('patient.medical-reports.access.index', $report) }}"
+                                            class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-800/30 hover:bg-blue-100 dark:hover:bg-blue-800/50 rounded-md border border-blue-200 dark:border-blue-700 transition-colors duration-200">
+                                            <i class="fas fa-user-shield mr-1.5 text-sm"></i>
+                                            <span>Manage Access</span>
+                                        </a> --}}
+                                        
+                                        @if ($report->prescriptions_count > 0)
+                                            <a href="{{ route('patient.prescriptions.index', ['medical_report' => $report->id]) }}"
+                                                class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-green-700 dark:text-green-300 bg-green-50 dark:bg-green-800/30 hover:bg-green-100 dark:hover:bg-green-800/50 rounded-md border border-green-200 dark:border-green-700 transition-colors duration-200">
+                                                <i class="fas fa-prescription-bottle-alt mr-1.5 text-sm"></i>
+                                                <span>Prescriptions ({{ $report->prescriptions_count }})</span>
+                                            </a>
+                                        @endif
+                                        @if ($report->lab_test_requests_count > 0)
+                                            <a href="{{ route('patient.lab-tests.index', ['medical_report' => $report->id]) }}"
+                                                class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-800/30 hover:bg-purple-100 dark:hover:bg-purple-800/50 rounded-md border border-purple-200 dark:border-purple-700 transition-colors duration-200">
+                                                <i class="fas fa-flask mr-1.5 text-sm"></i>
+                                                <span>Lab Tests ({{ $report->lab_test_requests_count }})</span>
+                                            </a>
+                                        @endif
+                                    </div>
+                                    
+                                    @if ($report->prescriptions_count == 0 && $report->lab_test_requests_count == 0)
                                         <div class="text-center py-2">
-                                            <span class="inline-flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                            <span
+                                                class="inline-flex items-center text-xs text-gray-500 dark:text-gray-400">
                                                 <i class="fas fa-info-circle mr-1.5"></i>
                                                 Consultation only - No prescriptions or lab tests
                                             </span>
@@ -324,6 +333,8 @@
                         treatment.includes(searchTerm);
 
                     // Doctor filter
+                    console.log(selectedDoctor, " - ", doctor);
+
                     const matchesDoctor = !selectedDoctor || doctor.includes(selectedDoctor.toLowerCase());
 
                     // Date filter

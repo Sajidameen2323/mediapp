@@ -78,6 +78,28 @@ class Doctor extends Model
     }
 
     /**
+     * Get the medical report access records for the doctor.
+     */
+    public function medicalReportAccess(): HasMany
+    {
+        return $this->hasMany(MedicalReportAccess::class);
+    }
+
+    /**
+     * Get medical reports that this doctor has access to (including authored ones).
+     */
+    public function accessibleMedicalReports()
+    {
+        return $this->belongsToMany(MedicalReport::class, 'medical_report_access')
+            ->wherePivot('status', 'active')
+            ->where(function ($query) {
+                $query->wherePivot('expires_at', '>', now())
+                    ->orWherePivotNull('expires_at');
+            })
+            ->withPivot(['access_type', 'status', 'granted_at', 'expires_at', 'notes']);
+    }
+
+    /**
      * Get the appointments for the doctor.
      */
     public function appointments(): HasMany

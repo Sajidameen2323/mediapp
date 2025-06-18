@@ -109,6 +109,9 @@ class MedicalReportController extends Controller
 
         $report = MedicalReport::create($data);
 
+        // Create automatic access record for the report author
+        $report->createAuthorAccess();
+
         // Process prescriptions if provided
         $this->processPrescriptions($request, $report);
 
@@ -150,19 +153,46 @@ class MedicalReportController extends Controller
     {
         Gate::authorize('doctor-access');
 
-        // Ensure the report belongs to the authenticated doctor
-        if ($medicalReport->doctor_id !== auth()->user()->doctor->id) {
-            abort(403);
+        // Check if the doctor has access to this medical report
+        $doctorId = auth()->user()->doctor->id;
+        if (!$medicalReport->doctorHasAccess($doctorId)) {
+            abort(403, 'You do not have permission to view this medical report.');
         }
 
         $medicalReport->load([
             'patient', 
             'doctor.user',
             'prescriptions.prescriptionMedications.medication',
-            'labTestRequests.laboratory'
+            'labTestRequests.laboratory',
+            'accessRecords' => function ($query) use ($doctorId) {
+                $query->where('doctor_id', $doctorId)->where('status', 'active');
+            }
         ]);
 
-        return view('dashboard.doctor.medical-reports.show', compact('medicalReport'));
+        // Determine the doctor's access level for the view
+        $isAuthor = $medicalReport->doctor_id === $doctorId;
+        $hasEditAccess = $isAuthor; // Only authors can edit
+        
+        // Get access details if not the author
+        $accessDetails = null;
+        if (!$isAuthor) {
+            $accessRecord = $medicalReport->accessRecords->first();
+            if ($accessRecord) {
+                $accessDetails = [
+                    'granted_at' => $accessRecord->granted_at,
+                    'expires_at' => $accessRecord->expires_at,
+                    'notes' => $accessRecord->notes,
+                    'access_type' => $accessRecord->access_type
+                ];
+            }
+        }
+
+        return view('dashboard.doctor.medical-reports.show', compact(
+            'medicalReport', 
+            'isAuthor', 
+            'hasEditAccess', 
+            'accessDetails'
+        ));
     }
 
     /**
@@ -172,9 +202,16 @@ class MedicalReportController extends Controller
     {
         Gate::authorize('doctor-access');
 
-        // Ensure the report belongs to the authenticated doctor
-        if ($medicalReport->doctor_id !== auth()->user()->doctor->id) {
-            abort(403);
+        $doctorId = auth()->user()->doctor->id;
+        
+        // Check if the doctor has access to view this medical report
+        if (!$medicalReport->doctorHasAccess($doctorId)) {
+            abort(403, 'You do not have permission to access this medical report.');
+        }
+
+        // Only the original author can edit the report
+        if ($medicalReport->doctor_id !== $doctorId) {
+            abort(403, 'You can only edit medical reports that you authored. This report was shared with you for viewing only.');
         }
 
         // Get patients for the dropdown
@@ -190,9 +227,16 @@ class MedicalReportController extends Controller
     {
         Gate::authorize('doctor-access');
 
-        // Ensure the report belongs to the authenticated doctor
-        if ($medicalReport->doctor_id !== auth()->user()->doctor->id) {
-            abort(403);
+        $doctorId = auth()->user()->doctor->id;
+        
+        // Check if the doctor has access to this medical report
+        if (!$medicalReport->doctorHasAccess($doctorId)) {
+            abort(403, 'You do not have permission to access this medical report.');
+        }
+
+        // Only the original author can edit the report
+        if ($medicalReport->doctor_id !== $doctorId) {
+            abort(403, 'You can only edit medical reports that you authored. This report was shared with you for viewing only.');
         }
 
         $data = $request->validated();

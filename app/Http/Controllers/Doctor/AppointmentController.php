@@ -144,7 +144,31 @@ class AppointmentController extends Controller
             $healthProfile = $appointment->patient->healthProfile;
         }
 
-        return view('doctor.appointments.show', compact('appointment', 'hasHealthProfileAccess', 'healthProfile'));
+        // Get medical reports that this doctor has access to for this patient
+        $medicalReports = \App\Models\MedicalReport::where('patient_id', $appointment->patient_id)
+            ->where(function ($query) use ($doctor) {
+                // Include reports authored by this doctor
+                $query->where('doctor_id', $doctor->id)
+                    // Or reports where this doctor has been granted access
+                    ->orWhereHas('accessRecords', function ($accessQuery) use ($doctor) {
+                        $accessQuery->where('doctor_id', $doctor->id)
+                            ->where('status', 'active')
+                            ->where(function ($expQuery) {
+                                $expQuery->whereNull('expires_at')
+                                    ->orWhere('expires_at', '>', now());
+                            });
+                    });
+            })
+            ->with(['doctor.user', 'prescriptions', 'labTestRequests'])
+            ->orderBy('consultation_date', 'desc')
+            ->get();
+
+        return view('doctor.appointments.show', compact(
+            'appointment', 
+            'hasHealthProfileAccess', 
+            'healthProfile',
+            'medicalReports'
+        ));
     }
 
     /**
