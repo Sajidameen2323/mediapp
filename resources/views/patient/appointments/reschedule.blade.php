@@ -3,6 +3,7 @@
 @section('title', 'Reschedule Appointment')
 
 @section('content')
+<x-patient-navigation />
     {{-- Safety Check: Ensure appointment can be rescheduled --}}
     @if (!$appointment->canBeRescheduled())
         <div class="container mx-auto px-4 py-8">
