@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Patient;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Patient\PharmacyOrderRequest;
-use App\Models\Prescription;
-use App\Models\PharmacyOrder;
 use App\Models\Pharmacy;
+use App\Models\PharmacyOrder;
+use App\Models\PharmacyOrderItem;
+use App\Models\Prescription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\DB;
@@ -82,7 +83,26 @@ class PrescriptionActionController extends Controller
                 'tax_amount' => $taxAmount,
                 'total_amount' => $totalAmount,
                 'notes' => $request->notes,
+                'status' => 'confirmed', // Auto-confirm orders
             ]);
+
+            // Create order items from prescription medications
+            foreach ($prescription->prescriptionMedications as $prescriptionMedication) {
+                PharmacyOrderItem::create([
+                    'pharmacy_order_id' => $order->id,
+                    'prescription_medication_id' => $prescriptionMedication->id,
+                    'medication_name' => $prescriptionMedication->medication->name,
+                    'dosage' => $prescriptionMedication->dosage,
+                    'frequency' => $prescriptionMedication->frequency,
+                    'duration' => $prescriptionMedication->duration,
+                    'instructions' => $prescriptionMedication->instructions,
+                    'quantity_prescribed' => $prescriptionMedication->quantity_prescribed,
+                    'quantity_dispensed' => $prescriptionMedication->quantity_prescribed,
+                    'unit_price' => $prescriptionMedication->unit_price ?? 0,
+                    'total_price' => ($prescriptionMedication->quantity_prescribed * ($prescriptionMedication->unit_price ?? 0)),
+                    'status' => 'pending'
+                ]);
+            }
 
             DB::commit();
 

@@ -311,5 +311,16 @@ Route::middleware(['auth'])->group(function () {
     // Pharmacy routes
     Route::middleware(['user.type:pharmacist'])->group(function () {
         Route::get('/pharmacy/dashboard', [DashboardController::class, 'pharmacyDashboard'])->name('pharmacy.dashboard');
+        
+        // Pharmacy Order Management
+        Route::prefix('pharmacy/orders')->name('pharmacy.orders.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Pharmacy\PharmacyOrderController::class, 'index'])->name('index');
+            Route::get('/{order}', [\App\Http\Controllers\Pharmacy\PharmacyOrderController::class, 'show'])->name('show');
+            Route::get('/{order}/prepare', [\App\Http\Controllers\Pharmacy\PharmacyOrderController::class, 'prepare'])->name('prepare');
+            Route::patch('/{order}/items', [\App\Http\Controllers\Pharmacy\PharmacyOrderController::class, 'updateItems'])->name('update-items');
+            Route::patch('/{order}/mark-ready', [\App\Http\Controllers\Pharmacy\PharmacyOrderController::class, 'markReady'])->name('mark-ready');
+            Route::patch('/{order}/dispense', [\App\Http\Controllers\Pharmacy\PharmacyOrderController::class, 'dispense'])->name('dispense');
+            Route::patch('/{order}/cancel', [\App\Http\Controllers\Pharmacy\PharmacyOrderController::class, 'cancel'])->name('cancel');
+        });
     });
 });

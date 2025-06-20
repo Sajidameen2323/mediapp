@@ -1,5 +1,20 @@
 <nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 mb-6">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Breadcrumb Section -->
+        <div class="py-2 border-b border-gray-100 dark:border-gray-700">
+            <nav class="flex" aria-label="Breadcrumb" id="breadcrumb-nav">
+                <ol class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+                    <li>
+                        <a href="{{ route('patient.dashboard') }}" class="hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200">
+                            <i class="fas fa-home mr-1"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <!-- Dynamic breadcrumb items will be inserted here -->
+                </ol>
+            </nav>
+        </div>
+
         <div class="flex justify-between h-16">
             <div class="flex items-center">
                 <a href="{{ route('patient.dashboard') }}" class="flex-shrink-0 flex items-center text-xl font-bold text-gray-900 dark:text-white">
@@ -173,6 +188,92 @@
 </nav>
 
 <script>
+    // Breadcrumb management
+    const breadcrumbConfig = {
+        'patient.dashboard': { name: 'Dashboard', icon: 'fas fa-home' },
+        'patient.appointments.index': { name: 'Appointments', icon: 'fas fa-calendar-check' },
+        'patient.appointments.create': { name: 'Book Appointment', icon: 'fas fa-calendar-plus', parent: 'patient.appointments.index' },
+        'patient.appointments.show': { name: 'Appointment Details', icon: 'fas fa-calendar-alt', parent: 'patient.appointments.index' },
+        'patient.appointments.edit': { name: 'Edit Appointment', icon: 'fas fa-calendar-edit', parent: 'patient.appointments.index' },
+        'patient.appointments.search-doctors': { name: 'Find Doctors', icon: 'fas fa-search', parent: 'patient.appointments.index' },
+        'patient.medical-reports.index': { name: 'Medical Reports', icon: 'fas fa-file-medical' },
+        'patient.medical-reports.show': { name: 'Report Details', icon: 'fas fa-file-alt', parent: 'patient.medical-reports.index' },
+        'patient.prescriptions.index': { name: 'Prescriptions', icon: 'fas fa-pills' },
+        'patient.prescriptions.show': { name: 'Prescription Details', icon: 'fas fa-prescription', parent: 'patient.prescriptions.index' },
+        'patient.lab-tests.index': { name: 'Lab Tests', icon: 'fas fa-vial' },
+        'patient.lab-tests.show': { name: 'Test Results', icon: 'fas fa-chart-line', parent: 'patient.lab-tests.index' },
+        'patient.health-profile.index': { name: 'Health Profile', icon: 'fas fa-user-injured' },
+        'patient.health-profile.create': { name: 'Create Profile', icon: 'fas fa-user-plus', parent: 'patient.health-profile.index' },
+        'patient.health-profile.edit': { name: 'Edit Profile', icon: 'fas fa-user-edit', parent: 'patient.health-profile.index' }
+    };
+
+    function updateBreadcrumb() {
+        const currentRoute = '{{ Route::currentRouteName() }}';
+        const breadcrumbNav = document.getElementById('breadcrumb-nav').querySelector('ol');
+        
+        // Clear existing breadcrumb items except the home link
+        const homeItem = breadcrumbNav.querySelector('li');
+        breadcrumbNav.innerHTML = homeItem.outerHTML;
+        
+        if (currentRoute === 'patient.dashboard') {
+            return; // Don't show breadcrumb for dashboard
+        }
+        
+        const breadcrumbPath = buildBreadcrumbPath(currentRoute);
+        
+        breadcrumbPath.forEach((routeName, index) => {
+            const config = breadcrumbConfig[routeName];
+            if (config && routeName !== 'patient.dashboard') {
+                const li = document.createElement('li');
+                li.className = 'flex items-center';
+                
+                const isLast = index === breadcrumbPath.length - 1;
+                
+                li.innerHTML = `
+                    <i class="fas fa-chevron-right mx-2 text-gray-400"></i>
+                    ${isLast ? 
+                        `<span class="text-gray-900 dark:text-white font-medium">
+                            <i class="${config.icon} mr-1"></i>
+                            ${config.name}
+                        </span>` :
+                        `<a href="${getRouteUrl(routeName)}" class="hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200">
+                            <i class="${config.icon} mr-1"></i>
+                            ${config.name}
+                        </a>`
+                    }
+                `;
+                
+                breadcrumbNav.appendChild(li);
+            }
+        });
+    }
+    
+    function buildBreadcrumbPath(currentRoute) {
+        const path = [];
+        let route = currentRoute;
+        
+        while (route && breadcrumbConfig[route]) {
+            path.unshift(route);
+            route = breadcrumbConfig[route].parent;
+        }
+        
+        return path;
+    }
+    
+    function getRouteUrl(routeName) {
+        // Map route names to URLs - you might need to adjust these based on your actual routes
+        const routeMap = {
+            'patient.dashboard': '{{ route("patient.dashboard") }}',
+            'patient.appointments.index': '{{ route("patient.appointments.index") }}',
+            'patient.medical-reports.index': '{{ route("patient.medical-reports.index") }}',
+            'patient.prescriptions.index': '{{ route("patient.prescriptions.index") }}',
+            'patient.lab-tests.index': '{{ route("patient.lab-tests.index") }}',
+            'patient.health-profile.index': '{{ route("patient.health-profile.index") }}'
+        };
+        
+        return routeMap[routeName] || '#';
+    }
+
     function toggleDropdown() {
         const dropdown = document.getElementById('quickActionsDropdown');
         dropdown.classList.toggle('hidden');
@@ -187,6 +288,11 @@
         iconClosed.classList.toggle('hidden');
         iconOpen.classList.toggle('hidden');
     }
+
+    // Initialize breadcrumb on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateBreadcrumb();
+    });
 
     // Close dropdowns when clicking outside
     document.addEventListener('click', function(event) {

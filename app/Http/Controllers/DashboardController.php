@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Models\PharmacyOrder;
 
 class DashboardController extends Controller
 {
@@ -81,7 +82,41 @@ class DashboardController extends Controller
         $this->authorize('pharmacy-access');
         
         $user = auth()->user();
+        $pharmacy = $user->pharmacy;
         
-        return view('dashboard.pharmacy', compact('user'));
+        // Get order statistics
+        $pendingOrders = PharmacyOrder::where('pharmacy_id', $pharmacy->id)
+            ->where('status', 'pending')
+            ->count();
+            
+        $preparingOrders = PharmacyOrder::where('pharmacy_id', $pharmacy->id)
+            ->where('status', 'preparing')
+            ->count();
+            
+        $readyOrders = PharmacyOrder::where('pharmacy_id', $pharmacy->id)
+            ->where('status', 'ready')
+            ->count();
+            
+        // Get today's revenue
+        $todayRevenue = PharmacyOrder::where('pharmacy_id', $pharmacy->id)
+            ->where('status', 'delivered')
+            ->whereDate('delivered_at', today())
+            ->sum('total_amount');
+            
+        // Get recent orders
+        $recentOrders = PharmacyOrder::with(['patient', 'prescription'])
+            ->where('pharmacy_id', $pharmacy->id)
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+        
+        return view('dashboard.pharmacy', compact(
+            'user',
+            'pendingOrders',
+            'preparingOrders', 
+            'readyOrders',
+            'todayRevenue',
+            'recentOrders'
+        ));
     }
 }
