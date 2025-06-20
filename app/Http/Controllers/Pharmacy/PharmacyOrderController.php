@@ -147,7 +147,9 @@ class PharmacyOrderController extends Controller
 
             // Ensure at least one item is available
             if (!$hasAvailableItems) {
-                throw new \Exception('At least one medication must be available and have quantity greater than 0.');
+                return back()
+                    ->withErrors(['items' => 'At least one medication must be available and have quantity greater than 0.'])
+                    ->withInput();
             }
 
             // Calculate tax and total
