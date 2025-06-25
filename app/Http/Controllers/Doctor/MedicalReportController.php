@@ -214,6 +214,9 @@ class MedicalReportController extends Controller
             abort(403, 'You can only edit medical reports that you authored. This report was shared with you for viewing only.');
         }
 
+        // Load prescriptions and lab test requests relationships
+        $medicalReport->load(['prescriptions.prescriptionMedications.medication', 'labTestRequests']);
+        error_log('Loaded medical report with ID: ' . $medicalReport);
         // Get patients for the dropdown
         $patients = User::role('patient')->select('id', 'name', 'email')->orderBy('name')->get();
 

@@ -22,6 +22,49 @@
         transform: scale(1.02);
         transition: transform 0.2s ease;
     }
+    
+    /* Enhanced Quick Actions */
+    
+    .section-collapse {
+        transition: max-height 0.3s ease-in-out;
+        overflow: hidden;
+    }
+    
+    .auto-suggest {
+        position: absolute;
+        z-index: 100;
+        max-height: 200px;
+        overflow-y: auto;
+        @apply border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg shadow-xl;
+    }
+    
+    .field-status {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-left: 8px;
+    }
+    
+    .field-complete { background-color: #10b981; }
+    .field-partial { background-color: #f59e0b; }
+    .field-empty { background-color: #ef4444; }
+    
+    .progress-tracker {
+        position: sticky;
+        top: 20px;
+        z-index: 50;
+    }
+    
+    /* Speech recognition indicator */
+    .speech-indicator {
+        animation: voiceWave 1.5s infinite;
+    }
+    
+    @keyframes voiceWave {
+        0%, 100% { transform: scaleY(1); }
+        50% { transform: scaleY(1.5); }
+    }
 </style>
 @endpush
 
@@ -60,30 +103,116 @@
         @endif
 
         <!-- Enhanced Header -->
-        <div class="mb-10">
+        <div class="mb-6">
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-4">
-                        <div class="bg-gray-900 dark:bg-gray-700 to-purple-600 p-3 rounded-xl">
+                        <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-3 rounded-xl">
                             <i class="fas fa-file-medical text-white text-2xl"></i>
                         </div>
                         <div>
-                            <h1 class="text-4xl font-bold bg-gray-600 dark:bg-gray-300 bg-clip-text text-transparent">
+                            <h1 class="text-4xl font-bold bg-gray-300 bg-clip-text text-transparent">
                                 Create Medical Report
                             </h1>
-                            <p class="mt-2 text-gray-600 dark:text-gray-400 text-lg">Document patient consultation and treatment with comprehensive details</p>
+                            <p class="mt-2 text-gray-600 dark:text-gray-400 text-lg">Document patient consultation with enhanced quick actions</p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <button type="button" onclick="showQuickTips()" class="bg-gray-900 dark:bg-gray-700 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                        <button type="button" id="voice-input-btn" onclick="toggleVoiceInput()" 
+                                class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 
+                                       dark:from-blue-600 dark:to-purple-700 dark:hover:from-blue-700 dark:hover:to-purple-800
+                                       text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
+                                       shadow-lg hover:shadow-xl transform hover:-translate-y-1
+                                       border border-blue-400 dark:border-blue-500 hover:border-blue-500 dark:hover:border-blue-600">
+                            <i class="fas fa-microphone mr-2"></i>Voice Input
+                        </button>
+                        <button type="button" onclick="showQuickTips()" 
+                                class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 
+                                       dark:from-blue-600 dark:to-purple-700 dark:hover:from-blue-700 dark:hover:to-purple-800
+                                       text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
+                                       shadow-lg hover:shadow-xl transform hover:-translate-y-1
+                                       border border-blue-400 dark:border-blue-500 hover:border-blue-500 dark:hover:border-blue-600">
                             <i class="fas fa-lightbulb mr-2"></i>Quick Tips
                         </button>
-                        <a href="{{ route('doctor.medical-reports.index') }}" class="bg-gray-900 dark:bg-gray-700 text-white px-6 py-3 rounded-xl text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                        <a href="{{ route('doctor.medical-reports.index') }}" 
+                           class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 
+                                  dark:from-blue-600 dark:to-purple-700 dark:hover:from-blue-700 dark:hover:to-purple-800
+                                  text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
+                                  shadow-lg hover:shadow-xl transform hover:-translate-y-1
+                                  border border-blue-400 dark:border-blue-500 hover:border-blue-500 dark:hover:border-blue-600">
                             <i class="fas fa-arrow-left mr-2"></i>Back to Reports
                         </a>
                     </div>
                 </div>
-            </div>        </div>
+            </div>
+        </div>
+
+        <!-- Progress Tracker -->
+        <div class="progress-tracker mb-6">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                        <i class="fas fa-tasks mr-2 text-blue-600"></i>Form Progress
+                    </h3>
+                    <div class="flex items-center space-x-2">
+                        <span id="progress-percentage" class="text-sm font-medium text-gray-600 dark:text-gray-400">0%</span>
+                    </div>
+                </div>
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div id="progress-bar" class="bg-gray-300 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <div class="flex justify-between mt-3 text-xs text-gray-500 dark:text-gray-400">
+                    <span class="flex items-center">
+                        <span id="patient-status" class="field-status field-empty"></span>
+                        Patient Info
+                    </span>
+                    <span class="flex items-center">
+                        <span id="vitals-status" class="field-status field-empty"></span>
+                        Vital Signs
+                    </span>
+                    <span class="flex items-center">
+                        <span id="assessment-status" class="field-status field-empty"></span>
+                        Assessment
+                    </span>
+                    <span class="flex items-center">
+                        <span id="diagnosis-status" class="field-status field-empty"></span>
+                        Diagnosis
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Action Panel -->
+        <div class="mb-6">
+            <div class="bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-4 border border-gray-200 dark:border-gray-600">
+                <div class="flex items-center justify-between flex-wrap gap-3">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-bolt text-yellow-500"></i>
+                        <span class="font-medium text-gray-900 dark:text-white">Quick Actions:</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" onclick="applyPreset('routine-checkup')" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 dark:from-green-600 dark:to-emerald-700 dark:hover:from-green-700 dark:hover:to-emerald-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border border-green-400 dark:border-green-500 hover:border-green-500 dark:hover:border-green-600 shadow-md hover:shadow-lg">
+                            <i class="fas fa-stethoscope mr-1"></i>Routine Checkup
+                        </button>
+                        <button type="button" onclick="applyPreset('follow-up')" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 dark:from-green-600 dark:to-emerald-700 dark:hover:from-green-700 dark:hover:to-emerald-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border border-green-400 dark:border-green-500 hover:border-green-500 dark:hover:border-green-600 shadow-md hover:shadow-lg">
+                            <i class="fas fa-calendar-check mr-1"></i>Follow-up
+                        </button>
+                        <button type="button" onclick="applyPreset('emergency')" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 dark:from-green-600 dark:to-emerald-700 dark:hover:from-green-700 dark:hover:to-emerald-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border border-green-400 dark:border-green-500 hover:border-green-500 dark:hover:border-green-600 shadow-md hover:shadow-lg">
+                            <i class="fas fa-ambulance mr-1"></i>Emergency
+                        </button>
+                        <button type="button" onclick="fillNormalVitals()" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 dark:from-green-600 dark:to-emerald-700 dark:hover:from-green-700 dark:hover:to-emerald-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border border-green-400 dark:border-green-500 hover:border-green-500 dark:hover:border-green-600 shadow-md hover:shadow-lg">
+                            <i class="fas fa-heartbeat mr-1"></i>Normal Vitals
+                        </button>
+                        <button type="button" onclick="toggleAllSections()" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 dark:from-green-600 dark:to-emerald-700 dark:hover:from-green-700 dark:hover:to-emerald-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border border-green-400 dark:border-green-500 hover:border-green-500 dark:hover:border-green-600 shadow-md hover:shadow-lg">
+                            <i class="fas fa-expand-alt mr-1"></i>Expand All
+                        </button>
+                        <button type="button" onclick="clearForm()" class="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 dark:from-red-600 dark:to-pink-700 dark:hover:from-red-700 dark:hover:to-pink-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border border-red-400 dark:border-red-500 hover:border-red-500 dark:hover:border-red-600 shadow-md hover:shadow-lg">
+                            <i class="fas fa-trash mr-1"></i>Clear All
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Form Submission Error Logging Section -->
         <div id="form-errors-section" class="hidden mb-8">
@@ -111,20 +240,25 @@
         </div>
 
         <!-- Enhanced Form -->
-        <form method="POST" action="{{ route('doctor.medical-reports.store') }}" class="space-y-8">
+        <form method="POST" action="{{ route('doctor.medical-reports.store') }}" class="space-y-8" id="medical-report-form">
             @csrf
             
             <!-- Patient Quick Lookup & Basic Information -->
             <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl border border-gray-100 dark:border-gray-700 form-section-transition">
                 <div class="px-8 py-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 rounded-t-2xl">
-                    <div class="flex items-center space-x-3">
-                        <div class="bg-blue-500 p-2 rounded-lg">
-                            <i class="fas fa-user-md text-white"></i>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-blue-500 p-2 rounded-lg">
+                                <i class="fas fa-user-md text-white"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Patient Information & Quick Lookup</h3>
+                            <button type="button" onclick="toggleSection('patient-info')" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                <i id="patient-info-toggle" class="fas fa-chevron-up"></i>
+                            </button>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Patient Information & Quick Lookup</h3>
                     </div>
                 </div>
-                <div class="p-8 space-y-8">
+                <div id="patient-info-content" class="p-8 space-y-8 section-collapse" style="max-height: 1000px;">
                     <!-- Enhanced Patient Quick Search -->
                     <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-xl border border-blue-200 dark:border-gray-600">
                         <div class="flex items-center space-x-3 mb-4">
@@ -175,6 +309,7 @@
                                 <i class="fas fa-user mr-2 text-blue-500"></i>Select Patient
                             </label>
                             <select name="patient_id" id="patient_id" required 
+                                onchange="updateFormProgress()"
                                 class="w-full border-2 @error('patient_id') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4 transition-all duration-200">
                                 <option value="">Choose from dropdown...</option>
                                 @foreach($patients as $patient)
@@ -199,6 +334,7 @@
                             <input type="text" name="title" id="title" 
                                 value="{{ old('title') }}" required 
                                 placeholder="e.g., Annual Check-up, Follow-up Visit, Emergency Consultation"
+                                oninput="updateFormProgress()"
                                 class="w-full border-2 @error('title') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4 transition-all duration-200">
                             @error('title')
                                 <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
@@ -213,7 +349,8 @@
                                 <i class="fas fa-calendar mr-2 text-purple-500"></i>Consultation Date
                             </label>
                             <input type="date" name="consultation_date" id="consultation_date" 
-                                value="{{ old('consultation_date', today()->format('Y-m-d')) }}" required 
+                                value="{{ old('consultation_date') }}" required 
+                                onchange="updateFormProgress()"
                                 class="w-full border-2 @error('consultation_date') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4 transition-all duration-200">
                             @error('consultation_date')
                                 <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
@@ -229,6 +366,7 @@
                             <i class="fas fa-file-alt mr-2 text-indigo-500"></i>Report Type
                         </label>
                         <select name="report_type" id="report_type" required 
+                            onchange="updateFormProgress()"
                             class="w-full border-2 @error('report_type') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4 transition-all duration-200">
                             <option value="">Select report type</option>
                             <option value="Consultation" {{ old('report_type') == 'Consultation' ? 'selected' : '' }}>
@@ -258,53 +396,120 @@
                                 <i class="fas fa-heartbeat text-white"></i>
                             </div>
                             <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Vital Signs</h3>
+                            <button type="button" onclick="toggleSection('vital-signs')" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                <i id="vital-signs-toggle" class="fas fa-chevron-up"></i>
+                            </button>
                         </div>
-                        <button type="button" onclick="insertTemplate('normal_vitals')" class="bg-green-100 hover:bg-green-200 dark:bg-green-800 dark:hover:bg-green-700 text-green-700 dark:text-green-300 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                            <i class="fas fa-magic mr-2"></i>Auto-fill Normal
-                        </button>
+                        <div class="flex items-center space-x-2">
+                            <button type="button" onclick="fillNormalVitals()" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 dark:from-green-600 dark:to-emerald-700 dark:hover:from-green-700 dark:hover:to-emerald-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border border-green-400 dark:border-green-500 hover:border-green-500 dark:hover:border-green-600 shadow-md hover:shadow-lg">
+                                <i class="fas fa-magic mr-2"></i>Normal Values
+                            </button>
+                            <button type="button" onclick="fillPediatricVitals()" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 dark:from-green-600 dark:to-emerald-700 dark:hover:from-green-700 dark:hover:to-emerald-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border border-green-400 dark:border-green-500 hover:border-green-500 dark:hover:border-green-600 shadow-md hover:shadow-lg">
+                                <i class="fas fa-child mr-2"></i>Pediatric
+                            </button>
+                            <button type="button" onclick="fillGeriatricVitals()" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 dark:from-green-600 dark:to-emerald-700 dark:hover:from-green-700 dark:hover:to-emerald-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border border-green-400 dark:border-green-500 hover:border-green-500 dark:hover:border-green-600 shadow-md hover:shadow-lg">
+                                <i class="fas fa-user-clock mr-2"></i>Geriatric
+                            </button>
+                            <button type="button" onclick="startVitalCapture()" class="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 dark:from-blue-600 dark:to-cyan-700 dark:hover:from-blue-700 dark:hover:to-cyan-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border border-blue-400 dark:border-blue-500 hover:border-blue-500 dark:hover:border-blue-600 shadow-md hover:shadow-lg">
+                                <i class="fas fa-camera mr-1"></i>Quick Capture
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div class="p-8">                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="vital-signs">
-                        <div class="bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 p-4 rounded-xl border border-red-200 dark:border-red-700">
+                <div id="vital-signs-content" class="p-8 section-collapse" style="max-height: 1000px;">
+                    <!-- Vital Signs Status Indicator -->
+                    <div class="mb-6 bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Completion Status:</span>
+                            <div class="flex items-center space-x-4">
+                                <span id="vitals-completion" class="text-sm text-gray-600 dark:text-gray-400">0/7 Complete</span>
+                                <div class="w-24 bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                                    <div id="vitals-progress" class="bg-green-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="vital-signs">
+                        <div class="bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 p-4 rounded-xl border border-red-200 dark:border-red-700 relative">
                             <label class="block text-sm font-semibold text-red-700 dark:text-red-300 mb-2">
                                 <i class="fas fa-tint mr-2"></i>Blood Pressure
+                                <span class="text-xs text-gray-500 dark:text-gray-400">(mmHg)</span>
                             </label>
-                            <input type="text" name="vital_signs[blood_pressure]" placeholder="120/80 mmHg" 
-                                value="{{ old('vital_signs.blood_pressure') }}"
-                                class="vital-input w-full border-2 @error('vital_signs.blood_pressure') border-red-500 dark:border-red-400 @else border-red-300 dark:border-red-600 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4">
+                            <div class="relative">
+                                <input type="text" name="vital_signs[blood_pressure]" placeholder="120/80" 
+                                    value="{{ old('vital_signs.blood_pressure') }}"
+                                    onchange="validateVitalRange(this, 'bp')"
+                                    oninput="updateFormProgress()"
+                                    class="vital-input w-full border-2 @error('vital_signs.blood_pressure') border-red-500 dark:border-red-400 @else border-red-300 dark:border-red-600 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4">
+                                <button type="button" onclick="showVitalReference('bp')" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-info-circle text-sm"></i>
+                                </button>
+                            </div>
+                            <div id="bp-status" class="mt-2 text-xs text-gray-500 dark:text-gray-400"></div>
                             @error('vital_signs.blood_pressure')
                                 <div class="mt-1 text-red-600 dark:text-red-400 text-xs">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div class="bg-gradient-to-br from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 p-4 rounded-xl border border-orange-200 dark:border-orange-700">
+
+                        <div class="bg-gradient-to-br from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 p-4 rounded-xl border border-orange-200 dark:border-orange-700 relative">
                             <label class="block text-sm font-semibold text-orange-700 dark:text-orange-300 mb-2">
                                 <i class="fas fa-thermometer-half mr-2"></i>Temperature
+                                <span class="text-xs text-gray-500 dark:text-gray-400">(°F/°C)</span>
                             </label>
-                            <input type="text" name="vital_signs[temperature]" placeholder="98.6°F" 
-                                value="{{ old('vital_signs.temperature') }}"
-                                class="vital-input w-full border-2 @error('vital_signs.temperature') border-red-500 dark:border-red-400 @else border-orange-300 dark:border-orange-600 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4">
+                            <div class="relative">
+                                <input type="text" name="vital_signs[temperature]" placeholder="98.6°F" 
+                                    value="{{ old('vital_signs.temperature') }}"
+                                    onchange="validateVitalRange(this, 'temp')"
+                                    oninput="updateFormProgress()"
+                                    class="vital-input w-full border-2 @error('vital_signs.temperature') border-red-500 dark:border-red-400 @else border-orange-300 dark:border-orange-600 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4">
+                                <button type="button" onclick="convertTemperature(this)" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-exchange-alt text-sm"></i>
+                                </button>
+                            </div>
+                            <div id="temp-status" class="mt-2 text-xs text-gray-500 dark:text-gray-400"></div>
                             @error('vital_signs.temperature')
                                 <div class="mt-1 text-red-600 dark:text-red-400 text-xs">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div class="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 p-4 rounded-xl border border-blue-200 dark:border-blue-700">
+
+                        <div class="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 p-4 rounded-xl border border-blue-200 dark:border-blue-700 relative">
                             <label class="block text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2">
                                 <i class="fas fa-heartbeat mr-2"></i>Heart Rate
+                                <span class="text-xs text-gray-500 dark:text-gray-400">(bpm)</span>
                             </label>
-                            <input type="text" name="vital_signs[heart_rate]" placeholder="70 bpm" 
-                                value="{{ old('vital_signs.heart_rate') }}"
-                                class="vital-input w-full border-2 @error('vital_signs.heart_rate') border-red-500 dark:border-red-400 @else border-blue-300 dark:border-blue-600 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4">
+                            <div class="relative">
+                                <input type="text" name="vital_signs[heart_rate]" placeholder="70" 
+                                    value="{{ old('vital_signs.heart_rate') }}"
+                                    onchange="validateVitalRange(this, 'hr')"
+                                    oninput="updateFormProgress()"
+                                    class="vital-input w-full border-2 @error('vital_signs.heart_rate') border-red-500 dark:border-red-400 @else border-blue-300 dark:border-blue-600 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4">
+                                <button type="button" onclick="calculateTargetHR()" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-calculator text-sm"></i>
+                                </button>
+                            </div>
+                            <div id="hr-status" class="mt-2 text-xs text-gray-500 dark:text-gray-400"></div>
                             @error('vital_signs.heart_rate')
                                 <div class="mt-1 text-red-600 dark:text-red-400 text-xs">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div class="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 p-4 rounded-xl border border-purple-200 dark:border-purple-700">
+
+                        <div class="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 p-4 rounded-xl border border-purple-200 dark:border-purple-700 relative">
                             <label class="block text-sm font-semibold text-purple-700 dark:text-purple-300 mb-2">
                                 <i class="fas fa-weight mr-2"></i>Weight
+                                <span class="text-xs text-gray-500 dark:text-gray-400">(kg/lbs)</span>
                             </label>
-                            <input type="text" name="vital_signs[weight]" placeholder="70 kg" 
-                                value="{{ old('vital_signs.weight') }}"
-                                class="vital-input w-full border-2 @error('vital_signs.weight') border-red-500 dark:border-red-400 @else border-purple-300 dark:border-purple-600 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4">
+                            <div class="relative">
+                                <input type="text" name="vital_signs[weight]" placeholder="70 kg" 
+                                    value="{{ old('vital_signs.weight') }}"
+                                    onchange="calculateBMI()"
+                                    oninput="updateFormProgress()"
+                                    class="vital-input w-full border-2 @error('vital_signs.weight') border-red-500 dark:border-red-400 @else border-purple-300 dark:border-purple-600 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4">
+                                <button type="button" onclick="convertWeight(this)" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-exchange-alt text-sm"></i>
+                                </button>
+                            </div>
+                            <div id="weight-status" class="mt-2 text-xs text-gray-500 dark:text-gray-400"></div>
                             @error('vital_signs.weight')
                                 <div class="mt-1 text-red-600 dark:text-red-400 text-xs">{{ $message }}</div>
                             @enderror
@@ -313,13 +518,22 @@
                     
                     <!-- Additional Vital Signs -->
                     <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
+                        <div class="relative">
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                 <i class="fas fa-lungs mr-2 text-teal-500"></i>Respiratory Rate
+                                <span class="text-xs text-gray-500 dark:text-gray-400">(breaths/min)</span>
                             </label>
-                            <input type="text" name="vital_signs[respiratory_rate]" placeholder="16 breaths/min" 
-                                value="{{ old('vital_signs.respiratory_rate') }}"
-                                class="w-full border-2 @error('vital_signs.respiratory_rate') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4">
+                            <div class="relative">
+                                <input type="text" name="vital_signs[respiratory_rate]" placeholder="16" 
+                                    value="{{ old('vital_signs.respiratory_rate') }}"
+                                    onchange="validateVitalRange(this, 'rr')"
+                                    oninput="updateFormProgress()"
+                                    class="w-full border-2 @error('vital_signs.respiratory_rate') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4">
+                                <button type="button" onclick="startRRCounter()" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-stopwatch text-sm"></i>
+                                </button>
+                            </div>
+                            <div id="rr-status" class="mt-2 text-xs text-gray-500 dark:text-gray-400"></div>
                             @error('vital_signs.respiratory_rate')
                                 <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
                                     <i class="fas fa-exclamation-circle mr-2"></i>
@@ -327,13 +541,21 @@
                                 </div>
                             @enderror
                         </div>
-                        <div>
+
+                        <div class="relative">
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                 <i class="fas fa-percentage mr-2 text-blue-500"></i>Oxygen Saturation
+                                <span class="text-xs text-gray-500 dark:text-gray-400">(SpO2 %)</span>
                             </label>
-                            <input type="text" name="vital_signs[oxygen_saturation]" placeholder="98%" 
-                                value="{{ old('vital_signs.oxygen_saturation') }}"
-                                class="w-full border-2 @error('vital_signs.oxygen_saturation') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4">
+                            <div class="relative">
+                                <input type="text" name="vital_signs[oxygen_saturation]" placeholder="98" 
+                                    value="{{ old('vital_signs.oxygen_saturation') }}"
+                                    onchange="validateVitalRange(this, 'spo2')"
+                                    oninput="updateFormProgress()"
+                                    class="w-full border-2 @error('vital_signs.oxygen_saturation') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4">
+                                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">%</span>
+                            </div>
+                            <div id="spo2-status" class="mt-2 text-xs text-gray-500 dark:text-gray-400"></div>
                             @error('vital_signs.oxygen_saturation')
                                 <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
                                     <i class="fas fa-exclamation-circle mr-2"></i>
@@ -341,13 +563,23 @@
                                 </div>
                             @enderror
                         </div>
-                        <div>
+
+                        <div class="relative">
                             <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                 <i class="fas fa-ruler-vertical mr-2 text-green-500"></i>Height
+                                <span class="text-xs text-gray-500 dark:text-gray-400">(cm/ft)</span>
                             </label>
-                            <input type="text" name="vital_signs[height]" placeholder="170 cm" 
-                                value="{{ old('vital_signs.height') }}"
-                                class="w-full border-2 @error('vital_signs.height') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4">
+                            <div class="relative">
+                                <input type="text" name="vital_signs[height]" placeholder="170 cm" 
+                                    value="{{ old('vital_signs.height') }}"
+                                    onchange="calculateBMI()"
+                                    oninput="updateFormProgress()"
+                                    class="w-full border-2 @error('vital_signs.height') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white py-3 px-4">
+                                <button type="button" onclick="convertHeight(this)" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-exchange-alt text-sm"></i>
+                                </button>
+                            </div>
+                            <div id="height-status" class="mt-2 text-xs text-gray-500 dark:text-gray-400"></div>
                             @error('vital_signs.height')
                                 <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
                                     <i class="fas fa-exclamation-circle mr-2"></i>
@@ -356,24 +588,44 @@
                             @enderror
                         </div>
                     </div>
+
+                    <!-- BMI Calculator -->
+                    <div id="bmi-calculator" class="mt-6 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 p-4 rounded-xl border border-indigo-200 dark:border-indigo-700">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-calculator text-indigo-600 dark:text-indigo-400"></i>
+                                <span class="font-medium text-gray-900 dark:text-white">BMI Calculator</span>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <span id="bmi-value" class="text-lg font-bold text-indigo-600 dark:text-indigo-400">--</span>
+                                <span id="bmi-category" class="text-sm text-gray-600 dark:text-gray-400">--</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>            <!-- Enhanced Clinical Assessment -->
             <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl border border-gray-100 dark:border-gray-700 form-section-transition">
                 <div class="px-8 py-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-gray-700 dark:to-gray-600 rounded-t-2xl">
-                    <div class="flex items-center space-x-3">
-                        <div class="bg-indigo-500 p-2 rounded-lg">
-                            <i class="fas fa-stethoscope text-white"></i>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-indigo-500 p-2 rounded-lg">
+                                <i class="fas fa-stethoscope text-white"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Clinical Assessment</h3>
+                            <button type="button" onclick="toggleSection('clinical-assessment')" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                <i id="clinical-assessment-toggle" class="fas fa-chevron-up"></i>
+                            </button>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Clinical Assessment</h3>
                     </div>
                 </div>
-                <div class="p-8 space-y-8">                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div id="clinical-assessment-content" class="p-8 space-y-8 section-collapse" style="max-height: 1000px;">                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div>
                             <label for="chief_complaint" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                 <i class="fas fa-comment-medical mr-2 text-red-500"></i>Chief Complaint
                             </label>
                             <textarea name="chief_complaint" id="chief_complaint" rows="4" 
                                 placeholder="Patient's primary concern or reason for visit..." 
+                                onchange="updateFormProgress()"
                                 class="w-full border-2 @error('chief_complaint') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-4 resize-none transition-all duration-200">{{ old('chief_complaint') }}</textarea>
                             @error('chief_complaint')
                                 <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
@@ -405,6 +657,7 @@
                         </label>
                         <textarea name="physical_examination" id="physical_examination" rows="5" 
                             placeholder="Detailed findings from physical examination..." 
+                            onchange="updateFormProgress()"
                             class="w-full border-2 @error('physical_examination') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-4 resize-none transition-all duration-200">{{ old('physical_examination') }}</textarea>
                         @error('physical_examination')
                             <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
@@ -462,20 +715,26 @@
             </div>            <!-- Enhanced Diagnosis and Treatment -->
             <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl border border-gray-100 dark:border-gray-700 form-section-transition">
                 <div class="px-8 py-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-gray-700 dark:to-gray-600 rounded-t-2xl">
-                    <div class="flex items-center space-x-3">
-                        <div class="bg-purple-500 p-2 rounded-lg">
-                            <i class="fas fa-diagnoses text-white"></i>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-purple-500 p-2 rounded-lg">
+                                <i class="fas fa-diagnoses text-white"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Diagnosis & Treatment</h3>
+                            <button type="button" onclick="toggleSection('diagnosis-treatment')" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                <i id="diagnosis-treatment-toggle" class="fas fa-chevron-up"></i>
+                            </button>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Diagnosis & Treatment</h3>
                     </div>
                 </div>
-                <div class="p-8 space-y-8">                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div id="diagnosis-treatment-content" class="p-8 space-y-8 section-collapse" style="max-height: 1000px;">                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div>
                             <label for="assessment_diagnosis" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                 <i class="fas fa-microscope mr-2 text-purple-500"></i>Assessment & Diagnosis
                             </label>
                             <textarea name="assessment_diagnosis" id="assessment_diagnosis" rows="5" 
                                 placeholder="Clinical diagnosis and assessment..." 
+                                onchange="updateFormProgress()"
                                 class="w-full border-2 @error('assessment_diagnosis') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-4 resize-none transition-all duration-200">{{ old('assessment_diagnosis') }}</textarea>
                             @error('assessment_diagnosis')
                                 <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
@@ -491,6 +750,7 @@
                             </label>
                             <textarea name="treatment_plan" id="treatment_plan" rows="5" 
                                 placeholder="Recommended treatment and care plan..." 
+                                onchange="updateFormProgress()"
                                 class="w-full border-2 @error('treatment_plan') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-xl shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white p-4 resize-none transition-all duration-200">{{ old('treatment_plan') }}</textarea>
                             @error('treatment_plan')
                                 <div class="mt-2 flex items-center text-red-600 dark:text-red-400 text-sm">
@@ -571,14 +831,19 @@
             <!-- Enhanced Follow-up and Notes -->
             <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl border border-gray-100 dark:border-gray-700 form-section-transition">
                 <div class="px-8 py-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-teal-50 to-green-50 dark:from-gray-700 dark:to-gray-600 rounded-t-2xl">
-                    <div class="flex items-center space-x-3">
-                        <div class="bg-teal-500 p-2 rounded-lg">
-                            <i class="fas fa-calendar-check text-white"></i>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-teal-500 p-2 rounded-lg">
+                                <i class="fas fa-calendar-check text-white"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Follow-up & Additional Notes</h3>
+                            <button type="button" onclick="toggleSection('follow-up-notes')" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                <i id="follow-up-notes-toggle" class="fas fa-chevron-up"></i>
+                            </button>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Follow-up & Additional Notes</h3>
                     </div>
                 </div>
-                <div class="p-8 space-y-8">                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div id="follow-up-notes-content" class="p-8 space-y-8 section-collapse" style="max-height: 1000px;">                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div>
                             <label for="follow_up_instructions" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                 <i class="fas fa-calendar-alt mr-2 text-teal-500"></i>Follow-up Instructions
@@ -683,80 +948,54 @@
                     </div>
                 </div>
             </div>
-        </form>        <!-- Enhanced Quick Insert Templates -->
-        <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl border border-gray-100 dark:border-gray-700 form-section-transition">
-            <div class="px-8 py-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-cyan-50 to-teal-50 dark:from-gray-700 dark:to-gray-600 rounded-t-2xl">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-cyan-500 p-2 rounded-lg">
-                        <i class="fas fa-magic text-white"></i>
+        </form>
+
+        <!-- Quick Tips Modal -->
+        <div id="quick-tips-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl max-w-2xl max-h-96 overflow-y-auto p-6 shadow-2xl">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                        <i class="fas fa-lightbulb mr-2 text-yellow-500"></i>Quick Tips
+                    </h3>
+                    <button onclick="closeQuickTips()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="space-y-3 text-sm text-gray-700 dark:text-gray-300">
+                    <div class="flex items-start space-x-2">
+                        <i class="fas fa-keyboard text-blue-500 mt-1"></i>
+                        <span><strong>Keyboard Shortcuts:</strong> Ctrl+S to save, Tab to navigate fields</span>
                     </div>
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Quick Insert Templates</h3>
-                    <span class="bg-cyan-100 dark:bg-cyan-800 text-cyan-800 dark:text-cyan-200 px-3 py-1 rounded-full text-xs font-medium">
-                        Time Saver
-                    </span>
+                    <div class="flex items-start space-x-2">
+                        <i class="fas fa-magic text-green-500 mt-1"></i>
+                        <span><strong>Quick Presets:</strong> Use preset buttons for common scenarios</span>
+                    </div>
+                    <div class="flex items-start space-x-2">
+                        <i class="fas fa-microphone text-purple-500 mt-1"></i>
+                        <span><strong>Voice Input:</strong> Click voice button for hands-free input</span>
+                    </div>
+                    <div class="flex items-start space-x-2">
+                        <i class="fas fa-calculator text-orange-500 mt-1"></i>
+                        <span><strong>Auto-calculations:</strong> BMI and vital ranges are calculated automatically</span>
+                    </div>
                 </div>
             </div>
-            <div class="p-8">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <button type="button" class="group text-left p-6 border-2 border-green-200 dark:border-green-700 rounded-xl hover:bg-green-50 dark:hover:bg-green-900/20 hover:border-green-300 dark:hover:border-green-600 transition-all duration-200 transform hover:-translate-y-1 hover:shadow-lg" onclick="insertTemplate('normal_vitals')">
-                        <div class="flex items-center space-x-3 mb-3">
-                            <div class="bg-green-500 p-2 rounded-lg group-hover:bg-green-600 transition-colors">
-                                <i class="fas fa-heartbeat text-white"></i>
-                            </div>
-                            <div class="font-semibold text-gray-900 dark:text-white">Normal Vitals</div>
-                        </div>
-                        <div class="text-sm text-gray-600 dark:text-gray-400">Insert standard vital signs values</div>
-                    </button>
-                    
-                    <button type="button" class="group text-left p-6 border-2 border-blue-200 dark:border-blue-700 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 transform hover:-translate-y-1 hover:shadow-lg" onclick="insertTemplate('routine_checkup')">
-                        <div class="flex items-center space-x-3 mb-3">
-                            <div class="bg-blue-500 p-2 rounded-lg group-hover:bg-blue-600 transition-colors">
-                                <i class="fas fa-clipboard-check text-white"></i>
-                            </div>
-                            <div class="font-semibold text-gray-900 dark:text-white">Routine Checkup</div>
-                        </div>
-                        <div class="text-sm text-gray-600 dark:text-gray-400">Standard checkup template with common findings</div>
-                    </button>
-                    
-                    <button type="button" class="group text-left p-6 border-2 border-purple-200 dark:border-purple-700 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-200 transform hover:-translate-y-1 hover:shadow-lg" onclick="insertTemplate('follow_up')">
-                        <div class="flex items-center space-x-3 mb-3">
-                            <div class="bg-purple-500 p-2 rounded-lg group-hover:bg-purple-600 transition-colors">
-                                <i class="fas fa-calendar-check text-white"></i>
-                            </div>
-                            <div class="font-semibold text-gray-900 dark:text-white">Follow-up Visit</div>
-                        </div>
-                        <div class="text-sm text-gray-600 dark:text-gray-400">Follow-up consultation template</div>
-                    </button>
-                    
-                    <button type="button" class="group text-left p-6 border-2 border-red-200 dark:border-red-700 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-300 dark:hover:border-red-600 transition-all duration-200 transform hover:-translate-y-1 hover:shadow-lg" onclick="insertTemplate('emergency')">
-                        <div class="flex items-center space-x-3 mb-3">
-                            <div class="bg-red-500 p-2 rounded-lg group-hover:bg-red-600 transition-colors">
-                                <i class="fas fa-ambulance text-white"></i>
-                            </div>
-                            <div class="font-semibold text-gray-900 dark:text-white">Emergency Visit</div>
-                        </div>
-                        <div class="text-sm text-gray-600 dark:text-gray-400">Emergency consultation template</div>
-                    </button>
-                    
-                    <button type="button" class="group text-left p-6 border-2 border-yellow-200 dark:border-yellow-700 rounded-xl hover:bg-yellow-50 dark:hover:bg-yellow-900/20 hover:border-yellow-300 dark:hover:border-yellow-600 transition-all duration-200 transform hover:-translate-y-1 hover:shadow-lg" onclick="insertTemplate('physical_exam')">
-                        <div class="flex items-center space-x-3 mb-3">
-                            <div class="bg-yellow-500 p-2 rounded-lg group-hover:bg-yellow-600 transition-colors">
-                                <i class="fas fa-search text-white"></i>
-                            </div>
-                            <div class="font-semibold text-gray-900 dark:text-white">Normal Physical Exam</div>
-                        </div>
-                        <div class="text-sm text-gray-600 dark:text-gray-400">Standard physical examination findings</div>
-                    </button>
-                    
-                    <button type="button" class="group text-left p-6 border-2 border-indigo-200 dark:border-indigo-700 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:border-indigo-300 dark:hover:border-indigo-600 transition-all duration-200 transform hover:-translate-y-1 hover:shadow-lg" onclick="clearAllFields()">
-                        <div class="flex items-center space-x-3 mb-3">
-                            <div class="bg-indigo-500 p-2 rounded-lg group-hover:bg-indigo-600 transition-colors">
-                                <i class="fas fa-eraser text-white"></i>
-                            </div>
-                            <div class="font-semibold text-gray-900 dark:text-white">Clear All Fields</div>
-                        </div>
-                        <div class="text-sm text-gray-600 dark:text-gray-400">Reset the form to start fresh</div>
-                    </button>
+        </div>
+
+        <!-- Voice Input Modal -->
+        <div id="voice-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full p-6 shadow-2xl">
+                <div class="text-center">
+                    <div class="speech-indicator mb-4">
+                        <i class="fas fa-microphone text-6xl text-red-500"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Voice Input Active</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">Speak your input clearly...</p>
+                    <div class="flex justify-center space-x-4">
+                        <button onclick="stopVoiceInput()" class="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 dark:from-red-600 dark:to-pink-700 dark:hover:from-red-700 dark:hover:to-pink-800 text-white px-4 py-2 rounded-lg transition-all duration-200 border border-red-400 dark:border-red-500 hover:border-red-500 dark:hover:border-red-600 shadow-md hover:shadow-lg">
+                            <i class="fas fa-stop mr-2"></i>Stop
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -808,15 +1047,6 @@
                         <p class="text-gray-600 dark:text-gray-400 text-sm">Ctrl+S to save as draft, Ctrl+Enter to complete report, Ctrl+P to preview.</p>
                     </div>
                 </div>
-                <div class="flex items-start space-x-3">
-                    <div class="bg-yellow-100 dark:bg-yellow-800 p-2 rounded-lg">
-                        <i class="fas fa-save text-yellow-600 dark:text-yellow-300"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900 dark:text-white">Auto-Save</h4>
-                        <p class="text-gray-600 dark:text-gray-400 text-sm">Your progress is automatically saved every 30 seconds to prevent data loss.</p>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -827,11 +1057,9 @@
 // Enhanced Patient Search and Form Management
 let searchTimeout;
 let selectedPatient = null;
-let autoSaveInterval;
 
 document.addEventListener('DOMContentLoaded', function() {
     initializePatientSearch();
-    setupAutoSave();
     setupKeyboardShortcuts();
     setupFormErrorHandling();
 });
@@ -1104,24 +1332,6 @@ function clearAllFields() {
     }
 }
 
-// Auto-save functionality
-function setupAutoSave() {
-    autoSaveInterval = setInterval(() => {
-        autoSaveForm();
-    }, 30000); // Auto-save every 30 seconds
-}
-
-function autoSaveForm() {
-    const formData = new FormData(document.querySelector('form'));
-    const data = Object.fromEntries(formData.entries());
-    
-    // Store in localStorage
-    localStorage.setItem('medicalReportDraft', JSON.stringify(data));
-    
-    // Show subtle notification
-    showNotification('Draft auto-saved', 'info', 2000);
-}
-
 // Keyboard shortcuts
 function setupKeyboardShortcuts() {
     document.addEventListener('keydown', function(e) {
@@ -1192,7 +1402,7 @@ function showNotification(message, type = 'info', duration = 3000) {
     }, duration);
 }
 
-// Load saved draft on page load
+// Load page functionality
 window.addEventListener('load', function() {
     // Pre-select patient if provided via URL parameter
     @if($selectedPatient)
@@ -1200,22 +1410,6 @@ window.addEventListener('load', function() {
         selectPatient(preSelectedPatient);
         showNotification('Patient pre-selected from appointment', 'success');
     @endif
-    
-    const savedDraft = localStorage.getItem('medicalReportDraft');
-    if (savedDraft) {
-        try {
-            const data = JSON.parse(savedDraft);
-            Object.keys(data).forEach(key => {
-                const field = document.querySelector(`[name="${key}"]`);
-                if (field && data[key]) {
-                    field.value = data[key];
-                }
-            });
-            // showNotification('Draft loaded from auto-save', 'info');
-        } catch (e) {
-            console.error('Error loading draft:', e);
-        }
-    }
     
     // Initialize prescription and lab test management
     initializePrescriptionManagement();
@@ -1468,6 +1662,7 @@ document.addEventListener('input', function(e) {
     if (e.target.name && e.target.name.includes('lab_tests[')) {
         updateLabTestSummary();
     }
+    updateFormProgress();
 });
 
 document.addEventListener('change', function(e) {
@@ -1477,6 +1672,415 @@ document.addEventListener('change', function(e) {
     if (e.target.name && e.target.name.includes('lab_tests[')) {
         updateLabTestSummary();
     }
+    updateFormProgress();
+});
+
+// Enhanced Form Functions
+function updateFormProgress() {
+    const requiredFields = [
+        'patient_id', 'title', 'consultation_date', 'report_type',
+        'vital_signs[blood_pressure]', 'vital_signs[temperature]', 
+        'vital_signs[heart_rate]', 'vital_signs[weight]'
+    ];
+    
+    let completed = 0;
+    requiredFields.forEach(field => {
+        const element = document.querySelector(`[name="${field}"]`);
+        if (element && element.value.trim() !== '') {
+            completed++;
+        }
+    });
+    
+    const percentage = Math.round((completed / requiredFields.length) * 100);
+    const progressPercentage = document.getElementById('progress-percentage');
+    const progressBar = document.getElementById('progress-bar');
+    
+    if (progressPercentage) {
+        progressPercentage.textContent = percentage + '%';
+    }
+    
+    if (progressBar) {
+        progressBar.style.width = percentage + '%';
+    }
+    
+    // Update section status
+    updateSectionStatus('patient', ['patient_id', 'title', 'consultation_date', 'report_type']);
+    updateSectionStatus('vitals', [
+        'vital_signs[blood_pressure]', 'vital_signs[temperature]', 
+        'vital_signs[heart_rate]', 'vital_signs[weight]',
+        'vital_signs[respiratory_rate]', 'vital_signs[oxygen_saturation]', 
+        'vital_signs[height]'
+    ]);
+    updateSectionStatus('assessment', ['chief_complaint', 'physical_examination']);
+    updateSectionStatus('diagnosis', ['assessment_diagnosis', 'treatment_plan']);
+    
+    // Update vitals completion specifically
+    updateVitalsCompletion();
+}
+
+function updateVitalsCompletion() {
+    const vitalFields = [
+        'vital_signs[blood_pressure]', 'vital_signs[temperature]', 
+        'vital_signs[heart_rate]', 'vital_signs[weight]',
+        'vital_signs[respiratory_rate]', 'vital_signs[oxygen_saturation]', 
+        'vital_signs[height]'
+    ];
+    
+    let completed = 0;
+    vitalFields.forEach(field => {
+        const element = document.querySelector(`[name="${field}"]`);
+        if (element && element.value.trim() !== '') {
+            completed++;
+        }
+    });
+    
+    const vitalsCompletion = document.getElementById('vitals-completion');
+    const vitalsProgress = document.getElementById('vitals-progress');
+    
+    if (vitalsCompletion) {
+        vitalsCompletion.textContent = `${completed}/${vitalFields.length} Complete`;
+    }
+    
+    if (vitalsProgress) {
+        const percentage = Math.round((completed / vitalFields.length) * 100);
+        vitalsProgress.style.width = percentage + '%';
+    }
+}
+
+function updateSectionStatus(section, fields) {
+    let completed = 0;
+    fields.forEach(field => {
+        const element = document.querySelector(`[name="${field}"]`);
+        if (element && element.value.trim() !== '') {
+            completed++;
+        }
+    });
+    
+    const statusElement = document.getElementById(`${section}-status`);
+    if (statusElement) {
+        statusElement.className = 'field-status ';
+        if (completed === fields.length) {
+            statusElement.className += 'field-complete';
+        } else if (completed > 0) {
+            statusElement.className += 'field-partial';
+        } else {
+            statusElement.className += 'field-empty';
+        }
+    }
+}
+
+// Quick Actions
+function applyPreset(presetType) {
+    switch(presetType) {
+        case 'routine-checkup':
+            document.querySelector('[name="title"]').value = 'Routine Health Check-up';
+            document.querySelector('[name="report_type"]').value = 'Consultation';
+            document.querySelector('[name="chief_complaint"]').value = 'Routine health examination and wellness check';
+            fillNormalVitals();
+            break;
+        case 'follow-up':
+            document.querySelector('[name="title"]').value = 'Follow-up Visit';
+            document.querySelector('[name="report_type"]').value = 'Follow-up';
+            document.querySelector('[name="chief_complaint"]').value = 'Follow-up visit for ongoing condition';
+            break;
+        case 'emergency':
+            document.querySelector('[name="title"]').value = 'Emergency Consultation';
+            document.querySelector('[name="report_type"]').value = 'Emergency';
+            document.querySelector('[name="chief_complaint"]').value = 'Urgent medical condition requiring immediate attention';
+            break;
+    }
+    updateFormProgress();
+    showNotification(`${presetType.replace('-', ' ')} preset applied`, 'success');
+}
+
+function fillNormalVitals() {
+    document.querySelector('[name="vital_signs[blood_pressure]"]').value = '120/80';
+    document.querySelector('[name="vital_signs[temperature]"]').value = '98.6';
+    document.querySelector('[name="vital_signs[heart_rate]"]').value = '72';
+    document.querySelector('[name="vital_signs[respiratory_rate]"]').value = '16';
+    document.querySelector('[name="vital_signs[oxygen_saturation]"]').value = '98';
+    document.querySelector('[name="vital_signs[height]"]').value = '170 cm';
+    document.querySelector('[name="vital_signs[weight]"]').value = '70 kg';
+    updateFormProgress();
+    calculateBMI();
+    showNotification('Normal vital signs filled', 'success');
+}
+
+function fillPediatricVitals() {
+    document.querySelector('[name="vital_signs[blood_pressure]"]').value = '100/60';
+    document.querySelector('[name="vital_signs[temperature]"]').value = '98.2';
+    document.querySelector('[name="vital_signs[heart_rate]"]').value = '100';
+    document.querySelector('[name="vital_signs[respiratory_rate]"]').value = '24';
+    document.querySelector('[name="vital_signs[oxygen_saturation]"]').value = '99';
+    document.querySelector('[name="vital_signs[height]"]').value = '140 cm';
+    document.querySelector('[name="vital_signs[weight]"]').value = '40 kg';
+    updateFormProgress();
+    calculateBMI();
+    showNotification('Pediatric vital signs filled', 'success');
+}
+
+function fillGeriatricVitals() {
+    document.querySelector('[name="vital_signs[blood_pressure]"]').value = '130/80';
+    document.querySelector('[name="vital_signs[temperature]"]').value = '98.0';
+    document.querySelector('[name="vital_signs[heart_rate]"]').value = '65';
+    document.querySelector('[name="vital_signs[respiratory_rate]"]').value = '14';
+    document.querySelector('[name="vital_signs[oxygen_saturation]"]').value = '97';
+    document.querySelector('[name="vital_signs[height]"]').value = '165 cm';
+    document.querySelector('[name="vital_signs[weight]"]').value = '75 kg';
+    updateFormProgress();
+    calculateBMI();
+    showNotification('Geriatric vital signs filled', 'success');
+}
+
+// Vital Signs Validation and Helpers
+function validateVitalRange(input, type) {
+    const value = input.value.trim();
+    const statusElement = document.getElementById(`${type}-status`);
+    
+    if (!value) {
+        statusElement.textContent = '';
+        return;
+    }
+    
+    let message = '';
+    let isNormal = true;
+    
+    switch(type) {
+        case 'bp':
+            const bpMatch = value.match(/(\d+)\/(\d+)/);
+            if (bpMatch) {
+                const systolic = parseInt(bpMatch[1]);
+                const diastolic = parseInt(bpMatch[2]);
+                if (systolic < 90 || systolic > 140 || diastolic < 60 || diastolic > 90) {
+                    message = 'Outside normal range (90-140/60-90)';
+                    isNormal = false;
+                } else {
+                    message = 'Normal range';
+                }
+            }
+            break;
+        case 'temp':
+            const temp = parseFloat(value);
+            if (temp < 97 || temp > 99.5) {
+                message = 'Outside normal range (97-99.5°F)';
+                isNormal = false;
+            } else {
+                message = 'Normal range';
+            }
+            break;
+        case 'hr':
+            const hr = parseInt(value);
+            if (hr < 60 || hr > 100) {
+                message = 'Outside normal range (60-100 bpm)';
+                isNormal = false;
+            } else {
+                message = 'Normal range';
+            }
+            break;
+        case 'rr':
+            const rr = parseInt(value);
+            if (rr < 12 || rr > 20) {
+                message = 'Outside normal range (12-20/min)';
+                isNormal = false;
+            } else {
+                message = 'Normal range';
+            }
+            break;
+        case 'spo2':
+            const spo2 = parseInt(value);
+            if (spo2 < 95) {
+                message = 'Below normal (95-100%)';
+                isNormal = false;
+            } else {
+                message = 'Normal range';
+            }
+            break;
+    }
+    
+    statusElement.textContent = message;
+    statusElement.className = isNormal ? 'mt-2 text-xs text-green-600 dark:text-green-400' : 'mt-2 text-xs text-red-600 dark:text-red-400';
+}
+
+function calculateBMI() {
+    const weightInput = document.querySelector('[name="vital_signs[weight]"]');
+    const heightInput = document.querySelector('[name="vital_signs[height]"]');
+    
+    if (!weightInput.value || !heightInput.value) return;
+    
+    const weight = parseFloat(weightInput.value);
+    const height = parseFloat(heightInput.value);
+    
+    if (weight > 0 && height > 0) {
+        const heightM = height / 100; // Convert cm to meters
+        const bmi = weight / (heightM * heightM);
+        
+        document.getElementById('bmi-value').textContent = bmi.toFixed(1);
+        
+        let category = '';
+        if (bmi < 18.5) category = 'Underweight';
+        else if (bmi < 25) category = 'Normal';
+        else if (bmi < 30) category = 'Overweight';
+        else category = 'Obese';
+        
+        document.getElementById('bmi-category').textContent = category;
+    }
+}
+
+// Section Toggle
+function toggleSection(sectionId) {
+    const content = document.getElementById(`${sectionId}-content`);
+    const toggle = document.getElementById(`${sectionId}-toggle`);
+    
+    if (content.style.maxHeight === '0px' || content.style.maxHeight === '') {
+        content.style.maxHeight = '1000px';
+        toggle.className = 'fas fa-chevron-up';
+    } else {
+        content.style.maxHeight = '0px';
+        toggle.className = 'fas fa-chevron-down';
+    }
+}
+
+function toggleAllSections() {
+    const sections = ['patient-info', 'vital-signs', 'clinical-assessment', 'diagnosis-treatment', 'follow-up-notes'];
+    sections.forEach(section => {
+        const content = document.getElementById(`${section}-content`);
+        if (content) {
+            content.style.maxHeight = '1000px';
+            const toggle = document.getElementById(`${section}-toggle`);
+            if (toggle) toggle.className = 'fas fa-chevron-up';
+        }
+    });
+}
+
+// Voice Input
+let recognition;
+let currentVoiceField;
+
+function toggleVoiceInput() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        showNotification('Speech recognition not supported in this browser', 'error');
+        return;
+    }
+    
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+    
+    document.getElementById('voice-modal').classList.remove('hidden');
+    
+    recognition.onresult = function(event) {
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            if (event.results[i].isFinal) {
+                finalTranscript += event.results[i][0].transcript;
+            }
+        }
+        
+        if (finalTranscript && currentVoiceField) {
+            currentVoiceField.value += finalTranscript + ' ';
+        }
+    };
+    
+    recognition.start();
+}
+
+function stopVoiceInput() {
+    if (recognition) {
+        recognition.stop();
+    }
+    document.getElementById('voice-modal').classList.add('hidden');
+}
+
+// Quick Tips
+function showQuickTips() {
+    document.getElementById('quick-tips-modal').classList.remove('hidden');
+}
+
+function closeQuickTips() {
+    document.getElementById('quick-tips-modal').classList.add('hidden');
+}
+
+// Clear form
+function clearForm() {
+    if (confirm('Are you sure you want to clear all fields?')) {
+        document.getElementById('medical-report-form').reset();
+        updateFormProgress();
+        showNotification('Form cleared', 'info');
+    }
+}
+
+// Notification system
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full`;
+    
+    switch(type) {
+        case 'success':
+            notification.className += ' bg-green-500 text-white';
+            break;
+        case 'error':
+            notification.className += ' bg-red-500 text-white';
+            break;
+        case 'warning':
+            notification.className += ' bg-yellow-500 text-black';
+            break;
+        default:
+            notification.className += ' bg-blue-500 text-white';
+    }
+    
+    notification.innerHTML = `<i class="fas fa-info-circle mr-2"></i>${message}`;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+    }, 100);
+    
+    setTimeout(() => {
+        notification.classList.add('translate-x-full');
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl+S to save
+    if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        document.getElementById('medical-report-form').submit();
+    }
+    
+    // Alt+V for voice input
+    if (e.altKey && e.key === 'v') {
+        e.preventDefault();
+        currentVoiceField = document.activeElement;
+        toggleVoiceInput();
+    }
+    
+    // Alt+T for tips
+    if (e.altKey && e.key === 't') {
+        e.preventDefault();
+        showQuickTips();
+    }
+});
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners to all form fields for real-time progress tracking
+    const allInputs = document.querySelectorAll('input, select, textarea');
+    allInputs.forEach(input => {
+        if (input.name) {
+            input.addEventListener('input', updateFormProgress);
+            input.addEventListener('change', updateFormProgress);
+        }
+    });
+    
+    // Initial progress calculation
+    updateFormProgress();
 });
 </script>
 
