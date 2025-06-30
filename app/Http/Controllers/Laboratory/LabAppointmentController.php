@@ -94,17 +94,32 @@ class LabAppointmentController extends Controller
 
         $request->validate([
             'lab_instructions' => 'nullable|string|max:1000',
+            'final_cost' => 'nullable|numeric|min:0',
+            'requires_fasting' => 'boolean',
+            'fasting_hours' => 'nullable|integer|min:1|max:24',
         ]);
 
         try {
-            $labAppointment->update([
+            $updateData = [
                 'lab_instructions' => $request->lab_instructions,
-            ]);
+            ];
 
-            return back()->with('success', 'Instructions updated successfully.');
+            // Add cost and fasting fields if provided (for confirmed appointments)
+            if ($labAppointment->status === 'confirmed') {
+                if ($request->has('final_cost')) {
+                    $updateData['final_cost'] = $request->final_cost;
+                }
+                
+                $updateData['requires_fasting'] = $request->boolean('requires_fasting');
+                $updateData['fasting_hours'] = $request->requires_fasting ? $request->fasting_hours : null;
+            }
+
+            $labAppointment->update($updateData);
+
+            return back()->with('success', 'Appointment details updated successfully.');
 
         } catch (\Exception $e) {
-            return back()->with('error', 'Failed to update instructions: ' . $e->getMessage());
+            return back()->with('error', 'Failed to update appointment: ' . $e->getMessage());
         }
     }
 
@@ -210,12 +225,14 @@ class LabAppointmentController extends Controller
             abort(403);
         }
 
-        if (!$labAppointment->canBeCompleted()) {
-            return back()->with('error', 'This appointment cannot be completed.');
-        }
+        // if (!$labAppointment->canBeCompleted()) {
+        //     return back()->with('error', 'This appointment cannot be completed before confirmed appointment date.');
+        // }
 
         $request->validate([
             'results_file' => 'required|file|mimes:pdf|max:10240', // 10MB max
+            'test_results' => 'nullable|string|max:5000',
+            'result_notes' => 'nullable|string|max:2000',
         ]);
 
         try {
@@ -226,6 +243,9 @@ class LabAppointmentController extends Controller
                 'status' => 'completed',
                 'completed_at' => now(),
                 'results_file_path' => $resultsPath,
+                'test_results' => $request->test_results,
+                'result_notes' => $request->result_notes,
+                'result_uploaded_at' => now(),
             ]);
 
             // Update lab test request status to completed
@@ -233,6 +253,8 @@ class LabAppointmentController extends Controller
                 'status' => 'completed',
                 'completed_at' => now(),
                 'results_file_path' => $resultsPath,
+                'test_results' => $request->test_results,
+                'result_notes' => $request->result_notes,
             ]);
 
             return back()->with('success', 'Test results uploaded successfully. Patient will be notified.');

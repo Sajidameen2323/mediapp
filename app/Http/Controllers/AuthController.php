@@ -113,7 +113,7 @@ class AuthController extends Controller
             case 'patient':
                 return redirect()->route('patient.dashboard');
             case 'laboratory_staff':
-                return redirect()->route('lab.dashboard');
+                return redirect()->route('laboratory.dashboard');
             case 'pharmacist':
                 return redirect()->route('pharmacy.dashboard');
             default:
@@ -142,7 +142,7 @@ class AuthController extends Controller
             case 'patient':
                 return route('patient.dashboard');
             case 'laboratory_staff':
-                return route('lab.dashboard');
+                return route('laboratory.dashboard');
             case 'pharmacist':
                 return route('pharmacy.dashboard');
             default:

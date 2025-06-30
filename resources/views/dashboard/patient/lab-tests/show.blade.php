@@ -44,16 +44,16 @@
                     <p class="mt-2 text-gray-600 dark:text-gray-400">Lab test details and information</p>
                 </div>
                 <div class="mt-4 sm:mt-0 flex items-center space-x-3">
-                    <x-lab-test-status-badge :status="$labTest->status" class="text-base px-4 py-2" />
+                    <x-lab-test.status-badge :status="$labTest->status" class="text-base px-4 py-2" />
                     @if($labTest->priority && $labTest->priority !== 'normal')
-                        <x-lab-test-priority-badge :priority="$labTest->priority" class="text-base px-3 py-2" />
+                        <x-lab-test.priority-badge :priority="$labTest->priority" class="text-base px-3 py-2" />
                     @endif
                 </div>
             </div>
         </div>
 
         <!-- Lab Test Details -->
-        <x-lab-test-details :lab-test="$labTest" />
+        <x-lab-test.details :lab-test="$labTest" />
     </div>
 </div>
 @endsection

@@ -315,7 +315,15 @@ Route::middleware(['auth'])->group(function () {
     
     // Laboratory staff routes
     Route::middleware(['user.type:laboratory_staff'])->group(function () {
-        Route::get('/lab/dashboard', [DashboardController::class, 'labDashboard'])->name('lab.dashboard');
+        // Laboratory Dashboard
+        Route::get('/laboratory/dashboard', [\App\Http\Controllers\Laboratory\DashboardController::class, 'index'])->name('laboratory.dashboard');
+        
+        // Laboratory Settings
+        Route::prefix('laboratory/settings')->name('laboratory.settings.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Laboratory\SettingsController::class, 'index'])->name('index');
+            Route::patch('/', [\App\Http\Controllers\Laboratory\SettingsController::class, 'update'])->name('update');
+            Route::patch('/toggle-availability', [\App\Http\Controllers\Laboratory\SettingsController::class, 'toggleAvailability'])->name('toggle-availability');
+        });
         
         // Lab Appointment Management
         Route::prefix('laboratory/appointments')->name('laboratory.appointments.')->group(function () {
@@ -326,6 +334,11 @@ Route::middleware(['auth'])->group(function () {
             Route::patch('/{labAppointment}/reject', [\App\Http\Controllers\Laboratory\LabAppointmentController::class, 'reject'])->name('reject');
             Route::patch('/{labAppointment}/complete', [\App\Http\Controllers\Laboratory\LabAppointmentController::class, 'complete'])->name('complete');
             Route::get('/schedule', [\App\Http\Controllers\Laboratory\LabAppointmentController::class, 'schedule'])->name('schedule');
+        });
+
+        // Laboratory Test Results (placeholder for future implementation)
+        Route::prefix('laboratory/results')->name('laboratory.results.')->group(function () {
+            Route::get('/', function() { return view('dashboard.laboratory.results.index'); })->name('index');
         });
     });
     

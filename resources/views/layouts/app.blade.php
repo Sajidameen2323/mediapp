@@ -92,7 +92,7 @@
                             @break
 
                             @case('laboratory_staff')
-                                <a href="{{ route('lab.dashboard') }}"
+                                <a href="{{ route('laboratory.dashboard') }}"
                                     class="flex items-center text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 font-medium">
                                     <i class="fas fa-flask mr-2 text-purple-500"></i>Lab Panel
                                 </a>

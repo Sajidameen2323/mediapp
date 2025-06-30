@@ -38,6 +38,7 @@ class LabAppointment extends Model
         'special_instructions',
         'test_results',
         'result_notes',
+        'results_file_path',
         'result_uploaded_at',
     ];
 

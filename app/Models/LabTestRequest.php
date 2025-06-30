@@ -26,6 +26,8 @@ class LabTestRequest extends Model
         'completed_at',
         'test_results',
         'lab_notes',
+        'results_file_path',
+        'result_notes',
         'estimated_cost',
         'actual_cost',
     ];

@@ -38,6 +38,10 @@ class AuthServiceProvider extends ServiceProvider
             return $user && $user->user_type === 'laboratory_staff' && $user->is_active;
         });
 
+        Gate::define('laboratory-staff-access', function ($user) {
+            return $user && $user->user_type === 'laboratory_staff' && $user->is_active;
+        });
+
         Gate::define('pharmacy-access', function ($user) {
             return $user && $user->user_type === 'pharmacist' && $user->is_active;
         });

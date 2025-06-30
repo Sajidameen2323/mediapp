@@ -32,24 +32,24 @@
         </div>
 
         <!-- Filters -->
-        <x-lab-test-filters :current-status="request('status')" />
+        <x-lab-test.filters :current-status="request('status')" />
 
         @if($labTests->isEmpty())
             <!-- Empty State -->
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
                 @if(request('status'))
-                    <x-lab-test-empty-state 
+                    <x-lab-test.empty-state 
                         :title="'No ' . str_replace('_', ' ', request('status')) . ' tests found'"
                         :description="'There are no ' . str_replace('_', ' ', request('status')) . ' lab tests at the moment.'" />
                 @else
-                    <x-lab-test-empty-state />
+                    <x-lab-test.empty-state />
                 @endif
             </div>
         @else
             <!-- Lab Tests Grid -->
             <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach($labTests as $labTest)
-                    <x-lab-test-card :lab-test="$labTest" />
+                    <x-lab-test.card :lab-test="$labTest" />
                 @endforeach
             </div>
 

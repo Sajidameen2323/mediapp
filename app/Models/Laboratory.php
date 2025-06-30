@@ -37,7 +37,6 @@ class Laboratory extends Model
 
     protected $casts = [
         'working_days' => 'array',
-        'services_offered' => 'array',
         'consultation_fee' => 'decimal:2',
         'home_service_fee' => 'decimal:2',
         'home_service_available' => 'boolean',

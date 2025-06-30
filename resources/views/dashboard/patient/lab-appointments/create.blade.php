@@ -71,7 +71,7 @@
                         </div>
                         
                         <div>
-                            <x-lab-test-priority-badge :priority="$labTestRequest->priority" class="mb-3" />
+                            <x-lab-test.priority-badge :priority="$labTestRequest->priority" class="mb-3" />
                             
                             @if($labTestRequest->clinical_notes)
                                 <div>

@@ -20,9 +20,9 @@
                 </div>
             </div>
             <div class="flex flex-col items-end space-y-2">
-                <x-lab-test-status-badge :status="$labTest->status" />
+                <x-lab-test.status-badge :status="$labTest->status" />
                 @if($labTest->priority && $labTest->priority !== 'normal')
-                    <x-lab-test-priority-badge :priority="$labTest->priority" />
+                    <x-lab-test.priority-badge :priority="$labTest->priority" />
                 @endif
             </div>
         </div>

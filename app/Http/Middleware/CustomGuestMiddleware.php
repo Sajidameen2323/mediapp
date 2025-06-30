@@ -29,7 +29,7 @@ class CustomGuestMiddleware
                 case 'patient':
                     return redirect()->route('patient.dashboard');
                 case 'laboratory_staff':
-                    return redirect()->route('lab.dashboard');
+                    return redirect()->route('laboratory.dashboard');
                 case 'pharmacist':
                     return redirect()->route('pharmacy.dashboard');
                 default:
