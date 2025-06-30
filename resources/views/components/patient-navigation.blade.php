@@ -68,6 +68,15 @@
                     Lab Tests
                 </a>
 
+                <a href="{{ route('patient.lab-appointments.index') }}" 
+                   class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200
+                           {{ request()->routeIs('patient.lab-appointments.*') 
+                               ? 'border-orange-500 text-orange-600 dark:text-orange-400' 
+                               : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600' }}">
+                    <i class="fas fa-flask mr-2"></i>
+                    Lab Appointments
+                </a>
+
                 <a href="{{ route('patient.health-profile.index') }}" 
                    class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200
                            {{ request()->routeIs('patient.health-profile.*') 
@@ -102,6 +111,11 @@
                                     Create Health Profile
                                 </a>
                             @endif
+                            <a href="{{ route('patient.lab-appointments.create') }}" 
+                               class="group flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <i class="fas fa-flask mr-3 text-orange-500"></i>
+                                Book Lab Test
+                            </a>
                             <a href="{{ route('patient.appointments.search-doctors') }}" 
                                class="group flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                                 <i class="fas fa-search mr-3 text-purple-500"></i>
@@ -175,6 +189,15 @@
                 Lab Tests
             </a>
 
+            <a href="{{ route('patient.lab-appointments.index') }}" 
+               class="block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200
+                       {{ request()->routeIs('patient.lab-appointments.*') 
+                           ? 'bg-orange-50 dark:bg-orange-900 text-orange-700 dark:text-orange-200' 
+                           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white' }}">
+                <i class="fas fa-flask mr-2"></i>
+                Lab Appointments
+            </a>
+
             <a href="{{ route('patient.health-profile.index') }}" 
                class="block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200
                        {{ request()->routeIs('patient.health-profile.*') 
@@ -202,6 +225,9 @@
         'patient.prescriptions.show': { name: 'Prescription Details', icon: 'fas fa-prescription', parent: 'patient.prescriptions.index' },
         'patient.lab-tests.index': { name: 'Lab Tests', icon: 'fas fa-vial' },
         'patient.lab-tests.show': { name: 'Test Results', icon: 'fas fa-chart-line', parent: 'patient.lab-tests.index' },
+        'patient.lab-appointments.index': { name: 'Lab Appointments', icon: 'fas fa-flask' },
+        'patient.lab-appointments.create': { name: 'Book Lab Appointment', icon: 'fas fa-plus-circle', parent: 'patient.lab-appointments.index' },
+        'patient.lab-appointments.show': { name: 'Appointment Details', icon: 'fas fa-info-circle', parent: 'patient.lab-appointments.index' },
         'patient.health-profile.index': { name: 'Health Profile', icon: 'fas fa-user-injured' },
         'patient.health-profile.create': { name: 'Create Profile', icon: 'fas fa-user-plus', parent: 'patient.health-profile.index' },
         'patient.health-profile.edit': { name: 'Edit Profile', icon: 'fas fa-user-edit', parent: 'patient.health-profile.index' }
@@ -268,6 +294,7 @@
             'patient.medical-reports.index': '{{ route("patient.medical-reports.index") }}',
             'patient.prescriptions.index': '{{ route("patient.prescriptions.index") }}',
             'patient.lab-tests.index': '{{ route("patient.lab-tests.index") }}',
+            'patient.lab-appointments.index': '{{ route("patient.lab-appointments.index") }}',
             'patient.health-profile.index': '{{ route("patient.health-profile.index") }}'
         };
         

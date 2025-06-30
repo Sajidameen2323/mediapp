@@ -327,7 +327,11 @@
                                             Prescription #{{ $prescription->id }}
                                         </p>
                                         <p class="text-xs text-gray-500 dark:text-gray-400">
-                                            Dr. {{ $prescription->medicalReport->doctor->name }} • {{ $prescription->created_at->format('M d, Y') }}
+                                            @if($prescription->medicalReport && $prescription->medicalReport->doctor)
+                                                {{ $prescription->medicalReport->doctor->user->name }} • {{ $prescription->created_at->format('M d, Y') }}
+                                            @else
+                                                {{ $prescription->created_at->format('M d, Y') }}
+                                            @endif
                                         </p>
                                     </div>
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $prescription->status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200' }}">
@@ -373,7 +377,11 @@
                                             {{ $labTest->test_name }}
                                         </p>
                                         <p class="text-xs text-gray-500 dark:text-gray-400">
-                                            Dr. {{ $labTest->medicalReport->doctor->name }} • {{ $labTest->created_at->format('M d, Y') }}
+                                            @if($labTest->medicalReport && $labTest->medicalReport->doctor)
+                                                {{ $labTest->medicalReport->doctor->user->name }} • {{ $labTest->created_at->format('M d, Y') }}
+                                            @else
+                                                {{ $labTest->created_at->format('M d, Y') }}
+                                            @endif
                                         </p>
                                     </div>
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 

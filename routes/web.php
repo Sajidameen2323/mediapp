@@ -286,6 +286,16 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/{labTest}', [\App\Http\Controllers\Patient\LabTestController::class, 'show'])->name('show');
         });
         
+        // Lab Appointment Management  
+        Route::prefix('patient/lab-appointments')->name('patient.lab-appointments.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Patient\LabAppointmentController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\Patient\LabAppointmentController::class, 'create'])->name('create');
+            Route::get('/available-slots', [\App\Http\Controllers\Patient\LabAppointmentController::class, 'getAvailableSlots'])->name('available-slots');
+            Route::post('/', [\App\Http\Controllers\Patient\LabAppointmentController::class, 'store'])->name('store');
+            Route::get('/{labAppointment}', [\App\Http\Controllers\Patient\LabAppointmentController::class, 'show'])->name('show');
+            Route::patch('/{labAppointment}/cancel', [\App\Http\Controllers\Patient\LabAppointmentController::class, 'cancel'])->name('cancel');
+        });
+        
         // Medical Reports (Patient View)
         Route::prefix('patient/medical-reports')->name('patient.medical-reports.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Patient\MedicalReportController::class, 'index'])->name('index');
@@ -306,6 +316,17 @@ Route::middleware(['auth'])->group(function () {
     // Laboratory staff routes
     Route::middleware(['user.type:laboratory_staff'])->group(function () {
         Route::get('/lab/dashboard', [DashboardController::class, 'labDashboard'])->name('lab.dashboard');
+        
+        // Lab Appointment Management
+        Route::prefix('laboratory/appointments')->name('laboratory.appointments.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Laboratory\LabAppointmentController::class, 'index'])->name('index');
+            Route::get('/{labAppointment}', [\App\Http\Controllers\Laboratory\LabAppointmentController::class, 'show'])->name('show');
+            Route::patch('/{labAppointment}', [\App\Http\Controllers\Laboratory\LabAppointmentController::class, 'update'])->name('update');
+            Route::patch('/{labAppointment}/confirm', [\App\Http\Controllers\Laboratory\LabAppointmentController::class, 'confirm'])->name('confirm');
+            Route::patch('/{labAppointment}/reject', [\App\Http\Controllers\Laboratory\LabAppointmentController::class, 'reject'])->name('reject');
+            Route::patch('/{labAppointment}/complete', [\App\Http\Controllers\Laboratory\LabAppointmentController::class, 'complete'])->name('complete');
+            Route::get('/schedule', [\App\Http\Controllers\Laboratory\LabAppointmentController::class, 'schedule'])->name('schedule');
+        });
     });
     
     // Pharmacy routes

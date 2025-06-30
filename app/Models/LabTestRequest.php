@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class LabTestRequest extends Model
 {
@@ -69,6 +70,33 @@ class LabTestRequest extends Model
     public function laboratory(): BelongsTo
     {
         return $this->belongsTo(Laboratory::class);
+    }
+
+    /**
+     * Get the lab appointments for this test request.
+     */
+    public function labAppointments(): HasMany
+    {
+        return $this->hasMany(LabAppointment::class);
+    }
+
+    /**
+     * Get the latest lab appointment.
+     */
+    public function latestAppointment(): BelongsTo
+    {
+        return $this->belongsTo(LabAppointment::class, 'id', 'lab_test_request_id')
+                    ->latestOfMany();
+    }
+
+    /**
+     * Check if test has a confirmed appointment.
+     */
+    public function hasConfirmedAppointment(): bool
+    {
+        return $this->labAppointments()
+                    ->where('status', 'confirmed')
+                    ->exists();
     }
 
     /**

@@ -22,7 +22,7 @@
             <h3 class="text-lg font-medium text-gray-900 dark:text-white text-center mt-5">Rate Your Appointment</h3>
             <div class="mt-2 px-7 py-3">
                 <p class="text-sm text-gray-500 dark:text-gray-400 text-center">
-                    How was your experience with Dr. {{ $appointment->doctor->user->name }}?
+                    How was your experience with {{ $appointment->doctor->user->name }}?
                 </p>
             </div>
 

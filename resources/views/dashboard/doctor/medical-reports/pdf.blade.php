@@ -187,8 +187,18 @@
         </div>
         <div class="info-section">
             <div class="info-label">Doctor</div>
-            <div class="info-value">Dr. {{ $medicalReport->doctor->user->name }}</div>
-            <div class="info-sub">{{ $medicalReport->doctor->specialization ?? 'General Practice' }}</div>
+            <div class="info-value">
+                @if($medicalReport->doctor && $medicalReport->doctor->user)
+                    {{ $medicalReport->doctor->user->name }}
+                @else
+                    No doctor assigned
+                @endif
+            </div>
+            <div class="info-sub">
+                @if($medicalReport->doctor)
+                    {{ $medicalReport->doctor->specialization ?? 'General Practice' }}
+                @endif
+            </div>
         </div>
         <div class="info-section">
             <div class="info-label">Consultation Date</div>

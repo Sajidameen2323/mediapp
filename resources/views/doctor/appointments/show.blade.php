@@ -428,7 +428,7 @@
                                         </span>
                                         <span class="flex items-center">
                                             <i class="fas fa-user-md mr-1"></i>
-                                            Dr. {{ $report->doctor->user->name }}
+                                            {{ $report->doctor->user->name }}
                                         </span>
                                     </div>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-400">

@@ -66,8 +66,18 @@
                         <div>
                             <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Report Author</h3>
                             <div class="mt-2">
-                                <p class="text-lg font-semibold text-gray-900 dark:text-white">Dr. {{ $medicalReport->doctor->user->name }}</p>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">{{ $medicalReport->doctor->specialization ?? 'General Practice' }}</p>
+                                <p class="text-lg font-semibold text-gray-900 dark:text-white">
+                                    @if($medicalReport->doctor && $medicalReport->doctor->user)
+                                        {{ $medicalReport->doctor->user->name }}
+                                    @else
+                                        No doctor assigned
+                                    @endif
+                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    @if($medicalReport->doctor)
+                                        {{ $medicalReport->doctor->specialization ?? 'General Practice' }}
+                                    @endif
+                                </p>
                             </div>
                         </div>
                         <div>

@@ -66,7 +66,7 @@
                     <div class="space-y-4">
                         <div>
                             <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Doctor</p>
-                            <p class="text-gray-900 dark:text-white">Dr. {{ $appointment->doctor->user->name }}</p>
+                            <p class="text-gray-900 dark:text-white">{{ $appointment->doctor->user->name }}</p>
                         </div>
 
                         <div>

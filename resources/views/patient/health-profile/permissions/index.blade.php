@@ -50,7 +50,7 @@
                             <div class="flex justify-between items-start">
                                 <div class="flex-1">
                                     <h4 class="font-semibold text-gray-900 dark:text-white">
-                                        Dr. {{ $permission->doctor->name }}
+                                        {{ $permission->doctor->name }}
                                     </h4>
                                     <p class="text-sm text-gray-600 dark:text-gray-400">
                                         {{ $permission->doctorProfile ? $permission->doctorProfile->specialization : 'General Practice' }}
@@ -112,7 +112,7 @@
                                     <option value="">Choose a doctor...</option>
                                     @foreach ($doctorsWithoutPermission as $doctor)
                                         <option value="{{ $doctor->user->id }}">
-                                            Dr. {{ $doctor->user->name }} - {{ $doctor->specialization }}
+                                            {{ $doctor->user->name }} - {{ $doctor->specialization }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -176,7 +176,7 @@
                                 <div class="flex justify-between items-start">
                                     <div class="flex-1">
                                         <h4 class="font-semibold text-gray-900 dark:text-white">
-                                            Dr. {{ $permission->doctor->name }}
+                                            {{ $permission->doctor->name }}
                                         </h4>
                                         <p class="text-sm text-gray-600 dark:text-gray-400">
                                             {{ $permission->doctorProfile ? $permission->doctorProfile->specialization : 'General Practice' }}

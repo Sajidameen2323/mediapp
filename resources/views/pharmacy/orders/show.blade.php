@@ -169,7 +169,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Doctor</label>
-                        <p class="mt-1 text-sm text-gray-900 dark:text-white">Dr. {{ $order->prescription->doctor->user->name }}</p>
+                        <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ $order->prescription->doctor->user->name }}</p>
                     </div>
                     @if($order->prescription->notes)
                         <div class="md:col-span-2">

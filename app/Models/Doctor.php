@@ -278,4 +278,20 @@ class Doctor extends Model
     {
         return $this->is_available;
     }
+
+    /**
+     * Get the doctor's name from the associated user.
+     */
+    public function getNameAttribute()
+    {
+        return $this->user ? $this->user->name : null;
+    }
+
+    /**
+     * Get the doctor's email from the associated user.
+     */
+    public function getEmailAttribute()
+    {
+        return $this->user ? $this->user->email : null;
+    }
 }

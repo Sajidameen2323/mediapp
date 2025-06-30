@@ -159,6 +159,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the lab appointments for this patient.
+     */
+    public function labAppointments(): HasMany
+    {
+        return $this->hasMany(LabAppointment::class, 'patient_id');
+    }
+
+    /**
      * Get the medical reports for this patient.
      */
     public function medicalReports(): HasMany

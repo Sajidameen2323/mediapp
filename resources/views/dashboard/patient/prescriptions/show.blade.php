@@ -118,9 +118,9 @@
                                         <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Prescribed by</dt>
                                         <dd class="mt-1 text-sm text-gray-900 dark:text-white font-semibold">
                                             @if ($prescription->doctor && $prescription->doctor->user)
-                                                Dr. {{ $prescription->doctor->user->name }}
+                                                {{ $prescription->doctor->user->name }}
                                             @elseif($prescription->medicalReport && $prescription->medicalReport->doctor && $prescription->medicalReport->doctor->user)
-                                                Dr. {{ $prescription->medicalReport->doctor->user->name }}
+                                                {{ $prescription->medicalReport->doctor->user->name }}
                                             @else
                                                 <span class="text-gray-500 dark:text-gray-400">Doctor information not
                                                     available</span>

@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Carbon\Carbon;
 
 class Laboratory extends Model
 {
@@ -78,5 +80,42 @@ class Laboratory extends Model
     public static function getDefaultWorkingDays()
     {
         return ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    }
+
+    /**
+     * Get the lab appointments for this laboratory.
+     */
+    public function labAppointments(): HasMany
+    {
+        return $this->hasMany(LabAppointment::class);
+    }
+
+    /**
+     * Get lab test requests assigned to this laboratory.
+     */
+    public function labTestRequests(): HasMany
+    {
+        return $this->hasMany(LabTestRequest::class);
+    }
+
+    /**
+     * Check if laboratory is available for appointments on a given date.
+     */
+    public function isAvailableOnDate($date): bool
+    {
+        if (!$this->is_available) {
+            return false;
+        }
+
+        $workingDays = $this->working_days;
+        
+        // If no working days are specified, assume available all days
+        if (empty($workingDays)) {
+            return true;
+        }
+
+        $dayOfWeek = Carbon::parse($date)->format('l');
+        
+        return in_array(strtolower($dayOfWeek), array_map('strtolower', $workingDays));
     }
 }

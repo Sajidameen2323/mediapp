@@ -131,7 +131,13 @@
                                 </div>
                                 <div class="flex-1">
                                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Doctor</dt>
-                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white font-medium">{{ $medicalReport->doctor->user->name }}</dd>
+                                    <dd class="mt-1 text-sm text-gray-900 dark:text-white font-medium">
+                                        @if($medicalReport->doctor && $medicalReport->doctor->user)
+                                            {{ $medicalReport->doctor->user->name }}
+                                        @else
+                                            No doctor assigned
+                                        @endif
+                                    </dd>
                                 </div>
                             </div>
                             

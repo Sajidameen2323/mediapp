@@ -129,7 +129,7 @@
                             </div>
                             <div class="flex-1">
                                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                    Dr. {{ $appointment->doctor->user->name }}
+                                    {{ $appointment->doctor->user->name }}
                                 </h3>
                                 @php
                                     $doctorProfile = $appointment->doctor->user->profile();
