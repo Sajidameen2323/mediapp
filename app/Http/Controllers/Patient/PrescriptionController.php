@@ -123,7 +123,8 @@ class PrescriptionController extends Controller
             'doctor.user',
             'prescriptionMedications.medication',
             'pharmacyOrders.pharmacy'
-        ]);return view('dashboard.patient.prescriptions.show', compact('prescription'));
+        ]);
+        return view('dashboard.patient.prescriptions.show', compact('prescription'));
     }
 }
 

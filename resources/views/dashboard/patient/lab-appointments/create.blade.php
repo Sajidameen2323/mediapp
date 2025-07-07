@@ -1,9 +1,9 @@
-@extends('layouts.app')
+@extends('layouts.patient')
 
 @section('title', 'Book Lab Appointment')
 
 @section('content')
-<x-patient-navigation />
+
 
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -85,6 +85,23 @@
             </div>
         @endif
 
+        <!-- Booking Instructions -->
+        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-8">
+            <div class="flex items-start">
+                <i class="fas fa-info-circle text-blue-500 mr-3 mt-0.5"></i>
+                <div>
+                    <h3 class="text-blue-900 dark:text-blue-100 font-medium mb-2">Booking Information</h3>
+                    <ul class="text-blue-800 dark:text-blue-200 text-sm space-y-1">
+                        <li>• Appointments can be booked 1-30 days in advance</li>
+                        <li>• Available time slots depend on laboratory working hours</li>
+                        <li>• You will receive a confirmation once your appointment is approved</li>
+                        <li>• Please arrive 15 minutes before your scheduled time</li>
+                        <li>• Bring a valid ID and any required preparation instructions</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
         <!-- Booking Form -->
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
             <div class="p-6">
@@ -92,6 +109,41 @@
                     <i class="fas fa-calendar-plus text-green-500 mr-2"></i>
                     Appointment Details
                 </h2>
+
+                <!-- Success/Error Messages -->
+                @if(session('success'))
+                    <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-8">
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-400 mr-3"></i>
+                            <p class="text-green-800 dark:text-green-200 font-medium">{{ session('success') }}</p>
+                        </div>
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-8">
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-circle text-red-400 mr-3"></i>
+                            <p class="text-red-800 dark:text-red-200 font-medium">{{ session('error') }}</p>
+                        </div>
+                    </div>
+                @endif
+
+                @if($errors->any())
+                    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-8">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-red-400 mr-3 mt-0.5"></i>
+                            <div>
+                                <h3 class="text-red-800 dark:text-red-200 font-medium mb-2">Please correct the following errors:</h3>
+                                <ul class="list-disc list-inside text-red-700 dark:text-red-300 space-y-1">
+                                    @foreach($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                @endif
 
                 <form action="{{ route('patient.lab-appointments.store') }}" method="POST" id="bookingForm">
                     @csrf
@@ -107,7 +159,7 @@
                                 Select Laboratory <span class="text-red-500">*</span>
                             </label>
                             <select name="laboratory_id" id="laboratory_id" required
-                                    class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                    class="w-full border @error('laboratory_id') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500">
                                 <option value="">Choose a laboratory...</option>
                                 @foreach($laboratories as $laboratory)
                                     <option value="{{ $laboratory->id }}" 
@@ -135,7 +187,7 @@
                                    min="{{ Carbon\Carbon::tomorrow()->toDateString() }}"
                                    max="{{ Carbon\Carbon::now()->addDays(30)->toDateString() }}"
                                    value="{{ old('appointment_date') }}"
-                                   class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                   class="w-full border @error('appointment_date') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500">
                             @error('appointment_date')
                                 <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                             @enderror
@@ -147,7 +199,7 @@
                                 Appointment Time <span class="text-red-500">*</span>
                             </label>
                             <select name="start_time" id="start_time" required
-                                    class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                    class="w-full border @error('start_time') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                     disabled>
                                 <option value="">Select date and laboratory first</option>
                             </select>
@@ -163,7 +215,7 @@
                             </label>
                             <textarea name="patient_notes" id="patient_notes" rows="3"
                                       placeholder="Any additional information or special requests..."
-                                      class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500">{{ old('patient_notes') }}</textarea>
+                                      class="w-full border @error('patient_notes') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500">{{ old('patient_notes') }}</textarea>
                             @error('patient_notes')
                                 <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                             @enderror
@@ -176,7 +228,7 @@
                             </label>
                             <textarea name="special_instructions" id="special_instructions" rows="2"
                                       placeholder="Any special preparation requirements or medical conditions to note..."
-                                      class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500">{{ old('special_instructions') }}</textarea>
+                                      class="w-full border @error('special_instructions') border-red-500 dark:border-red-400 @else border-gray-300 dark:border-gray-600 @enderror rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500">{{ old('special_instructions') }}</textarea>
                             @error('special_instructions')
                                 <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                             @enderror
@@ -210,10 +262,58 @@ document.addEventListener('DOMContentLoaded', function() {
     const dateInput = document.getElementById('appointment_date');
     const timeSelect = document.getElementById('start_time');
     const submitBtn = document.getElementById('submitBtn');
+    const form = document.getElementById('bookingForm');
+
+    // Add loading state management
+    function setLoadingState(isLoading) {
+        if (isLoading) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+        } else {
+            submitBtn.innerHTML = '<i class="fas fa-calendar-check mr-2"></i>Book Appointment';
+            validateForm(); // Re-enable based on validation
+        }
+    }
+
+    function showFieldError(fieldId, message) {
+        const field = document.getElementById(fieldId);
+        const existingError = field.parentNode.querySelector('.field-error');
+        
+        // Remove existing error
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        // Add error styling
+        field.classList.add('border-red-500', 'dark:border-red-400');
+        field.classList.remove('border-gray-300', 'dark:border-gray-600');
+        
+        // Add error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'field-error mt-1 text-sm text-red-600 dark:text-red-400';
+        errorDiv.textContent = message;
+        field.parentNode.appendChild(errorDiv);
+    }
+
+    function clearFieldError(fieldId) {
+        const field = document.getElementById(fieldId);
+        const existingError = field.parentNode.querySelector('.field-error');
+        
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        // Reset styling
+        field.classList.remove('border-red-500', 'dark:border-red-400');
+        field.classList.add('border-gray-300', 'dark:border-gray-600');
+    }
 
     function updateTimeSlots() {
         const laboratoryId = laboratorySelect.value;
         const date = dateInput.value;
+
+        // Clear any previous time selection errors
+        clearFieldError('start_time');
 
         if (!laboratoryId || !date) {
             timeSelect.innerHTML = '<option value="">Select laboratory and date first</option>';
@@ -248,30 +348,85 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     timeSelect.innerHTML = '<option value="">No available time slots</option>';
                     timeSelect.disabled = true;
+                    showFieldError('start_time', 'No available time slots for the selected date. Please choose a different date.');
                 }
             })
             .catch(error => {
                 console.error('Error fetching time slots:', error);
                 timeSelect.innerHTML = '<option value="">Error loading times</option>';
                 timeSelect.disabled = true;
+                showFieldError('start_time', 'Unable to load available times. Please refresh the page and try again.');
             });
     }
 
-    laboratorySelect.addEventListener('change', updateTimeSlots);
-    dateInput.addEventListener('change', updateTimeSlots);
+    laboratorySelect.addEventListener('change', function() {
+        clearFieldError('laboratory_id');
+        updateTimeSlots();
+    });
+    
+    dateInput.addEventListener('change', function() {
+        clearFieldError('appointment_date');
+        updateTimeSlots();
+    });
+
+    timeSelect.addEventListener('change', function() {
+        clearFieldError('start_time');
+        validateForm();
+    });
 
     // Form validation
     function validateForm() {
-        const isValid = laboratorySelect.value && dateInput.value && timeSelect.value;
+        const isValid = laboratorySelect.value && dateInput.value && timeSelect.value && !timeSelect.disabled;
         submitBtn.disabled = !isValid;
+        return isValid;
     }
 
+    // Form submission handling
+    form.addEventListener('submit', function(e) {
+        if (!validateForm()) {
+            e.preventDefault();
+            
+            // Show specific validation errors
+            if (!laboratorySelect.value) {
+                showFieldError('laboratory_id', 'Please select a laboratory.');
+            }
+            if (!dateInput.value) {
+                showFieldError('appointment_date', 'Please select an appointment date.');
+            }
+            if (!timeSelect.value) {
+                showFieldError('start_time', 'Please select an appointment time.');
+            }
+            
+            return false;
+        }
+        
+        setLoadingState(true);
+    });
+
+    // Real-time validation
     [laboratorySelect, dateInput, timeSelect].forEach(element => {
         element.addEventListener('change', validateForm);
+        element.addEventListener('blur', function() {
+            if (this.hasAttribute('required') && !this.value) {
+                showFieldError(this.id, `${this.labels[0].textContent.replace(' *', '')} is required.`);
+            }
+        });
     });
 
     // Initial validation
     validateForm();
+
+    // Auto-clear server-side errors when user interacts with fields
+    document.querySelectorAll('input, select, textarea').forEach(field => {
+        field.addEventListener('input', function() {
+            // Remove server-side error styling when user starts typing
+            const serverError = this.parentNode.querySelector('.text-red-600, .text-red-400');
+            if (serverError && this.classList.contains('border-red-500')) {
+                this.classList.remove('border-red-500', 'dark:border-red-400');
+                this.classList.add('border-gray-300', 'dark:border-gray-600');
+            }
+        });
+    });
 });
 </script>
 @endpush

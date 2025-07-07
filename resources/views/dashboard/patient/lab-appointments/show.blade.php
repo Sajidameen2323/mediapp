@@ -1,9 +1,9 @@
-@extends('layouts.app')
+@extends('layouts.patient')
 
 @section('title', 'Lab Appointment Details - ' . $labAppointment->appointment_number)
 
 @section('content')
-<x-patient-navigation />
+
 
 <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -206,12 +206,19 @@
                     </h2>
 
                     <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
-                        @foreach($labAppointment->test_results as $key => $result)
+                        @if(is_array($labAppointment->test_results))
+                            @foreach($labAppointment->test_results as $key => $result)
+                                <div class="mb-3">
+                                    <h4 class="text-sm font-medium text-green-800 dark:text-green-300">{{ ucfirst(str_replace('_', ' ', $key)) }}</h4>
+                                    <p class="text-sm text-green-700 dark:text-green-400">{{ $result }}</p>
+                                </div>
+                            @endforeach
+                        @else
                             <div class="mb-3">
-                                <h4 class="text-sm font-medium text-green-800 dark:text-green-300">{{ ucfirst(str_replace('_', ' ', $key)) }}</h4>
-                                <p class="text-sm text-green-700 dark:text-green-400">{{ $result }}</p>
+                                <h4 class="text-sm font-medium text-green-800 dark:text-green-300">Test Results</h4>
+                                <p class="text-sm text-green-700 dark:text-green-400 whitespace-pre-wrap">{{ $labAppointment->test_results }}</p>
                             </div>
-                        @endforeach
+                        @endif
 
                         @if($labAppointment->result_notes)
                             <div class="mt-4 pt-3 border-t border-green-200 dark:border-green-700">

@@ -1,9 +1,9 @@
-@extends('layouts.app')
+@extends('layouts.patient')
 
 @section('title', 'Patient Dashboard - Medi App')
 
 @section('content')
-<x-patient-navigation />
+
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="mb-8">
@@ -100,6 +100,29 @@
                 <div class="text-sm">
                     <a href="{{ route('patient.appointments.index') }}" class="font-medium text-green-100 hover:text-white">
                         View appointments <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 dark:from-indigo-600 dark:to-indigo-700 overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-shopping-cart text-white text-2xl"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-indigo-100 truncate">Pending Payments</dt>
+                            <dd class="text-lg font-medium text-white">{{ $stats['pendingPaymentOrders'] ?? 0 }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-indigo-700 dark:bg-indigo-800 px-5 py-3">
+                <div class="text-sm">
+                    <a href="{{ route('patient.pharmacy-orders.index', ['payment_status' => 'pending']) }}" class="font-medium text-indigo-100 hover:text-white">
+                        Pay orders <i class="fas fa-arrow-right ml-1"></i>
                     </a>
                 </div>
             </div>

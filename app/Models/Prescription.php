@@ -78,6 +78,14 @@ class Prescription extends Model
     }
 
     /**
+     * Get active pharmacy orders (excluding cancelled orders).
+     */
+    public function getActivePharmacyOrdersAttribute()
+    {
+        return $this->pharmacyOrders->where('status', '!=', 'cancelled');
+    }
+
+    /**
      * Generate a unique prescription number.
      */
     public static function generatePrescriptionNumber(): string
@@ -95,20 +103,24 @@ class Prescription extends Model
     public function isValid(): bool
     {
         return $this->status === 'pending' && 
-               ($this->valid_until === null || $this->valid_until->isFuture());
-    }    /**
+               ($this->valid_until === null || $this->valid_until > now());
+    }
+
+    /**
      * Check if prescription has refills remaining.
      */
     public function hasRefillsRemaining(): bool
     {
         return $this->is_repeatable && $this->refills_remaining > 0;
-    }    /**
+    }
+
+    /**
      * Check if prescription can be ordered from pharmacy.
      */
     public function canBeOrdered(): bool
     {
         return in_array($this->status, ['pending', 'partial', 'active']) && 
-               ($this->valid_until === null || $this->valid_until->isFuture());
+               ($this->valid_until === null || $this->valid_until > now());
     }/**
      * Check if prescription can be marked as completed.
      */
@@ -162,12 +174,13 @@ class Prescription extends Model
     }
 
     /**
-     * Get the latest pharmacy order.
+     * Get the latest pharmacy order (excluding cancelled orders).
      */
     public function latestPharmacyOrder()
     {
-        return $this->pharmacyOrders()->latest()->first();
-    }    /**
+        return $this->pharmacyOrders()->where('status', '!=', 'cancelled')->latest()->first();
+    }    
+    /**
      * Get prescription status badge color.
      */
     public function getStatusBadgeColor(): string

@@ -14,6 +14,7 @@ class PharmacyOrder extends Model
         'patient_id',
         'pharmacy_id',
         'status',
+        'payment_status',
         'delivery_method',
         'delivery_address',
         'subtotal',
@@ -105,5 +106,37 @@ class PharmacyOrder extends Model
             'cancelled' => 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200',
             default => 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
         };
+    }
+
+    /**
+     * Get payment status badge color.
+     */
+    public function getPaymentStatusBadgeColor(): string
+    {
+        return match($this->payment_status) {
+            'pending' => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-200',
+            'paid' => 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200',
+            'refunded' => 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200',
+            default => 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
+        };
+    }
+
+    /**
+     * Check if payment can be processed.
+     * Payment can only be processed when:
+     * - Order is in 'ready' state (price is finalized)
+     * - OR order is 'delivered' but payment is still pending
+     */
+    public function canProcessPayment(): bool
+    {
+        return $this->payment_status === 'pending' && in_array($this->status, ['ready', 'delivered']);
+    }
+
+    /**
+     * Check if payment is completed.
+     */
+    public function isPaymentCompleted(): bool
+    {
+        return $this->payment_status === 'paid';
     }
 }

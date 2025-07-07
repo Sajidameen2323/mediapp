@@ -1,9 +1,9 @@
-@extends('layouts.app')
+@extends('layouts.pharmacy')
 
 @section('title', 'Order Details - Medi App')
 
 @section('content')
-<x-pharmacy-navigation />
+
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
@@ -28,6 +28,10 @@
         <div class="flex items-center space-x-3">
             <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full {{ $order->getStatusBadgeColor() }}">
                 {{ ucfirst($order->status) }}
+            </span>
+            <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full {{ $order->getPaymentStatusBadgeColor() }}">
+                <i class="fas fa-credit-card mr-1"></i>
+                {{ ucfirst(str_replace('_', ' ', $order->payment_status)) }}
             </span>
             
             @if($order->status === 'confirmed')
@@ -234,6 +238,109 @@
                         <div class="flex justify-between font-semibold text-lg">
                             <span class="text-gray-900 dark:text-white">Total</span>
                             <span class="text-gray-900 dark:text-white">${{ number_format($order->total_amount, 2) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Information -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                        <i class="fas fa-credit-card mr-2 text-blue-500"></i>
+                        Payment Information
+                    </h2>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Payment Status</span>
+                        <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full {{ $order->getPaymentStatusBadgeColor() }}">
+                            <i class="fas fa-credit-card mr-1"></i>
+                            {{ ucfirst(str_replace('_', ' ', $order->payment_status)) }}
+                        </span>
+                    </div>
+                    
+                    @if($order->payment_status === 'paid')
+                        <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                <span class="text-sm font-medium text-green-800 dark:text-green-200">Payment Completed</span>
+                            </div>
+                            <div class="mt-2 space-y-2">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-green-700 dark:text-green-300">Amount Paid:</span>
+                                    <span class="font-medium text-green-800 dark:text-green-200">${{ number_format($order->total_amount, 2) }}</span>
+                                </div>
+                                @if($order->updated_at && $order->payment_status === 'paid')
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-green-700 dark:text-green-300">Payment Date:</span>
+                                        <span class="font-medium text-green-800 dark:text-green-200">{{ $order->updated_at->format('M d, Y \a\t g:i A') }}</span>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @elseif($order->payment_status === 'pending')
+                        <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-clock text-yellow-500 mr-2"></i>
+                                <span class="text-sm font-medium text-yellow-800 dark:text-yellow-200">Payment Pending</span>
+                            </div>
+                            <div class="mt-2 space-y-2">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-yellow-700 dark:text-yellow-300">Amount Due:</span>
+                                    <span class="font-medium text-yellow-800 dark:text-yellow-200">${{ number_format($order->total_amount, 2) }}</span>
+                                </div>
+                                @if($order->canProcessPayment())
+                                    <div class="mt-3">
+                                        <p class="text-xs text-yellow-700 dark:text-yellow-300">
+                                            <i class="fas fa-info-circle mr-1"></i>
+                                            Patient can process payment as order is ready for {{ $order->delivery_method }}.
+                                        </p>
+                                    </div>
+                                @else
+                                    <div class="mt-3">
+                                        <p class="text-xs text-yellow-700 dark:text-yellow-300">
+                                            <i class="fas fa-info-circle mr-1"></i>
+                                            Payment will be available once order is ready for {{ $order->delivery_method }}.
+                                        </p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @elseif($order->payment_status === 'refunded')
+                        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-undo text-red-500 mr-2"></i>
+                                <span class="text-sm font-medium text-red-800 dark:text-red-200">Payment Refunded</span>
+                            </div>
+                            <div class="mt-2 space-y-2">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-red-700 dark:text-red-300">Refunded Amount:</span>
+                                    <span class="font-medium text-red-800 dark:text-red-200">${{ number_format($order->total_amount, 2) }}</span>
+                                </div>
+                                @if($order->updated_at && $order->payment_status === 'refunded')
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-red-700 dark:text-red-300">Refund Date:</span>
+                                        <span class="font-medium text-red-800 dark:text-red-200">{{ $order->updated_at->format('M d, Y \a\t g:i A') }}</span>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+                    
+                    <!-- Payment Method Information -->
+                    <div class="border-t border-gray-200 dark:border-gray-600 pt-4">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600 dark:text-gray-400">Payment Method:</span>
+                            <span class="text-gray-900 dark:text-white">
+                                @if($order->payment_status === 'paid')
+                                    <i class="fas fa-credit-card mr-1 text-blue-500"></i>
+                                    Online Payment
+                                @else
+                                    <i class="fas fa-money-bill-wave mr-1 text-green-500"></i>
+                                    Cash on {{ ucfirst($order->delivery_method) }}
+                                @endif
+                            </span>
                         </div>
                     </div>
                 </div>

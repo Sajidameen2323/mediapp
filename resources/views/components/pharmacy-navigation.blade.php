@@ -1,141 +1,288 @@
 @props(['currentRoute' => null])
 
-<nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 mb-6">
+<nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex items-center">
-                <a href="{{ route('pharmacy.dashboard') }}" class="flex-shrink-0 flex items-center text-xl font-bold text-gray-900 dark:text-white">
-                    <i class="fas fa-mortar-pestle mr-2 text-blue-500"></i>
-                    Pharmacy Portal
+        <div class="flex justify-between items-center h-16">
+            <!-- Logo/Brand -->
+            <div class="flex items-center space-x-4">
+                <a href="{{ route('pharmacy.dashboard') }}" class="flex items-center group">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                        <i class="fas fa-mortar-pestle text-white text-lg"></i>
+                    </div>
+                    <div class="ml-3 hidden sm:block">
+                        <h1 class="text-lg font-bold text-gray-900 dark:text-white">Pharmacy Portal</h1>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Order Management</p>
+                    </div>
                 </a>
             </div>
 
-            <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+            <!-- Main Navigation -->
+            <div class="hidden md:flex items-center space-x-1">
+                <!-- Dashboard -->
                 <a href="{{ route('pharmacy.dashboard') }}" 
-                   class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200
+                   class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 group
                            {{ request()->routeIs('pharmacy.dashboard') 
-                               ? 'border-blue-500 text-blue-600 dark:text-blue-400' 
-                               : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600' }}">
-                    <i class="fas fa-tachometer-alt mr-2"></i>
+                               ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 shadow-sm' 
+                               : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white' }}">
+                    <i class="fas fa-chart-line w-4 h-4 mr-2 {{ request()->routeIs('pharmacy.dashboard') ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300' }}"></i>
                     Dashboard
                 </a>
 
-                <a href="{{ route('pharmacy.orders.index') }}" 
-                   class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200
-                           {{ request()->routeIs('pharmacy.orders.*') 
-                               ? 'border-green-500 text-green-600 dark:text-green-400' 
-                               : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600' }}">
-                    <i class="fas fa-prescription-bottle-alt mr-2"></i>
-                    Orders
-                </a>
-            </div>
-
-            <div class="flex items-center sm:ml-6">
-                <div class="relative">
-                    <button onclick="toggleDropdown()" 
-                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
-                        <i class="fas fa-plus mr-2"></i>
-                        <span class="hidden sm:inline">Quick Actions</span>
-                        <i class="fas fa-chevron-down ml-2"></i>
+                <!-- Orders Dropdown -->
+                <div class="relative" x-data="{ open: false }" @click.away="open = false">
+                    <button @click="open = !open" 
+                            class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 group
+                                   {{ request()->routeIs('pharmacy.orders.*') 
+                                       ? 'bg-green-50 dark:bg-green-900/50 text-green-700 dark:text-green-300 shadow-sm' 
+                                       : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white' }}">
+                        <i class="fas fa-prescription-bottle-alt w-4 h-4 mr-2 {{ request()->routeIs('pharmacy.orders.*') ? 'text-green-600 dark:text-green-400' : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300' }}"></i>
+                        Orders
+                        <i class="fas fa-chevron-down w-3 h-3 ml-1 transition-transform duration-200" :class="{ 'rotate-180': open }"></i>
                     </button>
 
-                    <div id="quickActionsDropdown" 
-                         class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 dark:divide-gray-700 z-50">
-                        <div class="py-1">
-                            <a href="{{ route('pharmacy.orders.index', ['status' => 'confirmed']) }}" 
-                               class="group flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                <i class="fas fa-cogs mr-3 text-blue-500"></i>
-                                Prepare Orders
-                            </a>
-                            <a href="{{ route('pharmacy.orders.index', ['status' => 'ready']) }}" 
-                               class="group flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                <i class="fas fa-hand-holding-medical mr-3 text-green-500"></i>
-                                Dispense Orders
-                            </a>
-                            <a href="{{ route('pharmacy.orders.index', ['status' => 'preparing']) }}" 
-                               class="group flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                <i class="fas fa-clock mr-3 text-yellow-500"></i>
-                                Orders in Progress
-                            </a>
+                    <div x-show="open" 
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 scale-95"
+                         x-transition:enter-end="opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 scale-100"
+                         x-transition:leave-end="opacity-0 scale-95"
+                         class="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50">
+                        <div class="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
+                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Order Management</p>
                         </div>
+                        
+                        <a href="{{ route('pharmacy.orders.index') }}" 
+                           class="flex items-center px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-list text-blue-600 dark:text-blue-400 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">All Orders</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">View and manage orders</p>
+                            </div>
+                        </a>
+                        
+                        <a href="{{ route('pharmacy.orders.index', ['status' => 'confirmed']) }}" 
+                           class="flex items-center px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <div class="w-8 h-8 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-clock text-orange-600 dark:text-orange-400 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">Pending Orders</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Orders awaiting preparation</p>
+                            </div>
+                        </a>
+                        
+                        <a href="{{ route('pharmacy.orders.index', ['status' => 'preparing']) }}" 
+                           class="flex items-center px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <div class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-cogs text-yellow-600 dark:text-yellow-400 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">In Preparation</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Orders being prepared</p>
+                            </div>
+                        </a>
+                        
+                        <a href="{{ route('pharmacy.orders.index', ['status' => 'ready']) }}" 
+                           class="flex items-center px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <div class="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas fa-check-circle text-green-600 dark:text-green-400 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">Ready Orders</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">Ready for pickup/delivery</p>
+                            </div>
+                        </a>
                     </div>
                 </div>
 
-                <div class="-mr-2 flex items-center sm:hidden">
-                    <button type="button" onclick="toggleMobileMenu()" 
-                            class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500" 
-                            aria-controls="mobile-menu" aria-expanded="false">
-                        <span class="sr-only">Open main menu</span>
-                        <svg class="block h-6 w-6" id="mobile-menu-icon-closed" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                        <svg class="hidden h-6 w-6" id="mobile-menu-icon-open" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
+                <!-- Quick Stats -->
+                <div class="hidden lg:flex items-center space-x-3 ml-6 pl-6 border-l border-gray-200 dark:border-gray-700">
+                    <div class="text-center">
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Today</p>
+                        <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ \App\Models\PharmacyOrder::whereDate('created_at', today())->count() }}</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Pending</p>
+                        <p class="text-sm font-semibold text-orange-600 dark:text-orange-400">{{ \App\Models\PharmacyOrder::where('status', 'confirmed')->count() }}</p>
+                    </div>
                 </div>
+
+                <!-- User Profile Dropdown -->
+                <div class="relative ml-6" x-data="{ open: false }" @click.away="open = false">
+                    <button @click="open = !open" 
+                            class="flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-700 group">
+                        <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-white text-sm"></i>
+                        </div>
+                        <div class="hidden sm:block text-left">
+                            <p class="text-gray-900 dark:text-white font-medium">{{ auth()->user()->name ?? 'Pharmacy User' }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Pharmacy Staff</p>
+                        </div>
+                        <i class="fas fa-chevron-down w-3 h-3 text-gray-400 transition-transform duration-200" :class="{ 'rotate-180': open }"></i>
+                    </button>
+
+                    <div x-show="open" 
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 scale-95"
+                         x-transition:enter-end="opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 scale-100"
+                         x-transition:leave-end="opacity-0 scale-95"
+                         class="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50">
+                        <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ auth()->user()->name ?? 'Pharmacy User' }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ auth()->user()->email ?? 'user@pharmacy.com' }}</p>
+                        </div>
+                        
+                        <div class="py-1">
+                            <a href="#" 
+                               class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-user-edit text-blue-600 dark:text-blue-400 text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">Edit Profile</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Update your information</p>
+                                </div>
+                            </a>
+                            
+                            <a href="#" 
+                               class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                <div class="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-id-card text-green-600 dark:text-green-400 text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium">View Profile</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Your account details</p>
+                                </div>
+                            </a>
+                            
+                            <div class="border-t border-gray-100 dark:border-gray-700 my-1"></div>
+                            
+                            <form method="POST" action="{{ route('logout') }}" class="block">
+                                @csrf
+                                <button type="submit" 
+                                        class="flex items-center w-full px-4 py-2 text-sm text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                                    <div class="w-8 h-8 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center mr-3">
+                                        <i class="fas fa-sign-out-alt text-red-600 dark:text-red-400 text-sm"></i>
+                                    </div>
+                                    <div class="text-left">
+                                        <p class="font-medium">Sign Out</p>
+                                        <p class="text-xs text-red-600 dark:text-red-500">End your session</p>
+                                    </div>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile menu button -->
+            <div class="md:hidden">
+                <button type="button" 
+                        @click="mobileMenuOpen = !mobileMenuOpen"
+                        x-data="{ mobileMenuOpen: false }"
+                        class="inline-flex items-center justify-center p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Mobile menu -->
-    <div class="sm:hidden hidden" id="mobile-menu">
-        <div class="pt-2 pb-3 space-y-1">
+    <!-- Mobile Navigation -->
+    <div class="md:hidden" x-data="{ mobileMenuOpen: false }" :class="{ 'block': mobileMenuOpen, 'hidden': !mobileMenuOpen }">
+        <div class="px-4 pt-2 pb-3 space-y-1 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
             <a href="{{ route('pharmacy.dashboard') }}" 
-               class="block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200
+               class="flex items-center px-3 py-2 rounded-lg text-base font-medium transition-colors
                        {{ request()->routeIs('pharmacy.dashboard') 
-                           ? 'bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-200' 
-                           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white' }}">
-                <i class="fas fa-tachometer-alt mr-2"></i>
+                           ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300' 
+                           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }}">
+                <i class="fas fa-chart-line w-5 h-5 mr-3"></i>
                 Dashboard
             </a>
 
-            <a href="{{ route('pharmacy.orders.index') }}" 
-               class="block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200
-                       {{ request()->routeIs('pharmacy.orders.*') 
-                           ? 'bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-200' 
-                           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white' }}">
-                <i class="fas fa-prescription-bottle-alt mr-2"></i>
-                Orders
-            </a>
+            <div class="space-y-1">
+                <p class="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Orders</p>
+                
+                <a href="{{ route('pharmacy.orders.index') }}" 
+                   class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                           {{ request()->routeIs('pharmacy.orders.index') && !request('status')
+                               ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' 
+                               : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }}">
+                    <i class="fas fa-list w-4 h-4 mr-3"></i>
+                    All Orders
+                </a>
+                
+                <a href="{{ route('pharmacy.orders.index', ['status' => 'confirmed']) }}" 
+                   class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                           {{ request('status') === 'confirmed'
+                               ? 'bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300' 
+                               : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }}">
+                    <i class="fas fa-clock w-4 h-4 mr-3"></i>
+                    Pending Orders
+                </a>
+                
+                <a href="{{ route('pharmacy.orders.index', ['status' => 'preparing']) }}" 
+                   class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                           {{ request('status') === 'preparing'
+                               ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300' 
+                               : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }}">
+                    <i class="fas fa-cogs w-4 h-4 mr-3"></i>
+                    In Preparation
+                </a>
+                
+                <a href="{{ route('pharmacy.orders.index', ['status' => 'ready']) }}" 
+                   class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                           {{ request('status') === 'ready'
+                               ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' 
+                               : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' }}">
+                    <i class="fas fa-check-circle w-4 h-4 mr-3"></i>
+                    Ready Orders
+                </a>
+            </div>
+
+            <!-- Mobile Profile Section -->
+            <div class="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-1">
+                <p class="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Account</p>
+                
+                <div class="px-3 py-2 flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-white text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ auth()->user()->name ?? 'Pharmacy User' }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ auth()->user()->email ?? 'user@pharmacy.com' }}</p>
+                    </div>
+                </div>
+                
+                <a href="#" 
+                   class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
+                    <i class="fas fa-user-edit w-4 h-4 mr-3"></i>
+                    Edit Profile
+                </a>
+                
+                <a href="#" 
+                   class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
+                    <i class="fas fa-id-card w-4 h-4 mr-3"></i>
+                    View Profile
+                </a>
+                
+                <form method="POST" action="{{ route('logout') }}" class="block">
+                    @csrf
+                    <button type="submit" 
+                            class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
+                        <i class="fas fa-sign-out-alt w-4 h-4 mr-3"></i>
+                        Sign Out
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </nav>
 
-<script>
-    function toggleDropdown() {
-        const dropdown = document.getElementById('quickActionsDropdown');
-        dropdown.classList.toggle('hidden');
-    }
-
-    function toggleMobileMenu() {
-        const mobileMenu = document.getElementById('mobile-menu');
-        const iconClosed = document.getElementById('mobile-menu-icon-closed');
-        const iconOpen = document.getElementById('mobile-menu-icon-open');
-
-        mobileMenu.classList.toggle('hidden');
-        iconClosed.classList.toggle('hidden');
-        iconOpen.classList.toggle('hidden');
-    }
-
-    // Close dropdowns when clicking outside
-    document.addEventListener('click', function(event) {
-        // Quick Actions Dropdown
-        const quickActionsDropdown = document.getElementById('quickActionsDropdown');
-        const quickActionsButton = event.target.closest('button[onclick="toggleDropdown()"]');
-        
-        if (!quickActionsButton && !quickActionsDropdown.contains(event.target)) {
-            quickActionsDropdown.classList.add('hidden');
-        }
-
-        // Mobile Menu
-        const mobileMenu = document.getElementById('mobile-menu');
-        const mobileMenuButton = event.target.closest('button[onclick="toggleMobileMenu()"]');
-
-        if (!mobileMenuButton && !mobileMenu.contains(event.target) && !mobileMenu.classList.contains('hidden')) {
-            mobileMenu.classList.add('hidden');
-            document.getElementById('mobile-menu-icon-closed').classList.remove('hidden');
-            document.getElementById('mobile-menu-icon-open').classList.add('hidden');
-        }
-    });
-</script>
+<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>

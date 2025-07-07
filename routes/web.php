@@ -277,7 +277,11 @@ Route::middleware(['auth'])->group(function () {
         
         // Pharmacy Order Management
         Route::prefix('patient/pharmacy-orders')->name('patient.pharmacy-orders.')->group(function () {
-            Route::delete('/{pharmacyOrder}', [\App\Http\Controllers\Patient\PrescriptionActionController::class, 'cancelPharmacyOrder'])->name('cancel');
+            Route::get('/', [\App\Http\Controllers\Patient\PharmacyOrderController::class, 'index'])->name('index');
+            Route::get('/{pharmacyOrder}', [\App\Http\Controllers\Patient\PharmacyOrderController::class, 'show'])->name('show');
+            Route::get('/{pharmacyOrder}/payment', [\App\Http\Controllers\Patient\PharmacyOrderController::class, 'showPayment'])->name('payment');
+            Route::post('/{pharmacyOrder}/payment', [\App\Http\Controllers\Patient\PharmacyOrderController::class, 'processPayment'])->name('process-payment');
+            Route::delete('/{pharmacyOrder}', [\App\Http\Controllers\Patient\PharmacyOrderController::class, 'cancel'])->name('cancel');
         });
         
         // Lab Test Management

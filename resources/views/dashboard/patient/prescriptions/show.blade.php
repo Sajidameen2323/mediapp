@@ -1,9 +1,9 @@
-@extends('layouts.app')
+@extends('layouts.patient')
 
 @section('title', 'Prescription Details')
 
 @section('content')
-    <x-patient-navigation />
+
 
     <!-- Success/Error Messages -->
     @if (session('success'))
@@ -307,7 +307,7 @@
                 </div>
 
                 <!-- Pharmacy Orders -->
-                @if ($prescription->pharmacyOrders->isNotEmpty())
+                @if ($prescription->active_pharmacy_orders->isNotEmpty())
                     <div
                         class="lg:mb-6 bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">
                         <div
@@ -319,7 +319,7 @@
                         </div>
                         <div class="px-6 py-4">
                             <div class="space-y-4">
-                                @foreach ($prescription->pharmacyOrders as $order)
+                                @foreach ($prescription->active_pharmacy_orders as $order)
                                     <div
                                         class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
                                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -330,6 +330,11 @@
                                                     <span
                                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $order->getStatusBadgeColor() }}">
                                                         {{ ucfirst($order->status) }}
+                                                    </span>
+                                                    <span
+                                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $order->getPaymentStatusBadgeColor() }}">
+                                                        <i class="fas fa-credit-card mr-1"></i>
+                                                        {{ ucfirst(str_replace('_', ' ', $order->payment_status)) }}
                                                     </span>
                                                 </div>
                                                 <div class="mt-2 text-sm text-gray-600 dark:text-gray-300">
@@ -347,20 +352,40 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            @if ($order->canBeCancelled())
-                                                <div class="mt-3 sm:mt-0 sm:ml-4">
+                                            <div class="mt-3 sm:mt-0 sm:ml-4 flex items-center space-x-2">
+                                                @if ($order->canProcessPayment())
+                                                    <a href="{{ route('patient.pharmacy-orders.payment', $order) }}" 
+                                                       class="inline-flex items-center px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm leading-4 font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                                        <i class="fas fa-credit-card mr-1"></i>
+                                                        Pay Now
+                                                    </a>
+                                                @endif
+                                                @if ($order->canBeCancelled())
                                                     <button type="button"
                                                         onclick="confirmCancelOrder('{{ $order->id }}')"
                                                         class="inline-flex items-center px-3 py-1 border border-red-300 text-sm leading-4 font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:bg-gray-600 dark:text-red-300 dark:border-red-600 dark:hover:bg-red-900">
                                                         <i class="fas fa-times mr-1"></i>
                                                         Cancel
                                                     </button>
-                                                </div>
-                                            @endif
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 @endforeach
                             </div>
+                            
+                            <!-- View All Orders Link -->
+                            @if($prescription->active_pharmacy_orders->count() > 1)
+                                <div class="border-t border-gray-200 dark:border-gray-600 pt-4 mt-4">
+                                    <div class="text-center">
+                                        <a href="{{ route('patient.pharmacy-orders.index') }}" 
+                                           class="inline-flex items-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors">
+                                            <i class="fas fa-external-link-alt mr-2"></i>
+                                            View All Pharmacy Orders
+                                        </a>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @endif
@@ -544,6 +569,15 @@
                                     </span>
                                 </div>
 
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Payment Status</span>
+                                    <span
+                                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $latestOrder->getPaymentStatusBadgeColor() }}">
+                                        <i class="fas fa-credit-card mr-1"></i>
+                                        {{ ucfirst(str_replace('_', ' ', $latestOrder->payment_status)) }}
+                                    </span>
+                                </div>
+
                                 @if ($latestOrder->pharmacy)
                                     <div class="flex items-center justify-between">
                                         <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Pharmacy</span>
@@ -568,6 +602,29 @@
                                     </div>
                                 @endif
                             </div>
+                            
+                            <!-- Quick Actions for Latest Order -->
+                            @if ($latestOrder->canProcessPayment() || $latestOrder->canBeCancelled())
+                                <div class="border-t border-gray-200 dark:border-gray-600 pt-4 mt-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Quick Actions</span>
+                                        <div class="flex items-center space-x-2">
+                                            @if ($latestOrder->canProcessPayment())
+                                                <a href="{{ route('patient.pharmacy-orders.payment', $latestOrder) }}" 
+                                                   class="inline-flex items-center px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                                    <i class="fas fa-credit-card mr-1"></i>
+                                                    Pay Now
+                                                </a>
+                                            @endif
+                                            <a href="{{ route('patient.pharmacy-orders.show', $latestOrder) }}" 
+                                               class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                                <i class="fas fa-eye mr-1"></i>
+                                                View Details
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @endif

@@ -182,6 +182,14 @@ class User extends Authenticatable
         return $this->hasMany(Appointment::class, 'patient_id');
     }
 
+    /**
+     * Get the pharmacy orders for this patient.
+     */
+    public function pharmacyOrders(): HasMany
+    {
+        return $this->hasMany(PharmacyOrder::class, 'patient_id');
+    }
+
     // Scopes
     public function scopeActive($query)
     {

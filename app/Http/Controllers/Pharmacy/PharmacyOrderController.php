@@ -43,6 +43,11 @@ class PharmacyOrderController extends Controller
             $query->where('status', $request->status);
         }
 
+        // Filter by payment status
+        if ($request->filled('payment_status')) {
+            $query->where('payment_status', $request->payment_status);
+        }
+
         // Search by order number or patient name - check for both existence and non-empty value
         if ($request->filled('search')) {
             $search = trim($request->search);

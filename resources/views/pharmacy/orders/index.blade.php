@@ -1,9 +1,9 @@
-@extends('layouts.app')
+@extends('layouts.pharmacy')
 
 @section('title', 'Pharmacy Orders - Medi App')
 
 @section('content')
-<x-pharmacy-navigation />
+
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="mb-8">
@@ -41,6 +41,20 @@
                         <option value="ready" {{ request('status') === 'ready' ? 'selected' : '' }}>Ready</option>
                         <option value="delivered" {{ request('status') === 'delivered' ? 'selected' : '' }}>Delivered</option>
                         <option value="cancelled" {{ request('status') === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                    </select>
+                </div>
+
+                <div class="min-w-48">
+                    <label for="payment_status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Payment Status
+                    </label>
+                    <select id="payment_status" 
+                            name="payment_status"
+                            class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option value="">All Payment Status</option>
+                        <option value="pending" {{ request('payment_status') === 'pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="paid" {{ request('payment_status') === 'paid' ? 'selected' : '' }}>Paid</option>
+                        <option value="refunded" {{ request('payment_status') === 'refunded' ? 'selected' : '' }}>Refunded</option>
                     </select>
                 </div>
 
@@ -84,6 +98,9 @@
                                 Status
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Payment
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Total Amount
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -118,6 +135,12 @@
                                 <td class="px-6 py-4">
                                     <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ $order->getStatusBadgeColor() }}">
                                         {{ ucfirst($order->status) }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ $order->getPaymentStatusBadgeColor() }}">
+                                        <i class="fas fa-credit-card mr-1"></i>
+                                        {{ ucfirst(str_replace('_', ' ', $order->payment_status)) }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-900 dark:text-white">

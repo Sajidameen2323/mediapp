@@ -453,12 +453,16 @@
                                     <div class="mt-3 p-3 bg-white dark:bg-gray-700 border border-green-200 dark:border-green-600 rounded">
                                         <h5 class="font-medium text-gray-900 dark:text-white mb-2">Test Results:</h5>
                                         <div class="text-sm text-gray-700 dark:text-gray-300">
-                                            @foreach($labTest->test_results as $key => $value)
-                                                <div class="flex justify-between py-1">
-                                                    <span>{{ ucfirst(str_replace('_', ' ', $key)) }}:</span>
-                                                    <span class="font-medium">{{ $value }}</span>
-                                                </div>
-                                            @endforeach
+                                            @if(is_array($labTest->test_results))
+                                                @foreach($labTest->test_results as $key => $value)
+                                                    <div class="flex justify-between py-1">
+                                                        <span>{{ ucfirst(str_replace('_', ' ', $key)) }}:</span>
+                                                        <span class="font-medium">{{ $value }}</span>
+                                                    </div>
+                                                @endforeach
+                                            @else
+                                                <div class="whitespace-pre-wrap">{{ $labTest->test_results }}</div>
+                                            @endif
                                         </div>
                                     </div>
                                 @endif

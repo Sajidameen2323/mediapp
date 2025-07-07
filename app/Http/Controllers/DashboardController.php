@@ -57,6 +57,8 @@ class DashboardController extends Controller
             'completedLabTests' => $user->labTestRequests()->where('status', 'completed')->count(),
             'totalMedicalReports' => $user->medicalReports()->count(),
             'recentMedicalReports' => $user->medicalReports()->latest()->take(3)->count(),
+            'totalPharmacyOrders' => $user->pharmacyOrders()->where('status', '!=', 'cancelled')->count(),
+            'pendingPaymentOrders' => $user->pharmacyOrders()->where('payment_status', 'pending')->where('status', '!=', 'cancelled')->count(),
         ];
         
         return view('dashboard.patient', compact('user', 'stats'));

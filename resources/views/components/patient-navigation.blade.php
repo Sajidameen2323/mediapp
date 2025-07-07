@@ -1,344 +1,362 @@
-<nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 mb-6">
+<nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Breadcrumb Section -->
-        <div class="py-2 border-b border-gray-100 dark:border-gray-700">
-            <nav class="flex" aria-label="Breadcrumb" id="breadcrumb-nav">
-                <ol class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
-                    <li>
-                        <a href="{{ route('patient.dashboard') }}" class="hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200">
-                            <i class="fas fa-home mr-1"></i>
-                            Dashboard
-                        </a>
-                    </li>
-                    <!-- Dynamic breadcrumb items will be inserted here -->
-                </ol>
-            </nav>
-        </div>
-
-        <div class="flex justify-between h-16">
+        <div class="flex justify-between h-14">
+            <!-- Logo/Brand -->
             <div class="flex items-center">
-                <a href="{{ route('patient.dashboard') }}" class="flex-shrink-0 flex items-center text-xl font-bold text-gray-900 dark:text-white">
-                    Patient Portal
+                <a href="{{ route('patient.dashboard') }}" class="flex items-center space-x-2 group">
+                    <div class="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-heartbeat text-white text-sm"></i>
+                    </div>
+                    <span class="text-lg font-semibold text-gray-900 dark:text-white hidden sm:block">MediApp</span>
                 </a>
             </div>
 
-            <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center space-x-1">
+                <!-- Dashboard -->
                 <a href="{{ route('patient.dashboard') }}" 
-                   class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200
-                           {{ request()->routeIs('patient.dashboard') 
-                               ? 'border-blue-500 text-blue-600 dark:text-blue-400' 
-                               : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600' }}">
-                    <i class="fas fa-tachometer-alt mr-2"></i>
-                    Dashboard
+                   class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('patient.dashboard') 
+                       ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300' 
+                       : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700/50' }}">
+                    <i class="fas fa-home {{ request()->routeIs('patient.dashboard') ? 'text-blue-600' : 'text-gray-400' }} mr-2"></i>
+                    <span>Home</span>
                 </a>
 
+                <!-- Appointments -->
                 <a href="{{ route('patient.appointments.index') }}" 
-                   class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200
-                           {{ request()->routeIs('patient.appointments.*') 
-                               ? 'border-green-500 text-green-600 dark:text-green-400' 
-                               : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600' }}">
-                    <i class="fas fa-calendar-check mr-2"></i>
-                    Appointments
+                   class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('patient.appointments.*') 
+                       ? 'bg-green-50 dark:bg-green-900/50 text-green-700 dark:text-green-300' 
+                       : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700/50' }}">
+                    <i class="fas fa-calendar-check {{ request()->routeIs('patient.appointments.*') ? 'text-green-600' : 'text-gray-400' }} mr-2"></i>
+                    <span>Appointments</span>
                 </a>
 
-                <a href="{{ route('patient.medical-reports.index') }}" 
-                   class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200
-                           {{ request()->routeIs('patient.medical-reports.*') 
-                               ? 'border-blue-500 text-blue-600 dark:text-blue-400' 
-                               : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600' }}">
-                    <i class="fas fa-file-medical mr-2"></i>
-                    Medical Reports
-                </a>
-
-                <a href="{{ route('patient.prescriptions.index') }}" 
-                   class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200
-                           {{ request()->routeIs('patient.prescriptions.*') 
-                               ? 'border-purple-500 text-purple-600 dark:text-purple-400' 
-                               : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600' }}">
-                    <i class="fas fa-pills mr-2"></i>
-                    Prescriptions
-                </a>
-
-                <a href="{{ route('patient.lab-tests.index') }}" 
-                   class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200
-                           {{ request()->routeIs('patient.lab-tests.*') 
-                               ? 'border-yellow-500 text-yellow-600 dark:text-yellow-400' 
-                               : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600' }}">
-                    <i class="fas fa-vial mr-2"></i>
-                    Lab Tests
-                </a>
-
-                <a href="{{ route('patient.lab-appointments.index') }}" 
-                   class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200
-                           {{ request()->routeIs('patient.lab-appointments.*') 
-                               ? 'border-orange-500 text-orange-600 dark:text-orange-400' 
-                               : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600' }}">
-                    <i class="fas fa-flask mr-2"></i>
-                    Lab Appointments
-                </a>
-
-                <a href="{{ route('patient.health-profile.index') }}" 
-                   class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200
-                           {{ request()->routeIs('patient.health-profile.*') 
-                               ? 'border-red-500 text-red-600 dark:text-red-400' 
-                               : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600' }}">
-                    <i class="fas fa-user-injured mr-2"></i>
-                    Health Profile
-                </a>
-            </div>
-
-            <div class="flex items-center sm:ml-6">
-                <div class="relative">
-                    <button onclick="toggleDropdown()" 
-                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
-                        <i class="fas fa-plus mr-2"></i>
-                        <span class="hidden sm:inline">Quick Actions</span>
-                        <i class="fas fa-chevron-down ml-2"></i>
+                <!-- Health Services Dropdown -->
+                <div class="relative dropdown-container">
+                    <button class="dropdown-toggle flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs(['patient.prescriptions.*', 'patient.pharmacy-orders.*', 'patient.medical-reports.*']) 
+                                ? 'bg-purple-50 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300' 
+                                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700/50' }}">
+                        <i class="fas fa-heartbeat {{ request()->routeIs(['patient.prescriptions.*', 'patient.pharmacy-orders.*', 'patient.medical-reports.*']) ? 'text-purple-600' : 'text-gray-400' }} mr-2"></i>
+                        <span>Health</span>
+                        <i class="fas fa-chevron-down ml-2 text-xs transition-transform dropdown-arrow"></i>
                     </button>
-
-                    <div id="quickActionsDropdown" 
-                         class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 dark:divide-gray-700 z-50">
-                        <div class="py-1">
-                            <a href="{{ route('patient.appointments.create') }}" 
-                               class="group flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                <i class="fas fa-calendar-plus mr-3 text-blue-500"></i>
-                                Book Appointment
+                    <div class="dropdown-menu absolute left-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 opacity-0 invisible transform scale-95 transition-all duration-200">
+                        <div class="py-2">
+                            <a href="{{ route('patient.prescriptions.index') }}" 
+                               class="flex items-center px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors {{ request()->routeIs('patient.prescriptions.*') ? 'bg-purple-50 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300' : '' }}">
+                                <div class="w-8 h-8 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-pills text-purple-600 text-sm"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Prescriptions</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">View your medications</div>
+                                </div>
                             </a>
-                            @if(!auth()->user()->healthProfile)
-                                <a href="{{ route('patient.health-profile.create') }}" 
-                                   class="group flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                    <i class="fas fa-user-injured mr-3 text-red-500"></i>
-                                    Create Health Profile
-                                </a>
-                            @endif
-                            <a href="{{ route('patient.lab-appointments.create') }}" 
-                               class="group flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                <i class="fas fa-flask mr-3 text-orange-500"></i>
-                                Book Lab Test
+                            <a href="{{ route('patient.pharmacy-orders.index') }}" 
+                               class="flex items-center px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors {{ request()->routeIs('patient.pharmacy-orders.*') ? 'bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300' : '' }}">
+                                <div class="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-shopping-cart text-indigo-600 text-sm"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Pharmacy Orders</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Track your orders</div>
+                                </div>
                             </a>
-                            <a href="{{ route('patient.appointments.search-doctors') }}" 
-                               class="group flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                <i class="fas fa-search mr-3 text-purple-500"></i>
-                                Find Doctors
+                            <a href="{{ route('patient.medical-reports.index') }}" 
+                               class="flex items-center px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors {{ request()->routeIs('patient.medical-reports.*') ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300' : '' }}">
+                                <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-file-medical text-blue-600 text-sm"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Medical Reports</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Access your reports</div>
+                                </div>
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <div class="-mr-2 flex items-center sm:hidden">
-                    <button type="button" onclick="toggleMobileMenu()" 
-                            class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500" 
-                            aria-controls="mobile-menu" aria-expanded="false">
-                        <span class="sr-only">Open main menu</span>
-                        <svg class="block h-6 w-6" id="mobile-menu-icon-closed" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                        <svg class="hidden h-6 w-6" id="mobile-menu-icon-open" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                <!-- Lab Services Dropdown -->
+                <div class="relative dropdown-container">
+                    <button class="dropdown-toggle flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs(['patient.lab-tests.*', 'patient.lab-appointments.*']) 
+                                ? 'bg-yellow-50 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300' 
+                                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700/50' }}">
+                        <i class="fas fa-vial {{ request()->routeIs(['patient.lab-tests.*', 'patient.lab-appointments.*']) ? 'text-yellow-600' : 'text-gray-400' }} mr-2"></i>
+                        <span>Lab</span>
+                        <i class="fas fa-chevron-down ml-2 text-xs transition-transform dropdown-arrow"></i>
                     </button>
+                    <div class="dropdown-menu absolute left-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 opacity-0 invisible transform scale-95 transition-all duration-200">
+                        <div class="py-2">
+                            <a href="{{ route('patient.lab-tests.index') }}" 
+                               class="flex items-center px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors {{ request()->routeIs('patient.lab-tests.*') ? 'bg-yellow-50 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300' : '' }}">
+                                <div class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900/50 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-vial text-yellow-600 text-sm"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Test Results</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">View lab results</div>
+                                </div>
+                            </a>
+                            <a href="{{ route('patient.lab-appointments.index') }}" 
+                               class="flex items-center px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors {{ request()->routeIs('patient.lab-appointments.*') ? 'bg-orange-50 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300' : '' }}">
+                                <div class="w-8 h-8 bg-orange-100 dark:bg-orange-900/50 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-calendar-alt text-orange-600 text-sm"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Lab Appointments</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">Schedule tests</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side Actions -->
+            <div class="flex items-center space-x-2">
+                <!-- Notifications -->
+                <button class="p-2 text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-all relative">
+                    <i class="fas fa-bell text-lg"></i>
+                    <span class="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"></span>
+                </button>
+
+                <!-- User Menu -->
+                <div class="relative dropdown-container">
+                    <button class="dropdown-toggle flex items-center space-x-2 p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-all">
+                        <div class="w-7 h-7 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-gray-600 dark:text-gray-300 text-sm"></i>
+                        </div>
+                        <span class="hidden lg:block text-sm font-medium">{{ auth()->user()->name }}</span>
+                        <i class="fas fa-chevron-down text-xs transition-transform dropdown-arrow"></i>
+                    </button>
+                    <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 opacity-0 invisible transform scale-95 transition-all duration-200">
+                        <div class="py-2">
+                            <a href="{{ route('patient.health-profile.index') }}" 
+                               class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                <i class="fas fa-user-circle mr-3 text-gray-400"></i>My Profile
+                            </a>
+                            <a href="#" 
+                               class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                <i class="fas fa-cog mr-3 text-gray-400"></i>Settings
+                            </a>
+                            <div class="border-t border-gray-100 dark:border-gray-700 my-1"></div>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" 
+                                        class="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                    <i class="fas fa-sign-out-alt mr-3 text-gray-400"></i>Sign Out
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile menu button -->
+                <button id="mobile-menu-button" 
+                        class="md:hidden p-2 text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-all">
+                    <i class="fas fa-bars text-lg" id="mobile-menu-icon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation -->
+        <div id="mobile-menu" class="md:hidden hidden border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+            <div class="px-4 py-3 space-y-2">
+                <!-- Main Navigation -->
+                <a href="{{ route('patient.dashboard') }}" 
+                   class="flex items-center px-3 py-2 rounded-lg text-base font-medium transition-colors {{ request()->routeIs('patient.dashboard') 
+                       ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300' 
+                       : 'text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800' }}">
+                    <i class="fas fa-home mr-3 text-blue-600"></i>Home
+                </a>
+
+                <a href="{{ route('patient.appointments.index') }}" 
+                   class="flex items-center px-3 py-2 rounded-lg text-base font-medium transition-colors {{ request()->routeIs('patient.appointments.*') 
+                       ? 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300' 
+                       : 'text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800' }}">
+                    <i class="fas fa-calendar-check mr-3 text-green-600"></i>Appointments
+                </a>
+
+                <!-- Health Services Section -->
+                <div class="pt-2">
+                    <div class="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Health Services</div>
+                    <div class="space-y-1">
+                        <a href="{{ route('patient.prescriptions.index') }}" 
+                           class="flex items-center px-3 py-2 rounded-lg text-base font-medium transition-colors {{ request()->routeIs('patient.prescriptions.*') 
+                               ? 'bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300' 
+                               : 'text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800' }}">
+                            <i class="fas fa-pills mr-3 text-purple-600"></i>Prescriptions
+                        </a>
+                        <a href="{{ route('patient.pharmacy-orders.index') }}" 
+                           class="flex items-center px-3 py-2 rounded-lg text-base font-medium transition-colors {{ request()->routeIs('patient.pharmacy-orders.*') 
+                               ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300' 
+                               : 'text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800' }}">
+                            <i class="fas fa-shopping-cart mr-3 text-indigo-600"></i>Pharmacy Orders
+                        </a>
+                        <a href="{{ route('patient.medical-reports.index') }}" 
+                           class="flex items-center px-3 py-2 rounded-lg text-base font-medium transition-colors {{ request()->routeIs('patient.medical-reports.*') 
+                               ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300' 
+                               : 'text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800' }}">
+                            <i class="fas fa-file-medical mr-3 text-blue-600"></i>Medical Reports
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Lab Services Section -->
+                <div class="pt-2">
+                    <div class="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Lab Services</div>
+                    <div class="space-y-1">
+                        <a href="{{ route('patient.lab-tests.index') }}" 
+                           class="flex items-center px-3 py-2 rounded-lg text-base font-medium transition-colors {{ request()->routeIs('patient.lab-tests.*') 
+                               ? 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300' 
+                               : 'text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800' }}">
+                            <i class="fas fa-vial mr-3 text-yellow-600"></i>Test Results
+                        </a>
+                        <a href="{{ route('patient.lab-appointments.index') }}" 
+                           class="flex items-center px-3 py-2 rounded-lg text-base font-medium transition-colors {{ request()->routeIs('patient.lab-appointments.*') 
+                               ? 'bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300' 
+                               : 'text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800' }}">
+                            <i class="fas fa-calendar-alt mr-3 text-orange-600"></i>Lab Appointments
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Profile Section -->
+                <div class="pt-2 border-t border-gray-200 dark:border-gray-700">
+                    <a href="{{ route('patient.health-profile.index') }}" 
+                       class="flex items-center px-3 py-2 rounded-lg text-base font-medium transition-colors {{ request()->routeIs('patient.health-profile.*') 
+                           ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white' 
+                           : 'text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800' }}">
+                        <i class="fas fa-user-circle mr-3 text-gray-600"></i>My Profile
+                    </a>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="sm:hidden" id="mobile-menu">
-        <div class="pt-2 pb-3 space-y-1">
-            <a href="{{ route('patient.dashboard') }}" 
-               class="block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200
-                       {{ request()->routeIs('patient.dashboard') 
-                           ? 'bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-200' 
-                           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white' }}">
-                <i class="fas fa-tachometer-alt mr-2"></i>
-                Dashboard
-            </a>
-
-            <a href="{{ route('patient.appointments.index') }}" 
-               class="block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200
-                       {{ request()->routeIs('patient.appointments.*') 
-                           ? 'bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-200' 
-                           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white' }}">
-                <i class="fas fa-calendar-check mr-2"></i>
-                Appointments
-            </a>
-
-            <a href="{{ route('patient.medical-reports.index') }}" 
-               class="block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200
-                       {{ request()->routeIs('patient.medical-reports.*') 
-                           ? 'bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-200' 
-                           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white' }}">
-                <i class="fas fa-file-medical mr-2"></i>
-                Medical Reports
-            </a>
-
-            <a href="{{ route('patient.prescriptions.index') }}" 
-               class="block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200
-                       {{ request()->routeIs('patient.prescriptions.*') 
-                           ? 'bg-purple-50 dark:bg-purple-900 text-purple-700 dark:text-purple-200' 
-                           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white' }}">
-                <i class="fas fa-pills mr-2"></i>
-                Prescriptions
-            </a>
-
-            <a href="{{ route('patient.lab-tests.index') }}" 
-               class="block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200
-                       {{ request()->routeIs('patient.lab-tests.*') 
-                           ? 'bg-yellow-50 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-200' 
-                           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white' }}">
-                <i class="fas fa-vial mr-2"></i>
-                Lab Tests
-            </a>
-
-            <a href="{{ route('patient.lab-appointments.index') }}" 
-               class="block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200
-                       {{ request()->routeIs('patient.lab-appointments.*') 
-                           ? 'bg-orange-50 dark:bg-orange-900 text-orange-700 dark:text-orange-200' 
-                           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white' }}">
-                <i class="fas fa-flask mr-2"></i>
-                Lab Appointments
-            </a>
-
-            <a href="{{ route('patient.health-profile.index') }}" 
-               class="block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200
-                       {{ request()->routeIs('patient.health-profile.*') 
-                           ? 'bg-red-50 dark:bg-red-900 text-red-700 dark:text-red-200' 
-                           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white' }}">
-                <i class="fas fa-user-injured mr-2"></i>
-                Health Profile
-            </a>
-        </div>
-    </div>
 </nav>
 
-<script>
-    // Breadcrumb management
-    const breadcrumbConfig = {
-        'patient.dashboard': { name: 'Dashboard', icon: 'fas fa-home' },
-        'patient.appointments.index': { name: 'Appointments', icon: 'fas fa-calendar-check' },
-        'patient.appointments.create': { name: 'Book Appointment', icon: 'fas fa-calendar-plus', parent: 'patient.appointments.index' },
-        'patient.appointments.show': { name: 'Appointment Details', icon: 'fas fa-calendar-alt', parent: 'patient.appointments.index' },
-        'patient.appointments.edit': { name: 'Edit Appointment', icon: 'fas fa-calendar-edit', parent: 'patient.appointments.index' },
-        'patient.appointments.search-doctors': { name: 'Find Doctors', icon: 'fas fa-search', parent: 'patient.appointments.index' },
-        'patient.medical-reports.index': { name: 'Medical Reports', icon: 'fas fa-file-medical' },
-        'patient.medical-reports.show': { name: 'Report Details', icon: 'fas fa-file-alt', parent: 'patient.medical-reports.index' },
-        'patient.prescriptions.index': { name: 'Prescriptions', icon: 'fas fa-pills' },
-        'patient.prescriptions.show': { name: 'Prescription Details', icon: 'fas fa-prescription', parent: 'patient.prescriptions.index' },
-        'patient.lab-tests.index': { name: 'Lab Tests', icon: 'fas fa-vial' },
-        'patient.lab-tests.show': { name: 'Test Results', icon: 'fas fa-chart-line', parent: 'patient.lab-tests.index' },
-        'patient.lab-appointments.index': { name: 'Lab Appointments', icon: 'fas fa-flask' },
-        'patient.lab-appointments.create': { name: 'Book Lab Appointment', icon: 'fas fa-plus-circle', parent: 'patient.lab-appointments.index' },
-        'patient.lab-appointments.show': { name: 'Appointment Details', icon: 'fas fa-info-circle', parent: 'patient.lab-appointments.index' },
-        'patient.health-profile.index': { name: 'Health Profile', icon: 'fas fa-user-injured' },
-        'patient.health-profile.create': { name: 'Create Profile', icon: 'fas fa-user-plus', parent: 'patient.health-profile.index' },
-        'patient.health-profile.edit': { name: 'Edit Profile', icon: 'fas fa-user-edit', parent: 'patient.health-profile.index' }
-    };
+<!-- Simplified Breadcrumb for Detail Pages -->
+@if(request()->routeIs(['*.show']))
+<div class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+        <nav class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+            <a href="{{ route('patient.dashboard') }}" class="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                <i class="fas fa-home"></i>
+            </a>
+            <i class="fas fa-chevron-right text-xs"></i>
+            @if(request()->routeIs('patient.prescriptions.*'))
+                <a href="{{ route('patient.prescriptions.index') }}" class="hover:text-gray-700 dark:hover:text-gray-300">Prescriptions</a>
+            @elseif(request()->routeIs('patient.pharmacy-orders.*'))
+                <a href="{{ route('patient.pharmacy-orders.index') }}" class="hover:text-gray-700 dark:hover:text-gray-300">Pharmacy Orders</a>
+            @elseif(request()->routeIs('patient.medical-reports.*'))
+                <a href="{{ route('patient.medical-reports.index') }}" class="hover:text-gray-700 dark:hover:text-gray-300">Medical Reports</a>
+            @elseif(request()->routeIs('patient.lab-tests.*'))
+                <a href="{{ route('patient.lab-tests.index') }}" class="hover:text-gray-700 dark:hover:text-gray-300">Lab Tests</a>
+            @endif
+            <i class="fas fa-chevron-right text-xs"></i>
+            <span class="text-gray-900 dark:text-white font-medium">Details</span>
+        </nav>
+    </div>
+</div>
+@endif
 
-    function updateBreadcrumb() {
-        const currentRoute = '{{ Route::currentRouteName() }}';
-        const breadcrumbNav = document.getElementById('breadcrumb-nav').querySelector('ol');
-        
-        // Clear existing breadcrumb items except the home link
-        const homeItem = breadcrumbNav.querySelector('li');
-        breadcrumbNav.innerHTML = homeItem.outerHTML;
-        
-        if (currentRoute === 'patient.dashboard') {
-            return; // Don't show breadcrumb for dashboard
-        }
-        
-        const breadcrumbPath = buildBreadcrumbPath(currentRoute);
-        
-        breadcrumbPath.forEach((routeName, index) => {
-            const config = breadcrumbConfig[routeName];
-            if (config && routeName !== 'patient.dashboard') {
-                const li = document.createElement('li');
-                li.className = 'flex items-center';
-                
-                const isLast = index === breadcrumbPath.length - 1;
-                
-                li.innerHTML = `
-                    <i class="fas fa-chevron-right mx-2 text-gray-400"></i>
-                    ${isLast ? 
-                        `<span class="text-gray-900 dark:text-white font-medium">
-                            <i class="${config.icon} mr-1"></i>
-                            ${config.name}
-                        </span>` :
-                        `<a href="${getRouteUrl(routeName)}" class="hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200">
-                            <i class="${config.icon} mr-1"></i>
-                            ${config.name}
-                        </a>`
-                    }
-                `;
-                
-                breadcrumbNav.appendChild(li);
+<script>
+// Enhanced navigation with dropdown functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Mobile menu toggle
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileMenuIcon = document.getElementById('mobile-menu-icon');
+
+    if (mobileMenuButton && mobileMenu) {
+        mobileMenuButton.addEventListener('click', function() {
+            const isHidden = mobileMenu.classList.contains('hidden');
+            
+            if (isHidden) {
+                mobileMenu.classList.remove('hidden');
+                mobileMenuIcon.classList.replace('fa-bars', 'fa-times');
+            } else {
+                mobileMenu.classList.add('hidden');
+                mobileMenuIcon.classList.replace('fa-times', 'fa-bars');
+            }
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const isClickInsideNav = mobileMenuButton.contains(event.target) || mobileMenu.contains(event.target);
+            
+            if (!isClickInsideNav && !mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.add('hidden');
+                mobileMenuIcon.classList.replace('fa-times', 'fa-bars');
             }
         });
     }
+
+    // Desktop dropdown functionality
+    const dropdownContainers = document.querySelectorAll('.dropdown-container');
     
-    function buildBreadcrumbPath(currentRoute) {
-        const path = [];
-        let route = currentRoute;
+    dropdownContainers.forEach(container => {
+        const toggle = container.querySelector('.dropdown-toggle');
+        const menu = container.querySelector('.dropdown-menu');
+        const arrow = container.querySelector('.dropdown-arrow');
         
-        while (route && breadcrumbConfig[route]) {
-            path.unshift(route);
-            route = breadcrumbConfig[route].parent;
-        }
-        
-        return path;
-    }
-    
-    function getRouteUrl(routeName) {
-        // Map route names to URLs - you might need to adjust these based on your actual routes
-        const routeMap = {
-            'patient.dashboard': '{{ route("patient.dashboard") }}',
-            'patient.appointments.index': '{{ route("patient.appointments.index") }}',
-            'patient.medical-reports.index': '{{ route("patient.medical-reports.index") }}',
-            'patient.prescriptions.index': '{{ route("patient.prescriptions.index") }}',
-            'patient.lab-tests.index': '{{ route("patient.lab-tests.index") }}',
-            'patient.lab-appointments.index': '{{ route("patient.lab-appointments.index") }}',
-            'patient.health-profile.index': '{{ route("patient.health-profile.index") }}'
-        };
-        
-        return routeMap[routeName] || '#';
-    }
-
-    function toggleDropdown() {
-        const dropdown = document.getElementById('quickActionsDropdown');
-        dropdown.classList.toggle('hidden');
-    }
-
-    function toggleMobileMenu() {
-        const mobileMenu = document.getElementById('mobile-menu');
-        const iconClosed = document.getElementById('mobile-menu-icon-closed');
-        const iconOpen = document.getElementById('mobile-menu-icon-open');
-
-        mobileMenu.classList.toggle('hidden');
-        iconClosed.classList.toggle('hidden');
-        iconOpen.classList.toggle('hidden');
-    }
-
-    // Initialize breadcrumb on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        updateBreadcrumb();
-    });
-
-    // Close dropdowns when clicking outside
-    document.addEventListener('click', function(event) {
-        // Quick Actions Dropdown
-        const quickActionsDropdown = document.getElementById('quickActionsDropdown');
-        const quickActionsButton = event.target.closest('button[onclick="toggleDropdown()"]');
-        
-        if (!quickActionsButton && !quickActionsDropdown.contains(event.target)) {
-            quickActionsDropdown.classList.add('hidden');
-        }
-
-        // Mobile Menu (only close if not clicking the toggle button)
-        const mobileMenu = document.getElementById('mobile-menu');
-        const mobileMenuButton = event.target.closest('button[onclick="toggleMobileMenu()"]');
-
-        if (!mobileMenuButton && !mobileMenu.contains(event.target) && !mobileMenu.classList.contains('hidden')) {
-            mobileMenu.classList.add('hidden');
-            document.getElementById('mobile-menu-icon-closed').classList.remove('hidden');
-            document.getElementById('mobile-menu-icon-open').classList.add('hidden');
+        if (toggle && menu && arrow) {
+            let isOpen = false;
+            
+            const showDropdown = () => {
+                // Close all other dropdowns first
+                dropdownContainers.forEach(otherContainer => {
+                    if (otherContainer !== container) {
+                        const otherMenu = otherContainer.querySelector('.dropdown-menu');
+                        const otherArrow = otherContainer.querySelector('.dropdown-arrow');
+                        if (otherMenu && otherArrow) {
+                            otherMenu.classList.add('opacity-0', 'invisible', 'scale-95');
+                            otherMenu.classList.remove('opacity-100', 'visible', 'scale-100');
+                            otherArrow.classList.remove('rotate-180');
+                        }
+                    }
+                });
+                
+                // Show this dropdown
+                menu.classList.remove('opacity-0', 'invisible', 'scale-95');
+                menu.classList.add('opacity-100', 'visible', 'scale-100');
+                arrow.classList.add('rotate-180');
+                isOpen = true;
+            };
+            
+            const hideDropdown = () => {
+                menu.classList.add('opacity-0', 'invisible', 'scale-95');
+                menu.classList.remove('opacity-100', 'visible', 'scale-100');
+                arrow.classList.remove('rotate-180');
+                isOpen = false;
+            };
+            
+            // Click to toggle
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (isOpen) {
+                    hideDropdown();
+                } else {
+                    showDropdown();
+                }
+            });
+            
+            // Close when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!container.contains(e.target) && isOpen) {
+                    hideDropdown();
+                }
+            });
+            
+            // Close when pressing escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && isOpen) {
+                    hideDropdown();
+                }
+            });
         }
     });
+});
 </script>
