@@ -231,6 +231,9 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/patient/health-profile', [\App\Http\Controllers\Patient\HealthProfileController::class, 'update'])->name('patient.health-profile.update');
         Route::delete('/patient/health-profile', [\App\Http\Controllers\Patient\HealthProfileController::class, 'destroy'])->name('patient.health-profile.destroy');
         
+        // Health Profile Medication Helper
+        Route::get('/patient/health-profile/medications/active', [\App\Http\Controllers\Patient\HealthProfileMedicationController::class, 'getActiveMedications'])->name('patient.health-profile.medications.active');
+        
         // Health Profile Permission Management
         Route::prefix('patient/health-profile/permissions')->name('patient.health-profile.permissions.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Patient\HealthProfilePermissionController::class, 'index'])->name('index');

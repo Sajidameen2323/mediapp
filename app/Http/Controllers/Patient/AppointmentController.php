@@ -414,6 +414,7 @@ class AppointmentController extends Controller
             'reschedule_reason' => $request->reschedule_reason,
             'original_date' => $oldDate, // Store original date for reference
             'original_time' => $oldTime, // Store original time for reference
+            'status' => 'pending'
         ]);
 
         return redirect()->route('patient.appointments.show', $appointment)

@@ -101,7 +101,15 @@
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>                <div>
-                    <label for="medications" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Current Medications</label>
+                    <div class="flex items-center justify-between mb-2">
+                        <label for="medications" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Current Medications</label>
+                        <button type="button" 
+                            id="populate-medications-btn"
+                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200">
+                            <i class="fas fa-pills mr-1.5"></i>
+                            Load from Prescriptions
+                        </button>
+                    </div>
                     <textarea id="medications" name="medications" rows="3"
                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
                               placeholder="Separate each medication with a semicolon (;) - Example: Lisinopril 10mg daily; Metformin 500mg twice daily; Vitamin D3 1000IU">{{ old('medications', $healthProfile->medications) }}</textarea>
@@ -354,3 +362,126 @@
     </form>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const populateMedicationsBtn = document.getElementById('populate-medications-btn');
+    const medicationsTextarea = document.getElementById('medications');
+    
+    if (populateMedicationsBtn && medicationsTextarea) {
+        populateMedicationsBtn.addEventListener('click', function() {
+            // Disable button and show loading state
+            populateMedicationsBtn.disabled = true;
+            const originalText = populateMedicationsBtn.innerHTML;
+            populateMedicationsBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1.5"></i>Loading...';
+            
+            // Make AJAX request to get active medications
+            fetch('{{ route('patient.health-profile.medications.active') }}', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.medications.length > 0) {
+                    // If there's existing content, ask user if they want to replace or append
+                    const existingContent = medicationsTextarea.value.trim();
+                    let shouldProceed = true;
+                    let shouldReplace = false;
+                    
+                    if (existingContent) {
+                        const action = confirm(
+                            'You already have medications listed. Do you want to:\n\n' +
+                            'OK - Replace existing medications with active prescriptions\n' +
+                            'Cancel - Add active prescriptions to existing medications'
+                        );
+                        shouldReplace = action;
+                    }
+                    
+                    if (shouldProceed) {
+                        const medicationsText = data.medications.join('; ');
+                        
+                        if (shouldReplace || !existingContent) {
+                            medicationsTextarea.value = medicationsText;
+                        } else {
+                            // Append new medications
+                            medicationsTextarea.value = existingContent + '; ' + medicationsText;
+                        }
+                        
+                        // Show success message
+                        showNotification('success', `Successfully loaded ${data.count} active medication(s) from your prescriptions.`);
+                    }
+                } else if (data.success && data.medications.length === 0) {
+                    showNotification('info', 'No active medications found in your current prescriptions.');
+                } else {
+                    showNotification('error', 'Failed to load medications. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching medications:', error);
+                showNotification('error', 'An error occurred while loading medications. Please try again.');
+            })
+            .finally(() => {
+                // Re-enable button and restore text
+                populateMedicationsBtn.disabled = false;
+                populateMedicationsBtn.innerHTML = originalText;
+            });
+        });
+    }
+    
+    function showNotification(type, message) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${getNotificationClasses(type)}`;
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas ${getNotificationIcon(type)} mr-3"></i>
+                <span class="text-sm font-medium">${message}</span>
+                <button type="button" class="ml-4 text-current opacity-70 hover:opacity-100" onclick="this.parentElement.parentElement.remove()">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }, 5000);
+    }
+    
+    function getNotificationClasses(type) {
+        switch(type) {
+            case 'success':
+                return 'bg-green-50 border border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-200';
+            case 'error':
+                return 'bg-red-50 border border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200';
+            case 'info':
+                return 'bg-blue-50 border border-blue-200 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-200';
+            default:
+                return 'bg-gray-50 border border-gray-200 text-gray-800 dark:bg-gray-900/20 dark:border-gray-800 dark:text-gray-200';
+        }
+    }
+    
+    function getNotificationIcon(type) {
+        switch(type) {
+            case 'success':
+                return 'fa-check-circle';
+            case 'error':
+                return 'fa-exclamation-circle';
+            case 'info':
+                return 'fa-info-circle';
+            default:
+                return 'fa-bell';
+        }
+    }
+});
+</script>
+@endpush
