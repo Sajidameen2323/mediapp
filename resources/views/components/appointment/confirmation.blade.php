@@ -175,15 +175,5 @@
                 <span class="text-red-500">*</span>
             </label>
         </div>
-
-        {{-- Debug Button (Development Only) --}}
-        <div class="mb-6 border-t border-gray-200 dark:border-gray-600 pt-4">
-            <button type="button" 
-                    id="debug_form_state" 
-                    class="w-full px-4 py-2 bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white font-medium rounded-lg transition-colors duration-200 text-sm">
-                <i class="fas fa-bug mr-2"></i>
-                Debug: Log Current Form State
-            </button>
-        </div>
     </div>
 </div>

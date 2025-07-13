@@ -90,7 +90,7 @@ class PharmacyOrderController extends Controller
     {
         $this->authorize('update', $order);
 
-        if ($order->status !== 'confirmed') {
+        if ($order->status !== 'confirmed' && $order->status !== 'preparing') {
             return redirect()->route('pharmacy.orders.show', $order)
                 ->with('error', 'Only confirmed orders can be prepared.');
         }

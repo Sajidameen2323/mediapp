@@ -252,18 +252,6 @@
 
         <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border dark:border-gray-700">
             <div class="px-4 py-5 sm:p-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">System Settings</h3>
-                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Configure system-wide settings</p>
-                <div class="mt-4">
-                    <button class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors duration-200">
-                        Settings
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border dark:border-gray-700">
-            <div class="px-4 py-5 sm:p-6">
                 <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Reports</h3>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">View system reports and analytics</p>
                 <div class="mt-4">
@@ -274,41 +262,6 @@
             </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="px-4 py-5 sm:p-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Role Management</h3>
-                <p class="mt-2 text-sm text-gray-600">Manage user roles and permissions</p>
-                <div class="mt-4">
-                    <button class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
-                        Manage Roles
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="px-4 py-5 sm:p-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Backup & Restore</h3>
-                <p class="mt-2 text-sm text-gray-600">Manage system backups</p>
-                <div class="mt-4">
-                    <button class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
-                        Backup System
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="px-4 py-5 sm:p-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Audit Logs</h3>
-                <p class="mt-2 text-sm text-gray-600">View system activity logs</p>
-                <div class="mt-4">
-                    <button class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
-                        View Logs
-                    </button>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 @endsection

@@ -305,7 +305,7 @@
                     </div>
                 </div>
             </div> <!-- Services Assignment -->
-            @if ($services->count() > 0)
+            @if (count($services) > 0)
                 <div class="bg-white dark:bg-gray-800 shadow-xl rounded-2xl border dark:border-gray-700 overflow-hidden">
                     <div
                         class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-gray-700 dark:to-gray-600">
@@ -425,7 +425,7 @@
                                     <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Selected services: <span
                                             id="selected-services-count"
                                             class="font-medium text-purple-600 dark:text-purple-400">{{ $doctor->services->count() }}</span>
-                                        of {{ $services->count() }}</p>
+                                        of {{ count($services) }}</p>
                                 </div>
                                 <div class="text-right">
                                     <p class="text-xs text-gray-600 dark:text-gray-400">Total potential revenue:</p>
@@ -682,14 +682,6 @@
                     Update Doctor
                 </button>
             </div>
-            <!-- Debug Button (Temporary) -->
-            <div class="flex justify-end mt-4">
-                <button type="button" id="debug-log-form"
-                    class="px-4 py-2 bg-yellow-400 text-black rounded-xl font-semibold hover:bg-yellow-500 transition-all duration-200 mr-2">
-                    <i class="fas fa-bug mr-1"></i> Log Form Data
-                </button>
-            </div>
-
         </form>
     </div>
 
@@ -940,27 +932,6 @@
                     // Trigger change event to properly initialize UI for existing schedules
                     checkbox.dispatchEvent(new Event('change'));
                 }
-            });
-
-            // Debug button to log form data
-            document.getElementById('debug-log-form').addEventListener('click', function() {
-               
-                const form = this.closest('form');
-                const formData = new FormData(form);
-                const entries = {};
-                for (const [key, value] of formData.entries()) {
-                    if (entries[key]) {
-                        if (Array.isArray(entries[key])) {
-                            entries[key].push(value);
-                        } else {
-                            entries[key] = [entries[key], value];
-                        }
-                    } else {
-                        entries[key] = value;
-                    }
-                }
-                console.log('Form data to be submitted:', entries);
-                alert('Form data logged to console. Open browser dev tools to view.');
             });
 
         });

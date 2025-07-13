@@ -88,7 +88,7 @@ class DashboardController extends Controller
         
         // Get order statistics
         $pendingOrders = PharmacyOrder::where('pharmacy_id', $pharmacy->id)
-            ->where('status', 'pending')
+            ->whereIn('status', ['pending', 'confirmed'])
             ->count();
             
         $preparingOrders = PharmacyOrder::where('pharmacy_id', $pharmacy->id)

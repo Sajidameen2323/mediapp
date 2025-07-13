@@ -34,7 +34,7 @@
                 {{ ucfirst(str_replace('_', ' ', $order->payment_status)) }}
             </span>
             
-            @if($order->status === 'confirmed')
+            @if($order->status === 'confirmed' || $order->status === 'preparing')
                 <a href="{{ route('pharmacy.orders.prepare', $order) }}" 
                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors duration-200">
                     <i class="fas fa-cogs mr-2"></i>

@@ -34,6 +34,12 @@
                 <div>
                     <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Order #{{ $pharmacyOrder->order_number }}</h1>
                     <p class="mt-2 text-gray-600 dark:text-gray-400">Order placed on {{ $pharmacyOrder->created_at->format('M d, Y \a\t g:i A') }}</p>
+                    @if(!$pharmacyOrder->canProcessPayment() && $pharmacyOrder->payment_status === 'pending' && in_array($pharmacyOrder->status, ['pending', 'processing']))
+                        <p class="mt-1 text-sm text-blue-600 dark:text-blue-400">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Payment will be available after pharmacy preparation is complete
+                        </p>
+                    @endif
                 </div>
                 <div class="flex items-center space-x-3">
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $pharmacyOrder->getStatusBadgeColor() }}">
@@ -57,7 +63,7 @@
                         </div>
                         <div class="ml-3">
                             <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">Payment Required</h3>
-                            <p class="text-sm text-yellow-700 dark:text-yellow-300">Complete your payment to confirm this order.</p>
+                            <p class="text-sm text-yellow-700 dark:text-yellow-300">Complete your payment to confirm this order. Your medications will not be dispensed until payment is completed.</p>
                         </div>
                     </div>
                     <a href="{{ route('patient.pharmacy-orders.payment', $pharmacyOrder) }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg focus:ring-4 focus:ring-green-300 dark:focus:ring-green-800 transition-colors">
@@ -65,6 +71,37 @@
                     </a>
                 </div>
             </div>
+        @else
+            <!-- Payment Not Available Message -->
+            @if($pharmacyOrder->payment_status === 'pending' && in_array($pharmacyOrder->status, ['pending', 'processing']))
+                <div class="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-info-circle text-blue-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">Payment Information</h3>
+                            <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
+                                <p class="mb-2">Payment can only be processed after your order has been prepared by the pharmacy.</p>
+                                <div class="flex items-center space-x-4 text-xs">
+                                    <div class="flex items-center">
+                                        <div class="w-2 h-2 bg-yellow-400 rounded-full mr-2"></div>
+                                        <span>Current Status: {{ ucfirst($pharmacyOrder->status) }}</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-2 h-2 bg-gray-400 rounded-full mr-2"></div>
+                                        <span>Next: Payment & Dispensing</span>
+                                    </div>
+                                </div>
+                                <p class="mt-3 text-xs bg-blue-100 dark:bg-blue-800/50 rounded-md px-2 py-1 inline-block">
+                                    <i class="fas fa-shield-alt mr-1"></i>
+                                    Your medications will not be dispensed until payment is completed.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
         @endif
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -188,6 +225,39 @@
                         </h2>
                     </div>
                     <div class="px-6 py-4 space-y-3">
+                        <!-- Order Status Flow -->
+                        @if(!$pharmacyOrder->canProcessPayment() && $pharmacyOrder->payment_status === 'pending')
+                            <div class="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <div class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Order Process:</div>
+                                <div class="space-y-2">
+                                    <div class="flex items-center text-xs">
+                                        <div class="w-3 h-3 rounded-full {{ in_array($pharmacyOrder->status, ['pending', 'processing', 'prepared', 'ready']) ? 'bg-blue-500' : 'bg-gray-300' }} mr-2"></div>
+                                        <span class="{{ in_array($pharmacyOrder->status, ['pending', 'processing']) ? 'text-blue-600 dark:text-blue-400 font-medium' : 'text-gray-600 dark:text-gray-400' }}">
+                                            1. Pharmacy Preparation
+                                        </span>
+                                        @if(in_array($pharmacyOrder->status, ['pending', 'processing']))
+                                            <span class="ml-2 text-blue-600 dark:text-blue-400 font-medium">(Current)</span>
+                                        @endif
+                                    </div>
+                                    <div class="flex items-center text-xs">
+                                        <div class="w-3 h-3 rounded-full {{ $pharmacyOrder->status === 'prepared' ? 'bg-yellow-500' : 'bg-gray-300' }} mr-2"></div>
+                                        <span class="{{ $pharmacyOrder->status === 'prepared' ? 'text-yellow-600 dark:text-yellow-400 font-medium' : 'text-gray-600 dark:text-gray-400' }}">
+                                            2. Payment Processing
+                                        </span>
+                                        @if($pharmacyOrder->status === 'prepared')
+                                            <span class="ml-2 text-yellow-600 dark:text-yellow-400 font-medium">(Ready for Payment)</span>
+                                        @endif
+                                    </div>
+                                    <div class="flex items-center text-xs">
+                                        <div class="w-3 h-3 rounded-full {{ in_array($pharmacyOrder->status, ['ready', 'dispensed']) ? 'bg-green-500' : 'bg-gray-300' }} mr-2"></div>
+                                        <span class="{{ in_array($pharmacyOrder->status, ['ready', 'dispensed']) ? 'text-green-600 dark:text-green-400 font-medium' : 'text-gray-600 dark:text-gray-400' }}">
+                                            3. Medication Dispensing
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                        
                         <div class="flex justify-between">
                             <span class="text-sm text-gray-600 dark:text-gray-400">Subtotal</span>
                             <span class="text-sm text-gray-900 dark:text-white">${{ number_format($pharmacyOrder->subtotal, 2) }}</span>
@@ -226,6 +296,11 @@
                             <a href="{{ route('patient.pharmacy-orders.payment', $pharmacyOrder) }}" class="w-full inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg focus:ring-4 focus:ring-green-300 dark:focus:ring-green-800 transition-colors">
                                 <i class="fas fa-credit-card mr-2"></i>Pay Now
                             </a>
+                        @elseif($pharmacyOrder->payment_status === 'pending' && in_array($pharmacyOrder->status, ['pending', 'processing']))
+                            <div class="w-full px-4 py-3 text-sm text-center text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <i class="fas fa-clock mr-2"></i>
+                                Payment available after preparation
+                            </div>
                         @endif
 
                         @if($pharmacyOrder->canBeCancelled())

@@ -258,12 +258,12 @@
                                     View Details
                                 </a>
                                 
-                                @if($prescription->status === 'active')
-                                    <button type="button" 
-                                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 dark:bg-green-800 dark:text-green-200 dark:hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
-                                        <i class="fas fa-pharmacy mr-2"></i>
+                                @if($prescription->canBeOrdered())
+                                    <a href="{{ route('patient.prescriptions.order-pharmacy', $prescription) }}" 
+                                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
+                                        <i class="fas fa-store mr-2"></i>
                                         Order Pharmacy
-                                    </button>
+                                    </a>
                                 @endif
                             </div>
                         </div>
