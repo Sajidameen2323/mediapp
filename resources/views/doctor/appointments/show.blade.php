@@ -80,10 +80,14 @@
         <!-- Patient Information -->
         <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
             <div class="px-4 py-5 sm:p-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">
-                    <i class="fas fa-user text-blue-600 mr-2"></i>
-                    Patient Information
-                </h3>
+                <div class="flex items-center justify-between cursor-pointer" onclick="toggleSection('patient-info')">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                        <i class="fas fa-user text-blue-600 mr-2"></i>
+                        Patient Information
+                    </h3>
+                    <i class="fas fa-chevron-down text-gray-400 dark:text-gray-500 transition-transform duration-200" id="patient-info-icon"></i>
+                </div>
+                <div id="patient-info-content" class="mt-4">
                   <dl class="space-y-4">
                     <div class="flex items-center">
                         <div class="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-3">
@@ -150,16 +154,21 @@
                         </div>
                     @endif
                 </dl>
+                </div>
             </div>
         </div>
 
         <!-- Appointment Details -->
         <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
             <div class="px-4 py-5 sm:p-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">
-                    <i class="fas fa-calendar-check text-green-600 mr-2"></i>
-                    Appointment Details
-                </h3>
+                <div class="flex items-center justify-between cursor-pointer" onclick="toggleSection('appointment-details')">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                        <i class="fas fa-calendar-check text-green-600 mr-2"></i>
+                        Appointment Details
+                    </h3>
+                    <i class="fas fa-chevron-down text-gray-400 dark:text-gray-500 transition-transform duration-200" id="appointment-details-icon"></i>
+                </div>
+                <div id="appointment-details-content" class="mt-4">
                   <dl class="space-y-4">
                     <div class="flex items-center">
                         <div class="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-3">
@@ -177,7 +186,7 @@
                         </div>
                         <div>
                             <dt class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Date</dt>
-                            <dd class="mt-1 text-sm text-gray-900 dark:text-white font-medium">{{ $appointment->appointment_date->format('l, F d, Y') }}</dd>
+                            <dd class="mt-1 text-sm text-gray-900 dark:text-white font-medium">{{ date('l, F d, Y', strtotime((string)$appointment->appointment_date)) }}</dd>
                         </div>
                     </div>
                     
@@ -221,16 +230,21 @@
                         </div>
                     </div>
                 </dl>
+                </div>
             </div>
         </div>
 
         <!-- Payment Information -->
         <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
             <div class="px-4 py-5 sm:p-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">
-                    <i class="fas fa-credit-card text-purple-600 mr-2"></i>
-                    Payment Information
-                </h3>
+                <div class="flex items-center justify-between cursor-pointer" onclick="toggleSection('payment-info')">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                        <i class="fas fa-credit-card text-purple-600 mr-2"></i>
+                        Payment Information
+                    </h3>
+                    <i class="fas fa-chevron-down text-gray-400 dark:text-gray-500 transition-transform duration-200" id="payment-info-icon"></i>
+                </div>
+                <div id="payment-info-content" class="mt-4">
                   <dl class="space-y-4">
                     <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                         <div class="flex items-center">
@@ -241,7 +255,7 @@
                                 <dt class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Amount</dt>
                             </div>
                         </div>
-                        <dd class="text-lg font-bold text-gray-900 dark:text-white">${{ number_format($appointment->total_amount, 2) }}</dd>
+                        <dd class="text-lg font-bold text-gray-900 dark:text-white">${{ number_format((float)$appointment->total_amount, 2) }}</dd>
                     </div>
                     
                     <div class="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
@@ -253,7 +267,7 @@
                                 <dt class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Paid Amount</dt>
                             </div>
                         </div>
-                        <dd class="text-lg font-bold text-green-600 dark:text-green-400">${{ number_format($appointment->paid_amount, 2) }}</dd>
+                        <dd class="text-lg font-bold text-green-600 dark:text-green-400">${{ number_format((float)$appointment->paid_amount, 2) }}</dd>
                     </div>
                     
                     @if($appointment->total_amount > $appointment->paid_amount)
@@ -293,16 +307,21 @@
                         </dd>
                     </div>
                 </dl>
+                </div>
             </div>
         </div>
 
         <!-- Special Instructions & Notes -->
         <div class="bg-white dark:bg-gray-800 shadow rounded-lg">
             <div class="px-4 py-5 sm:p-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">
-                    <i class="fas fa-sticky-note text-orange-600 mr-2"></i>
-                    Instructions & Notes
-                </h3>
+                <div class="flex items-center justify-between cursor-pointer" onclick="toggleSection('instructions-notes')">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                        <i class="fas fa-sticky-note text-orange-600 mr-2"></i>
+                        Instructions & Notes
+                    </h3>
+                    <i class="fas fa-chevron-down text-gray-400 dark:text-gray-500 transition-transform duration-200" id="instructions-notes-icon"></i>
+                </div>
+                <div id="instructions-notes-content" class="mt-4">
                 
                 @if($appointment->special_instructions)
                     <div class="mb-4">
@@ -338,6 +357,7 @@
                 @if(!$appointment->special_instructions && !$appointment->completion_notes && $appointment->status !== 'cancelled')
                     <p class="text-sm text-gray-500 dark:text-gray-400 italic">No additional instructions or notes.</p>
                 @endif
+                </div>
             </div>
         </div>
     </div>
@@ -345,10 +365,14 @@
     <!-- Action Buttons -->
     <div class="mt-8 bg-white dark:bg-gray-800 shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
-            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4">
-                <i class="fas fa-cogs text-gray-600 mr-2"></i>
-                Actions
-            </h3>
+            <div class="flex items-center justify-between cursor-pointer" onclick="toggleSection('actions')">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                    <i class="fas fa-cogs text-gray-600 mr-2"></i>
+                    Actions
+                </h3>
+                <i class="fas fa-chevron-down text-gray-400 dark:text-gray-500 transition-transform duration-200" id="actions-icon"></i>
+            </div>
+            <div id="actions-content" class="mt-4">
             
             <div class="flex flex-wrap gap-3">
                 @if($appointment->status === 'pending')
@@ -384,19 +408,30 @@
                     <i class="fas fa-list mr-2"></i>Back to List
                 </a>
             </div>
+            </div>
         </div>
     </div>
 
     <!-- Medical Reports Section -->
     <div class="mt-8 bg-white dark:bg-gray-800 shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
-            <div class="flex justify-between items-center mb-4">
+            <div class="flex justify-between items-center cursor-pointer" onclick="toggleSection('medical-reports')">
                 <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
                     <i class="fas fa-file-medical text-blue-600 mr-2"></i>
                     Medical Reports
-                </h3>                <a href="{{ route('doctor.medical-reports.create', ['patient_id' => $appointment->patient_id]) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 inline-flex items-center">
-                    <i class="fas fa-plus mr-2"></i>Create Report
-                </a>            </div>
+                </h3>
+                <div class="flex items-center space-x-3">
+                    <a href="{{ route('doctor.medical-reports.create', ['patient_id' => $appointment->patient_id]) }}" 
+                       class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 inline-flex items-center"
+                       onclick="event.stopPropagation();"
+                       target="_blank"
+                       rel="noopener noreferrer">
+                        <i class="fas fa-plus mr-2"></i>Create Report
+                    </a>
+                    <i class="fas fa-chevron-down text-gray-400 dark:text-gray-500 transition-transform duration-200" id="medical-reports-icon"></i>
+                </div>
+            </div>
+            <div id="medical-reports-content" class="mt-4">
             
             @if($medicalReports->count() > 0)
                 <div class="space-y-4">
@@ -424,7 +459,7 @@
                                     <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-3">
                                         <span class="flex items-center">
                                             <i class="fas fa-calendar mr-1"></i>
-                                            {{ $report->consultation_date->format('M d, Y') }}
+                                            {{ date('M d, Y', strtotime((string)$report->consultation_date)) }}
                                         </span>
                                         <span class="flex items-center">
                                             <i class="fas fa-user-md mr-1"></i>
@@ -484,13 +519,17 @@
                                 </div>
                                 <div class="flex flex-col space-y-2 ml-4">
                                     <a href="{{ route('doctor.medical-reports.show', $report) }}" 
-                                       class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 px-3 py-1 rounded-md border border-blue-300 dark:border-blue-600 hover:border-blue-400 dark:hover:border-blue-500 transition text-sm text-center inline-flex items-center justify-center">
+                                       class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 px-3 py-1 rounded-md border border-blue-300 dark:border-blue-600 hover:border-blue-400 dark:hover:border-blue-500 transition text-sm text-center inline-flex items-center justify-center"
+                                       target="_blank"
+                                       rel="noopener noreferrer">
                                         <i class="fas fa-eye mr-1"></i>
                                         View
                                     </a>
                                     @if($report->doctor_id === auth()->user()->doctor->id)
                                         <a href="{{ route('doctor.medical-reports.edit', $report) }}" 
-                                           class="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-200 px-3 py-1 rounded-md border border-green-300 dark:border-green-600 hover:border-green-400 dark:hover:border-green-500 transition text-sm text-center inline-flex items-center justify-center">
+                                           class="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-200 px-3 py-1 rounded-md border border-green-300 dark:border-green-600 hover:border-green-400 dark:hover:border-green-500 transition text-sm text-center inline-flex items-center justify-center"
+                                           target="_blank"
+                                           rel="noopener noreferrer">
                                             <i class="fas fa-edit mr-1"></i>
                                             Edit
                                         </a>
@@ -511,29 +550,289 @@
                         <i class="fas fa-file-medical text-4xl"></i>
                     </div>
                     <p class="text-gray-600 dark:text-gray-400 mb-4">No medical reports available for this patient.</p>
-                    <a href="{{ route('doctor.medical-reports.create', ['patient_id' => $appointment->patient_id]) }}" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition inline-flex items-center">
+                    <a href="{{ route('doctor.medical-reports.create', ['patient_id' => $appointment->patient_id]) }}" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition inline-flex items-center" target="_blank" rel="noopener noreferrer">
                         <i class="fas fa-plus mr-2"></i>Create New Report
                     </a>
                 </div>
             @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Lab Test Results Section -->
+    <div class="mt-8 bg-white dark:bg-gray-800 shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flex justify-between items-center cursor-pointer" onclick="toggleSection('lab-test-results')">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+                    <i class="fas fa-vial text-purple-600 mr-2"></i>
+                    Lab Test Results
+                </h3>
+                <div class="flex items-center space-x-3">
+                    <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        Access-controlled results only
+                    </div>
+                    <i class="fas fa-chevron-down text-gray-400 dark:text-gray-500 transition-transform duration-200" id="lab-test-results-icon"></i>
+                </div>
+            </div>
+            <div id="lab-test-results-content" class="mt-4">
+            
+            @if($labTestRequests->count() > 0)
+                <div class="space-y-4">
+                    @foreach($labTestRequests as $labTest)
+                        <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 hover:border-purple-300 dark:hover:border-purple-500 transition">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <h4 class="font-semibold text-gray-800 dark:text-white">
+                                            {{ $labTest->test_name }}
+                                        </h4>
+                                        @if($labTest->doctor_id !== auth()->user()->doctor->id)
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                                <i class="fas fa-share-alt mr-1"></i>
+                                                Shared Access
+                                            </span>
+                                        @endif
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
+                                            @if($labTest->status === 'completed') bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                                            @elseif($labTest->status === 'pending') bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                                            @elseif($labTest->status === 'scheduled') bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200
+                                            @else bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 @endif">
+                                            <i class="fas fa-circle text-xs mr-1"></i>
+                                            {{ ucfirst($labTest->status) }}
+                                        </span>
+                                        @if($labTest->priority && $labTest->priority !== 'routine')
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
+                                                @if($labTest->priority === 'stat') bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
+                                                @elseif($labTest->priority === 'urgent') bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200
+                                                @else bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 @endif">
+                                                <i class="fas fa-exclamation mr-1"></i>
+                                                {{ ucfirst($labTest->priority) }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-3">
+                                        <span class="flex items-center">
+                                            <i class="fas fa-calendar mr-1"></i>
+                                            Ordered: {{ $labTest->created_at->format('M d, Y') }}
+                                        </span>
+                                        <span class="flex items-center">
+                                            <i class="fas fa-user-md mr-1"></i>
+                                            {{ $labTest->doctor->user->name }}
+                                        </span>
+                                        @if($labTest->laboratory)
+                                            <span class="flex items-center">
+                                                <i class="fas fa-building mr-1"></i>
+                                                {{ $labTest->laboratory->name }}
+                                            </span>
+                                        @endif
+                                        @if($labTest->completed_at)
+                                            <span class="flex items-center">
+                                                <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                                                Completed: {{ $labTest->completed_at->format('M d, Y') }}
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    <!-- Test Description and Notes -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-400">
+                                        @if($labTest->test_description)
+                                            <div>
+                                                <span class="font-medium">Test Description:</span>
+                                                <p class="mt-1">{{ Str::limit($labTest->test_description, 100) }}</p>
+                                            </div>
+                                        @endif
+                                        @if($labTest->clinical_notes)
+                                            <div>
+                                                <span class="font-medium">Clinical Notes:</span>
+                                                <p class="mt-1">{{ Str::limit($labTest->clinical_notes, 100) }}</p>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <!-- Test Results (if completed) -->
+                                    @if($labTest->status === 'completed')
+                                        <div class="mt-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                                            <h5 class="font-medium text-green-900 dark:text-green-100 mb-2 flex items-center">
+                                                <i class="fas fa-file-medical mr-2"></i>
+                                                Test Results
+                                            </h5>
+                                            @if($labTest->test_results)
+                                                <div class="text-sm text-green-800 dark:text-green-200">
+                                                    @if(is_array($labTest->test_results))
+                                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                            @foreach($labTest->test_results as $key => $value)
+                                                                <div class="flex justify-between">
+                                                                    <span class="font-medium">{{ ucfirst($key) }}:</span>
+                                                                    <span>{{ $value }}</span>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    @else
+                                                        <p class="whitespace-pre-wrap">{{ $labTest->test_results }}</p>
+                                                    @endif
+                                                </div>
+                                            @endif
+                                            @if($labTest->result_notes)
+                                                <div class="mt-3 text-sm text-green-800 dark:text-green-200">
+                                                    <span class="font-medium">Additional Notes:</span>
+                                                    <p class="mt-1">{{ $labTest->result_notes }}</p>
+                                                </div>
+                                            @endif
+                                            @if($labTest->results_file_path)
+                                                <div class="mt-3">
+                                                    <a href="{{ asset('storage/' . $labTest->results_file_path) }}" 
+                                                       target="_blank"
+                                                       class="inline-flex items-center px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors duration-200">
+                                                        <i class="fas fa-file-pdf mr-2"></i>
+                                                        View Results PDF
+                                                    </a>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @elseif($labTest->status === 'pending')
+                                        <div class="mt-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
+                                            <p class="text-sm text-yellow-800 dark:text-yellow-200">
+                                                <i class="fas fa-clock mr-2"></i>
+                                                Test is pending. Results will be available once completed.
+                                            </p>
+                                        </div>
+                                    @elseif($labTest->status === 'scheduled')
+                                        <div class="mt-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                                            <p class="text-sm text-blue-800 dark:text-blue-200">
+                                                <i class="fas fa-calendar-check mr-2"></i>
+                                                Test has been scheduled. 
+                                                @if($labTest->scheduled_at)
+                                                    Appointment on {{ $labTest->scheduled_at->format('M d, Y g:i A') }}
+                                                @endif
+                                            </p>
+                                        </div>
+                                    @endif
+
+                                    <!-- Request Information -->
+                                    @if($labTest->request_number)
+                                        <div class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                                            <span class="font-medium">Request Number:</span> {{ $labTest->request_number }}
+                                            @if($labTest->medicalReport)
+                                                | <span class="font-medium">Medical Report:</span> 
+                                                <a href="{{ route('doctor.medical-reports.show', $labTest->medicalReport) }}" 
+                                                   class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
+                                                    {{ Str::limit($labTest->medicalReport->title, 30) }}
+                                                </a>
+                                            @endif
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="flex flex-col space-y-2 ml-4">
+                                    @if($labTest->status === 'completed')
+                                        <span class="text-green-600 dark:text-green-400 px-3 py-1 rounded-md border border-green-300 dark:border-green-600 text-sm text-center inline-flex items-center justify-center">
+                                            <i class="fas fa-check-circle mr-1"></i>
+                                            Completed
+                                        </span>
+                                    @elseif($labTest->status === 'pending')
+                                        <span class="text-yellow-600 dark:text-yellow-400 px-3 py-1 rounded-md border border-yellow-300 dark:border-yellow-600 text-sm text-center inline-flex items-center justify-center">
+                                            <i class="fas fa-clock mr-1"></i>
+                                            Pending
+                                        </span>
+                                    @elseif($labTest->status === 'scheduled')
+                                        <span class="text-blue-600 dark:text-blue-400 px-3 py-1 rounded-md border border-blue-300 dark:border-blue-600 text-sm text-center inline-flex items-center justify-center">
+                                            <i class="fas fa-calendar-check mr-1"></i>
+                                            Scheduled
+                                        </span>
+                                    @endif
+                                    @if($labTest->doctor_id !== auth()->user()->doctor->id)
+                                        <span class="text-gray-400 dark:text-gray-500 px-3 py-1 rounded-md border border-gray-300 dark:border-gray-600 text-xs text-center inline-flex items-center justify-center">
+                                            <i class="fas fa-eye mr-1"></i>
+                                            View Only
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+                
+                <!-- Summary Statistics -->
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-vial text-purple-500 text-xl mr-3"></i>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Tests</p>
+                                <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ $labTestRequests->count() }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 text-xl mr-3"></i>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Completed</p>
+                                <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ $labTestRequests->where('status', 'completed')->count() }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-clock text-yellow-500 text-xl mr-3"></i>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pending</p>
+                                <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ $labTestRequests->where('status', 'pending')->count() }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-share-alt text-blue-500 text-xl mr-3"></i>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Shared Access</p>
+                                <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ $labTestRequests->where('doctor_id', '!=', auth()->user()->doctor->id)->count() }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @else
+                <div class="text-center py-8">
+                    <div class="text-gray-400 dark:text-gray-500 mb-4">
+                        <i class="fas fa-vial text-4xl"></i>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">No lab test results available for this patient.</p>
+                    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 max-w-md mx-auto">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-600 dark:text-blue-400 mt-1 mr-3"></i>
+                            <div class="text-left">
+                                <h5 class="font-medium text-blue-900 dark:text-blue-100">Access Information</h5>
+                                <p class="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                                    You can only view lab tests that you have ordered or been granted access to by the patient.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+            </div>
         </div>
     </div>
 
     <!-- Patient Health Profile Section -->
     <div class="mt-8 bg-white dark:bg-gray-800 shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
-            <div class="flex justify-between items-center mb-4">
+            <div class="flex justify-between items-center cursor-pointer" onclick="toggleSection('health-profile')">
                 <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
                     <i class="fas fa-user-md text-green-600 mr-2"></i>
                     Patient Health Profile
                 </h3>
-                @if(!$hasHealthProfileAccess)
-                    <div class="flex items-center text-sm text-amber-600 dark:text-amber-400">
-                        <i class="fas fa-lock mr-2"></i>
-                        Access Restricted
-                    </div>
-                @endif
+                <div class="flex items-center space-x-3">
+                    @if(!$hasHealthProfileAccess)
+                        <div class="flex items-center text-sm text-amber-600 dark:text-amber-400">
+                            <i class="fas fa-lock mr-2"></i>
+                            Access Restricted
+                        </div>
+                    @endif
+                    <i class="fas fa-chevron-down text-gray-400 dark:text-gray-500 transition-transform duration-200" id="health-profile-icon"></i>
+                </div>
             </div>
+            <div id="health-profile-content" class="mt-4">
             
             @if(!$hasHealthProfileAccess)
                 <!-- No Permission Message -->
@@ -906,6 +1205,77 @@
 
 @push('scripts')
 <script>
+// Toggle section visibility
+function toggleSection(sectionId) {
+    const content = document.getElementById(sectionId + '-content');
+    const icon = document.getElementById(sectionId + '-icon');
+    
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        icon.classList.remove('fa-chevron-right');
+        icon.classList.add('fa-chevron-down');
+        // Store the state in localStorage
+        localStorage.setItem('appointment-section-' + sectionId, 'open');
+    } else {
+        content.style.display = 'none';
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-right');
+        // Store the state in localStorage
+        localStorage.setItem('appointment-section-' + sectionId, 'closed');
+    }
+}
+
+// Initialize sections based on saved state or default to open for important sections
+document.addEventListener('DOMContentLoaded', function() {
+    const sections = [
+        'patient-info', 
+        'appointment-details', 
+        'payment-info', 
+        'instructions-notes', 
+        'actions', 
+        'medical-reports', 
+        'lab-test-results', 
+        'health-profile'
+    ];
+    
+    // Default open sections (most important for doctors)
+    const defaultOpenSections = ['patient-info', 'appointment-details', 'actions'];
+    
+    sections.forEach(function(sectionId) {
+        const content = document.getElementById(sectionId + '-content');
+        const icon = document.getElementById(sectionId + '-icon');
+        const savedState = localStorage.getItem('appointment-section-' + sectionId);
+        
+        if (content && icon) {
+            // Use saved state, or default state
+            const shouldBeOpen = savedState === 'open' || 
+                                 (savedState === null && defaultOpenSections.includes(sectionId));
+            
+            if (shouldBeOpen) {
+                content.style.display = 'block';
+                icon.classList.remove('fa-chevron-right');
+                icon.classList.add('fa-chevron-down');
+            } else {
+                content.style.display = 'none';
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-right');
+            }
+        }
+    });
+});
+
+// Add keyboard accessibility
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+        const target = e.target;
+        if (target.getAttribute('onclick') && target.getAttribute('onclick').includes('toggleSection')) {
+            e.preventDefault();
+            target.click();
+        }
+    }
+});
+
+// Modal functions
 function showCompleteModal() {
     document.getElementById('completeModal').classList.remove('hidden');
 }
@@ -922,5 +1292,5 @@ function hideCancelModal() {
     document.getElementById('cancelModal').classList.add('hidden');
 }
 </script>
-</div>
+@endpush
 

@@ -83,6 +83,36 @@ class LabTestRequest extends Model
     }
 
     /**
+     * Get the access records for this lab test request.
+     */
+    public function accessRecords(): HasMany
+    {
+        return $this->hasMany(LabTestAccess::class);
+    }
+
+    /**
+     * Get the active access records for this lab test request.
+     */
+    public function activeAccessRecords()
+    {
+        return $this->hasMany(LabTestAccess::class)->active();
+    }
+
+    /**
+     * Get doctors who have access to this lab test request.
+     */
+    public function authorizedDoctors()
+    {
+        return $this->belongsToMany(Doctor::class, 'lab_test_access')
+            ->wherePivot('status', 'active')
+            ->where(function ($query) {
+                $query->wherePivot('expires_at', '>', now())
+                    ->orWherePivotNull('expires_at');
+            })
+            ->withPivot(['access_type', 'status', 'granted_at', 'expires_at', 'notes']);
+    }
+
+    /**
      * Get the latest lab appointment.
      */
     public function latestAppointment(): BelongsTo
@@ -127,6 +157,87 @@ class LabTestRequest extends Model
     public function isCompleted(): bool
     {
         return $this->status === 'completed';
+    }
+
+    /**
+     * Check if a doctor has access to this lab test request.
+     */
+    public function doctorHasAccess($doctorId): bool
+    {
+        // Author (ordering doctor) always has access
+        if ($this->doctor_id == $doctorId) {
+            return true;
+        }
+
+        // Check for active access record
+        return $this->accessRecords()
+            ->where('doctor_id', $doctorId)
+            ->where('status', 'active')
+            ->where(function ($query) {
+                $query->whereNull('expires_at')
+                    ->orWhere('expires_at', '>', now());
+            })
+            ->exists();
+    }
+
+    /**
+     * Grant access to a doctor.
+     */
+    public function grantAccessToDoctor($doctorId, $notes = null, $expiresAt = null)
+    {
+        return LabTestAccess::updateOrCreate(
+            [
+                'lab_test_request_id' => $this->id,
+                'doctor_id' => $doctorId,
+            ],
+            [
+                'patient_id' => $this->patient_id,
+                'access_type' => 'granted',
+                'status' => 'active',
+                'granted_at' => now(),
+                'revoked_at' => null,
+                'expires_at' => $expiresAt,
+                'notes' => $notes,
+            ]
+        );
+    }
+
+    /**
+     * Revoke access from a doctor.
+     */
+    public function revokeAccessFromDoctor($doctorId, $notes = null)
+    {
+        return $this->accessRecords()
+            ->where('doctor_id', $doctorId)
+            ->where('access_type', '!=', 'author')
+            ->update([
+                'status' => 'revoked',
+                'revoked_at' => now(),
+                'notes' => $notes,
+            ]);
+    }
+
+    /**
+     * Create automatic access record for the ordering doctor.
+     */
+    public function createAuthorAccess()
+    {
+        if ($this->doctor_id) {
+            return LabTestAccess::firstOrCreate(
+                [
+                    'lab_test_request_id' => $this->id,
+                    'doctor_id' => $this->doctor_id,
+                ],
+                [
+                    'patient_id' => $this->patient_id,
+                    'access_type' => 'author',
+                    'status' => 'active',
+                    'granted_at' => now(),
+                    'notes' => 'Automatic access as ordering doctor',
+                ]
+            );
+        }
+        return null;
     }
 
     /**

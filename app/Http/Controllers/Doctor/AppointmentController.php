@@ -163,11 +163,31 @@ class AppointmentController extends Controller
             ->orderBy('consultation_date', 'desc')
             ->get();
 
+        // Get lab test results that this doctor has access to for this patient
+        $labTestRequests = \App\Models\LabTestRequest::where('patient_id', $appointment->patient_id)
+            ->where(function ($query) use ($doctor) {
+                // Include lab tests ordered by this doctor
+                $query->where('doctor_id', $doctor->id)
+                    // Or lab tests where this doctor has been granted access
+                    ->orWhereHas('accessRecords', function ($accessQuery) use ($doctor) {
+                        $accessQuery->where('doctor_id', $doctor->id)
+                            ->where('status', 'active')
+                            ->where(function ($expQuery) {
+                                $expQuery->whereNull('expires_at')
+                                    ->orWhere('expires_at', '>', now());
+                            });
+                    });
+            })
+            ->with(['doctor.user', 'laboratory', 'medicalReport'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return view('doctor.appointments.show', compact(
             'appointment', 
             'hasHealthProfileAccess', 
             'healthProfile',
-            'medicalReports'
+            'medicalReports',
+            'labTestRequests'
         ));
     }
 

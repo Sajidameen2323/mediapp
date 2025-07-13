@@ -291,6 +291,15 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('patient/lab-tests')->name('patient.lab-tests.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Patient\LabTestController::class, 'index'])->name('index');
             Route::get('/{labTest}', [\App\Http\Controllers\Patient\LabTestController::class, 'show'])->name('show');
+            
+            // Lab Test Access Management Routes
+            Route::prefix('{labTest}/access')->name('access.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Patient\LabTestAccessController::class, 'index'])->name('index');
+                Route::post('/grant', [\App\Http\Controllers\Patient\LabTestAccessController::class, 'grant'])->name('grant');
+                Route::put('/{access}', [\App\Http\Controllers\Patient\LabTestAccessController::class, 'update'])->name('update');
+                Route::delete('/{access}', [\App\Http\Controllers\Patient\LabTestAccessController::class, 'revoke'])->name('revoke');
+                Route::post('/bulk', [\App\Http\Controllers\Patient\LabTestAccessController::class, 'bulkManage'])->name('bulk');
+            });
         });
         
         // Lab Appointment Management  

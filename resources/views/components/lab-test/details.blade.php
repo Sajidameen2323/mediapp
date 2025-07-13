@@ -114,10 +114,18 @@
     @if($labTest->status === 'completed')
         <div class="bg-white dark:bg-gray-800 shadow-lg rounded-xl border border-gray-200 dark:border-gray-700">
             <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
-                    <i class="fas fa-file-medical text-green-500 dark:text-green-400 mr-3"></i>
-                    Test Results
-                </h2>
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                        <i class="fas fa-file-medical text-green-500 dark:text-green-400 mr-3"></i>
+                        Test Results
+                    </h2>
+                    <!-- Access Management Button -->
+                    <a href="{{ route('patient.lab-tests.access.index', $labTest) }}" 
+                       class="inline-flex items-center px-3 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors duration-200">
+                        <i class="fas fa-user-shield mr-2"></i>
+                        Manage Access
+                    </a>
+                </div>
             </div>
             <div class="p-6">
                 <!-- Check if we have any results to display -->
@@ -231,6 +239,66 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Access Summary -->
+                        @php
+                            $activeAccess = $labTest->accessRecords()->with('doctor.user')->where('status', 'active')->get();
+                        @endphp
+                        @if($activeAccess->count() > 0)
+                            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                                <h3 class="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-3 flex items-center">
+                                    <i class="fas fa-user-shield mr-2"></i>
+                                    Doctors with Access
+                                </h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    @foreach($activeAccess as $access)
+                                        <div class="flex items-center space-x-2 text-sm">
+                                            <div class="w-8 h-8 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center">
+                                                <i class="fas fa-user-md text-blue-600 dark:text-blue-400 text-xs"></i>
+                                            </div>
+                                            <div>
+                                                <p class="font-medium text-blue-900 dark:text-blue-100">
+                                                    Dr. {{ $access->doctor->user->name }}
+                                                    @if($access->access_type === 'author')
+                                                        <span class="text-xs text-blue-600 dark:text-blue-400">(Ordering Doctor)</span>
+                                                    @endif
+                                                </p>
+                                                @if($access->expires_at)
+                                                    <p class="text-xs text-blue-700 dark:text-blue-300">
+                                                        Expires: {{ $access->expires_at->format('M d, Y') }}
+                                                    </p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <div class="mt-3 pt-3 border-t border-blue-200 dark:border-blue-700">
+                                    <a href="{{ route('patient.lab-tests.access.index', $labTest) }}" 
+                                       class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
+                                        <i class="fas fa-cog mr-1"></i>
+                                        Manage Access Settings
+                                    </a>
+                                </div>
+                            </div>
+                        @else
+                            <div class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h3 class="text-sm font-medium text-gray-900 dark:text-white">
+                                            <i class="fas fa-lock mr-2"></i>
+                                            Private Results
+                                        </h3>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                                            Only you and the ordering doctor can view these results
+                                        </p>
+                                    </div>
+                                    <a href="{{ route('patient.lab-tests.access.index', $labTest) }}" 
+                                       class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
+                                        Grant Access
+                                    </a>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 @else
                     <!-- No results available yet -->
