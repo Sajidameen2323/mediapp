@@ -1169,19 +1169,20 @@ class AppointmentBooking {
         // Update step circles and labels
         stepper.querySelectorAll('.step').forEach((stepElement, index) => {
             const stepNumber = index + 1;
+         
             const stepCircle = stepElement.querySelector('.step-circle');
             const stepLabel = stepElement.querySelector('.step-label');
             const isAccessible = this.isStepAccessible(stepNumber);
             const isCompleted = this.validatedSteps.has(stepNumber) && stepNumber < this.currentStep;
             const isCurrent = stepNumber === this.currentStep;
-
+         
             // Reset all classes
             if (stepCircle) {
                 stepCircle.className = 'step-circle relative flex items-center justify-center w-10 h-10 rounded-full border-3 transition-all duration-300 transform';
                 if (isCompleted) {
                     // Completed step - green with step icon instead of checkmark
                     stepCircle.classList.add(
-                        'bg-gradient-to-r', 'from-green-500', 'to-green-600',
+                        'bg-green-500', 
                         'border-green-500', 'text-white', 'shadow-lg'
                     );
                     const stepIcons = [
@@ -1195,7 +1196,7 @@ class AppointmentBooking {
                 } else if (isCurrent) {
                     // Current step - blue with icon and pulse
                     stepCircle.classList.add(
-                        'bg-gradient-to-r', 'from-blue-500', 'to-indigo-600',
+                        'bg-blue-500',
                         'border-blue-500', 'text-white', 'shadow-lg',
                         'ring-4', 'ring-blue-200', 'dark:ring-blue-800'
                     );

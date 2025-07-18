@@ -3,11 +3,11 @@
         <div class="flex justify-between h-14">
             <!-- Logo/Brand -->
             <div class="flex items-center">
-                <a href="{{ route('patient.dashboard') }}" class="flex items-center space-x-2 group">
+                <a href="{{ route('welcome') }}" class="flex items-center space-x-2 group">
                     <div class="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center group-hover:bg-blue-700 transition-colors">
                         <i class="fas fa-heartbeat text-white text-sm"></i>
                     </div>
-                    <span class="text-lg font-semibold text-gray-900 dark:text-white hidden sm:block">MediApp</span>
+                    <span class="text-lg font-semibold text-gray-900 dark:text-white hidden sm:block">MediCare</span>
                 </a>
             </div>
 
@@ -248,6 +248,8 @@
                 <a href="{{ route('patient.prescriptions.index') }}" class="hover:text-gray-700 dark:hover:text-gray-300">Prescriptions</a>
             @elseif(request()->routeIs('patient.pharmacy-orders.*'))
                 <a href="{{ route('patient.pharmacy-orders.index') }}" class="hover:text-gray-700 dark:hover:text-gray-300">Pharmacy Orders</a>
+            @elseif(request()->routeIs('patient.appointments.*'))
+                <a href="{{ route('patient.appointments.index') }}" class="hover:text-gray-700 dark:hover:text-gray-300">Appointments</a>
             @elseif(request()->routeIs('patient.medical-reports.*'))
                 <a href="{{ route('patient.medical-reports.index') }}" class="hover:text-gray-700 dark:hover:text-gray-300">Medical Reports</a>
             @elseif(request()->routeIs('patient.lab-tests.*'))

@@ -7,7 +7,7 @@
         <div class="absolute top-5 left-0 w-full h-1 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
 
         {{-- Progress Bar Fill --}}
-        <div class="absolute top-5 left-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-600 dark:from-blue-400 dark:to-indigo-500 rounded-full transition-all duration-500 ease-in-out"
+        <div class="absolute top-5 left-0 h-1 text-blue-600 dark:text-blue-400 rounded-full transition-all duration-500 ease-in-out"
             style="width: {{ (($currentStep - 1) / ($totalSteps - 1)) * 100 }}%"></div>
 
         {{-- Steps Container --}}
@@ -26,11 +26,11 @@
                                 : 'bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 shadow-md') }}">
 
                         @if ($step < $currentStep)
-                            <i class="fas fa-check text-sm font-bold text-white"></i>
+                            <i class="fas fa-check text-sm font-bold text-gray-600 dark:text-gray-100"></i>
                         @elseif ($step === $currentStep)
-                            <i class="{{ $stepIcons[$step - 1] ?? 'fas fa-circle' }} text-sm text-white"></i>
+                            <i class="{{ $stepIcons[$step - 1] ?? 'fas fa-circle' }} text-sm text-gray-600 dark:text-gray-100"></i>
                         @else
-                            <span class="text-sm font-semibold">{{ $step }}</span>
+                            <span class="text-sm font-semibold text-gray-600 dark:text-gray-100">{{ $step }}</span>
                         @endif
 
                         {{-- Pulse Animation for Current Step --}}

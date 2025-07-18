@@ -9,7 +9,7 @@ use App\Http\Controllers\DoctorController;
 // Public routes
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('welcome');
 
 // Public doctor search routes
 Route::prefix('api')->group(function () {

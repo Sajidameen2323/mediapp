@@ -1,7 +1,7 @@
-@extends('layouts.app')
+@extends('layouts.patient')
 
 @section('content')
-<x-patient-navigation />
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Header Section -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
@@ -31,7 +31,7 @@
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
             <div class="p-6">
                 <form method="GET" action="{{ route('patient.appointments.index') }}"
-                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
+                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div>
                         <label for="status"
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>

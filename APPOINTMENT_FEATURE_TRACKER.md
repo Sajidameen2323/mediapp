@@ -58,7 +58,7 @@ This document tracks the implementation phases and details for the appointment b
 
 ---
 
-## Phase 4: Doctor Appointment Section ✅ Partially Completed
+## Phase 4: Doctor Appointment Section ✅ Completed
 - **Doctor Actions:**
   - Approve/cancel appointments
   - Set recurring lunch breaks
@@ -94,11 +94,11 @@ This document tracks the implementation phases and details for the appointment b
 
 ---
 
-## Phase 6: Lab Test Booking
+## Phase 6: Lab Test Booking ✅ Completed
 - **Features:**
   - Patient books lab test appointment
   - Select laboratory and slot (same slot logic as doctor)
-  - Admin can add laboratories and assign lab staff
+  - Admin can add laboratories profiles
 - **Implementation:**
   - New `Laboratory` and `LabStaff` models
   - Extend appointment logic for labs
@@ -176,7 +176,7 @@ This document tracks the implementation phases and details for the appointment b
 
 ---
 
-## Phase 10: Lab Staff Releasing Lab Results ⏳ Pending
+## Phase 10: Lab Staff Releasing Lab Results ✅ Completed
 - **Features:**
   - Lab staff upload/release results to patient
 - **Implementation:**
@@ -255,38 +255,6 @@ This document tracks the implementation phases and details for the appointment b
     - Order item availability management
     - Real-time total calculations
 
-### Files Created/Modified in Phase 13A:
-#### Database:
-- `database/migrations/2025_06_20_090340_create_pharmacy_order_items_table.php`
-
-#### Models:
-- `app/Models/PharmacyOrder.php` (enhanced)
-- `app/Models/PharmacyOrderItem.php` (new)
-
-#### Controllers:
-- `app/Http/Controllers/Pharmacy/PharmacyOrderController.php` (new)
-- `app/Http/Controllers/Patient/PrescriptionActionController.php` (enhanced)
-
-#### Requests:
-- `app/Http/Requests/Pharmacy/UpdateOrderItemsRequest.php` (new)
-- `app/Http/Requests/Pharmacy/CancelOrderRequest.php` (new)
-- `app/Http/Requests/Patient/PharmacyOrderRequest.php` (new)
-
-#### Policies:
-- `app/Policies/PharmacyOrderPolicy.php` (new)
-
-#### Views:
-- `resources/views/pharmacy/orders/index.blade.php` (new)
-- `resources/views/pharmacy/orders/show.blade.php` (new)
-- `resources/views/pharmacy/orders/prepare.blade.php` (new)
-- `resources/views/components/pharmacy-navigation.blade.php` (enhanced)
-- `resources/views/dashboard/pharmacy.blade.php` (enhanced)
-- `resources/views/dashboard/patient/prescriptions/order-pharmacy.blade.php` (new)
-- `resources/views/components/patient-navigation.blade.php` (enhanced with breadcrumb)
-
-#### Routes:
-- Pharmacy order management routes in `routes/web.php`
-- Patient prescription action routes in `routes/web.php`
 
 ## Phase 13B: Doctor Prescription & Lab Test Request ✅ Completed
 - **Features:**
@@ -327,22 +295,10 @@ This document tracks the implementation phases and details for the appointment b
 
 ---
 
-## Phase 15: Email Notifications ⏳ Pending
-- **Features:**
-  - Appointment and other notifications via email
-- **Implementation:**
-  - Use Laravel Notification system
-- **Status:** Not implemented yet
 
 ---
 
-## Phase 16: AI Chatbot (Gemini) ⏳ Pending
-- **Features:**
-  - Chatbot for system features, company info
-- **Implementation:**
-  - Integrate Gemini API
-  - UI for chatbot
-- **Status:** Not implemented yet
+
 
 ---
 

@@ -7,7 +7,7 @@
         <div class="flex-3 lg:flex-2">
             <label for="doctor_search" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 <i class="fas fa-brain mr-2 text-blue-600 dark:text-blue-400"></i>
-                Search by Symptoms, Specialization, or Doctor Name
+                Search by Symptoms, Specialization
             </label>
             <div class="relative">
                 <input type="text" 
@@ -16,7 +16,7 @@
                               bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
                               focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
                               transition-all duration-300"
-                       placeholder="e.g., 'headache', 'cardiology', or 'Dr. Smith'"
+                       placeholder="e.g., 'headache', 'cardiology'"
                        autocomplete="off">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <i class="fas fa-stethoscope text-gray-400"></i>
@@ -35,7 +35,7 @@
         </div>
 
         {{-- Filter by Service --}}
-        <div class="flex-1">
+        {{-- <div class="flex-1">
             <label for="service_filter" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 <i class="fas fa-filter mr-2 text-blue-600 dark:text-blue-400"></i>
                 Filter by Service
@@ -50,7 +50,7 @@
                     <option value="{{ $service->id }}">{{ $service->name }}</option>
                 @endforeach
             </select>
-        </div>
+        </div> --}}
 
         {{-- Enhanced Specialization Filter --}}
         <div class="flex-1">

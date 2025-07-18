@@ -17,14 +17,14 @@
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 <i class="fas fa-search mr-1"></i>
-                                Search by Symptoms, Specialization, or Doctor Name
+                                Search by Symptoms, Specialization
                             </label>
                             <div class="relative">
                                 <input 
                                     type="text" 
                                     id="doctorSearchInput" 
                                     name="q" 
-                                    placeholder="e.g., 'headache', 'cardiology', or 'Dr. Smith'" 
+                                    placeholder="e.g., 'headache', 'cardiology'" 
                                     class="w-full p-3 pl-12 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
                                 >
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

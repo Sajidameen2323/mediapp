@@ -164,10 +164,13 @@ class HolidayController extends Controller
                 ]);
         });
 
-        return response()->json([
-            'success' => true,
-            'message' => "Successfully approved {$updated} holiday request(s)."
-        ]);
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => "Successfully approved {$updated} holiday request(s)."
+        // ]);
+        return redirect()->route('admin.holidays.index')
+            ->with('success', "Successfully approved {$updated} holiday request(s).");
+
     }
 
     /**

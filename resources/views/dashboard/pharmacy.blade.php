@@ -224,7 +224,7 @@
 
     <!-- Legacy Actions -->
     <div class="mt-8">
-        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Additional Services</h2>
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Additional Services (Coming Soon)</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-lg border border-gray-200 dark:border-gray-700">

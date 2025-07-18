@@ -17,12 +17,12 @@
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-file-medical text-white text-2xl"></i>
+                        <i class="fas fa-file-medical text-gray-600 dark:text-gray-100 text-2xl"></i>
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-blue-100 truncate">Medical Reports</dt>
-                            <dd class="text-lg font-medium text-white">{{ $stats['totalMedicalReports'] ?? 0 }}</dd>
+                            <dt class="text-sm font-medium text-blue-400 dark:text-blue-100 truncate">Medical Reports</dt>
+                            <dd class="text-lg font-medium text-gray-600 dark:text-gray-100">{{ $stats['totalMedicalReports'] ?? 0 }}</dd>
                         </dl>
                     </div>
                 </div>
@@ -40,12 +40,12 @@
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-pills text-white text-2xl"></i>
+                        <i class="fas fa-pills dark:text-gray-100 text-gray-600 text-2xl"></i>
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-purple-100 truncate">Active Prescriptions</dt>
-                            <dd class="text-lg font-medium text-white">{{ $stats['activePrescriptions'] ?? 0 }}</dd>
+                            <dt class="text-sm font-medium text-purple-600 dark:text-purple-100 truncate">Active Prescriptions</dt>
+                            <dd class="text-lg font-medium text-gray-600 dark:text-gray-100">{{ $stats['activePrescriptions'] ?? 0 }}</dd>
                         </dl>
                     </div>
                 </div>
@@ -63,12 +63,12 @@
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-vial text-white text-2xl"></i>
+                        <i class="fas fa-vial text-gray-600 dark:text-gray-100 text-2xl"></i>
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-yellow-100 truncate">Pending Lab Tests</dt>
-                            <dd class="text-lg font-medium text-white">{{ $stats['pendingLabTests'] ?? 0 }}</dd>
+                            <dt class="text-sm font-medium dark:text-yellow-100 text-yellow-600 truncate">Pending Lab Tests</dt>
+                            <dd class="text-lg font-medium text-gray-600 dark:text-gray-100">{{ $stats['pendingLabTests'] ?? 0 }}</dd>
                         </dl>
                     </div>
                 </div>
@@ -86,12 +86,12 @@
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-calendar-check text-white text-2xl"></i>
+                        <i class="fas fa-calendar-check text-gray-600 dark:text-gray-100 text-2xl"></i>
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-green-100 truncate">Total Appointments</dt>
-                            <dd class="text-lg font-medium text-white">{{ $stats['totalAppointments'] ?? 0 }}</dd>
+                            <dt class="text-sm font-medium dark:text-green-100 text-green-600 truncate">Total Appointments</dt>
+                            <dd class="text-lg font-medium text-gray-600 dark:text-gray-100">{{ $stats['totalAppointments'] ?? 0 }}</dd>
                         </dl>
                     </div>
                 </div>
@@ -109,12 +109,12 @@
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-shopping-cart text-white text-2xl"></i>
+                        <i class="fas fa-shopping-cart text-gray-600 dark:text-gray-100 text-2xl"></i>
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
-                            <dt class="text-sm font-medium text-indigo-100 truncate">Pending Payments</dt>
-                            <dd class="text-lg font-medium text-white">{{ $stats['pendingPaymentOrders'] ?? 0 }}</dd>
+                            <dt class="text-sm font-medium dark:text-indigo-100 text-indigo-600 truncate">Pending Payments</dt>
+                            <dd class="text-lg font-medium text-gray-600 dark:text-gray-100">{{ $stats['pendingPaymentOrders'] ?? 0 }}</dd>
                         </dl>
                     </div>
                 </div>
@@ -173,7 +173,7 @@
                     Find Doctors
                 </h3>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Search for specialists and healthcare providers</p>
-                <a href="{{ route('patient.appointments.search-doctors') }}" class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors duration-200">
+                <a href="{{ route('welcome') }}#doctors" class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors duration-200">
                     <i class="fas fa-search mr-2"></i>Search
                 </a>
             </div>
@@ -309,18 +309,6 @@
                         </a>
                     </div>
                 @endif
-            </div>
-        </div>
-
-        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border dark:border-gray-700">
-            <div class="px-4 py-5 sm:p-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Emergency Contacts</h3>
-                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Manage emergency contacts</p>
-                <div class="mt-4">
-                    <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded transition-colors duration-200">
-                        Manage Contacts
-                    </button>
-                </div>
             </div>
         </div>
     </div>

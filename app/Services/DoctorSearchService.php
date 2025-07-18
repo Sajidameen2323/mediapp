@@ -21,15 +21,15 @@ class DoctorSearchService
         try {
             // First, try Algolia search
             $algoliaResults = $this->searchWithAlgolia($query, $filters);
-            
+
             // If Algolia returns results, use them
             if ($algoliaResults->isNotEmpty()) {
                 return $algoliaResults;
             }
-            
+
             // Fallback to database search if Algolia fails or returns no results
             return $this->fallbackDatabaseSearch($query, $filters);
-            
+
         } catch (\Exception $e) {
             // Log the error and fallback to database search
             \Log::warning('Algolia search failed, falling back to database search', [
@@ -48,39 +48,40 @@ class DoctorSearchService
     {
         error_log("Performing Algolia search for query: {$query} with filters: " . json_encode($filters));
         $searchQuery = Doctor::search($query);
-        
+
         // Apply filters
         if (!empty($filters['service_id'])) {
             $searchQuery->where('services', $filters['service_id']);
         }
-        
+
         if (!empty($filters['specialization'])) {
             $searchQuery->where('specialization', $filters['specialization']);
         }
-        
+
         // Always filter for available doctors
         $searchQuery->where('is_available', true);
-          // Get results and load relationships
+        // Get results and load relationships
         $results = $searchQuery->get();
-        
+
         // Load necessary relationships
         $results->load(['user', 'services', 'ratings']);
-        
+
         // If we have specific symptom matches, prioritize them
         $prioritizedResults = $this->prioritizeSymptomMatches($results, $query);
-        
+
         // Add general consultants as fallback if we have few results
         if ($prioritizedResults->count() < 3) {
             $generalConsultants = $this->getGeneralConsultants($filters);
             $prioritizedResults = $prioritizedResults->merge($generalConsultants)->unique('id');
         }
-        
+
         return $prioritizedResults;
     }
 
     /**
      * Fallback database search when Algolia is not available
-     */    private function fallbackDatabaseSearch(string $query, array $filters = []): Collection
+     */
+    private function fallbackDatabaseSearch(string $query, array $filters = []): Collection
     {
         $searchQuery = Doctor::query()
             ->with(['user', 'services', 'ratings'])
@@ -91,8 +92,8 @@ class DoctorSearchService
             $q->whereHas('user', function ($userQuery) use ($query) {
                 $userQuery->where('name', 'LIKE', "%{$query}%");
             })
-            ->orWhere('specialization', 'LIKE', "%{$query}%")
-            ->orWhere('bio', 'LIKE', "%{$query}%");
+                ->orWhere('specialization', 'LIKE', "%{$query}%")
+                ->orWhere('bio', 'LIKE', "%{$query}%");
         });
 
         // Apply filters
@@ -129,37 +130,32 @@ class DoctorSearchService
      */
     private function findDoctorsBySymptoms(string $query, array $filters = []): Collection
     {
-        $query = strtolower($query);
+        $queryLower = strtolower($query);
         $symptomSpecializations = $this->getSymptomSpecializationMap();
-        
         $matchedSpecializations = [];
-        
         // Check if the query contains any symptom keywords
         foreach ($symptomSpecializations as $specialization => $symptoms) {
             foreach ($symptoms as $symptom) {
-                if (str_contains($query, strtolower($symptom))) {
+                if (str_contains($queryLower, strtolower($symptom))) {
                     $matchedSpecializations[] = $specialization;
                     break;
                 }
             }
         }
-        
         if (empty($matchedSpecializations)) {
             return collect();
         }
-          // Find doctors with matching specializations
+        // Find doctors with matching specializations
         $doctorQuery = Doctor::query()
             ->with(['user', 'services', 'ratings'])
             ->where('is_available', true)
             ->whereIn('specialization', $matchedSpecializations);
-            
         // Apply additional filters
         if (!empty($filters['service_id'])) {
             $doctorQuery->whereHas('services', function ($q) use ($filters) {
                 $q->where('services.id', $filters['service_id']);
             });
         }
-        
         return $doctorQuery
             ->orderBy('experience_years', 'desc')
             ->limit(10)
@@ -167,17 +163,105 @@ class DoctorSearchService
     }
 
     /**
+     * AI-powered doctor search using Gemini for symptom-to-specialization mapping
+     */
+    public function searchDoctorsV2(string $symptoms, array $filters = []): Collection
+    {
+        error_log("Searching doctors with symptoms: {$symptoms} and filters: " . json_encode($filters));
+        if (empty(trim($symptoms))) {
+            $results = $this->getAllAvailableDoctors($filters);
+        } else {
+            $specialization = $this->getSpecializationFromGemini($symptoms);
+            if (!$specialization) {
+                $results = collect();
+            } else {
+                $doctorQuery = Doctor::query()
+                    ->with(['user', 'services', 'ratings'])
+                    ->where('is_available', true)
+                    ->where('specialization', $specialization);
+                // Apply additional filters
+                if (!empty($filters['service_id'])) {
+                    $doctorQuery->whereHas('services', function ($q) use ($filters) {
+                        $q->where('services.id', $filters['service_id']);
+                    });
+                }
+                $results = $doctorQuery
+                    ->orderBy('experience_years', 'desc')
+                    ->limit(10)
+                    ->get();
+            }
+        }
+        // Always add general consultants to the result
+        $generalConsultants = $this->getGeneralConsultants($filters);
+        $finalResults = $results->merge($generalConsultants)->unique('id');
+        return $finalResults;
+    }
+
+    /**
+     * Use Gemini AI to map symptoms text to a specialization
+     */
+    private function getSpecializationFromGemini(string $symptoms): string
+    {
+        // You should set your Gemini API key in your .env file as GEMINI_API_KEY
+        $apiKey = env('GEMINI_API_KEY');
+        if (!$apiKey) {
+            \Log::warning('Gemini API key not set');
+            return '';
+        }
+        $endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . $apiKey;
+        $specializationMap = $this->getSymptomSpecializationMap();
+        $specializations = array_keys($specializationMap);
+        $prompt = "Given the following list of medical specializations: \n" .
+            implode(", ", $specializations) .
+            "\nAnd the following symptoms or description: \n'{$symptoms}'\n" .
+            "Which specialization from the list is the most appropriate for these symptoms? Respond with only the specialization name. If none match, respond with an empty string.";
+        try {
+            $client = new \GuzzleHttp\Client();
+            $response = $client->post($endpoint, [
+                'json' => [
+                    'contents' => [
+                        [
+                            'parts' => [
+                                ['text' => $prompt]
+                            ]
+                        ]
+                    ]
+                ],
+                'headers' => [
+                    'Content-Type' => 'application/json'
+                ],
+                'timeout' => 10
+            ]);
+            error_log("Gemini API call response: " . $response->getStatusCode());
+            $body = json_decode($response->getBody()->getContents(), true);
+            error_log("Gemini response: " . json_encode($body));
+            if (isset($body['candidates'][0]['content']['parts'][0]['text'])) {
+                $result = trim($body['candidates'][0]['content']['parts'][0]['text']);
+                // Only accept if it's in our list
+                if (in_array($result, $specializations)) {
+                    return $result;
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::warning('Gemini API call failed', ['error' => $e->getMessage()]);
+            error_log("Gemini API call failed: " . $e->getMessage());
+        }
+        return '';
+    }
+
+    /**
      * Get general consultants as fallback
-     */    private function getGeneralConsultants(array $filters = []): Collection
+     */
+    private function getGeneralConsultants(array $filters = []): Collection
     {
         $query = Doctor::query()
             ->with(['user', 'services', 'ratings'])
             ->where('is_available', true)
             ->where(function ($q) {
                 $q->where('specialization', 'General Practice')
-                  ->orWhere('specialization', 'Family Medicine')
-                  ->orWhere('specialization', 'Internal Medicine')
-                  ->orWhere('specialization', 'General Medicine');
+                    ->orWhere('specialization', 'Family Medicine')
+                    ->orWhere('specialization', 'Internal Medicine')
+                    ->orWhere('specialization', 'General Medicine');
             });
 
         // Apply service filter if provided
@@ -195,7 +279,8 @@ class DoctorSearchService
 
     /**
      * Get all available doctors with filters
-     */    private function getAllAvailableDoctors(array $filters = []): Collection
+     */
+    private function getAllAvailableDoctors(array $filters = []): Collection
     {
         $query = Doctor::query()
             ->with(['user', 'services', 'ratings'])
@@ -225,10 +310,10 @@ class DoctorSearchService
     {
         $query = strtolower($query);
         $symptomSpecializations = $this->getSymptomSpecializationMap();
-        
+
         return $results->sortBy(function ($doctor) use ($query, $symptomSpecializations) {
             $specialization = $doctor->specialization;
-            
+
             // Check if this doctor's specialization matches any symptoms in the query
             if (isset($symptomSpecializations[$specialization])) {
                 foreach ($symptomSpecializations[$specialization] as $symptom) {
@@ -237,12 +322,12 @@ class DoctorSearchService
                     }
                 }
             }
-            
+
             // General practitioners get medium priority
-            if (in_array($specialization, ['General Practice', 'Family Medicine', 'Internal Medicine','General Medicine'])) {
+            if (in_array($specialization, ['General Practice', 'Family Medicine', 'Internal Medicine', 'General Medicine'])) {
                 return 1;
             }
-            
+
             return 2; // Lower priority
         })->values();
     }
@@ -250,98 +335,295 @@ class DoctorSearchService
     /**
      * Get symptom to specialization mapping
      */
-  private function getSymptomSpecializationMap(): array
+    private function getSymptomSpecializationMap(): array
     {
         return [
             'Cardiology' => [
-                'chest pain', 'heart palpitations', 'shortness of breath', 'high blood pressure',
-                'irregular heartbeat', 'chest tightness', 'fatigue', 'dizziness', 'swollen ankles',
-                'heart attack', 'cardiac arrest', 'cardiovascular disease', 'arrhythmia', 'angina'
+                'chest pain',
+                'heart palpitations',
+                'shortness of breath',
+                'high blood pressure',
+                'irregular heartbeat',
+                'chest tightness',
+                'fatigue',
+                'dizziness',
+                'swollen ankles',
+                'heart attack',
+                'cardiac arrest',
+                'cardiovascular disease',
+                'arrhythmia',
+                'angina'
             ],
             'Dermatology' => [
-                'skin rash', 'acne', 'eczema', 'psoriasis', 'moles', 'skin cancer', 'wrinkles',
-                'hair loss', 'dandruff', 'skin allergies', 'dermatitis', 'skin problems',
-                'hives', 'sunburn', 'warts', 'fungal infection', 'nail problems'
+                'skin rash',
+                'acne',
+                'eczema',
+                'psoriasis',
+                'moles',
+                'skin cancer',
+                'wrinkles',
+                'hair loss',
+                'dandruff',
+                'skin allergies',
+                'dermatitis',
+                'skin problems',
+                'hives',
+                'sunburn',
+                'warts',
+                'fungal infection',
+                'nail problems'
             ],
             'Gastroenterology' => [
-                'stomach pain', 'abdominal pain', 'nausea', 'vomiting', 'diarrhea', 'constipation',
-                'acid reflux', 'heartburn', 'bloating', 'digestive issues', 'stomach problems',
-                'irritable bowel syndrome', 'Crohn\'s disease', 'ulcer', 'gastritis', 'bloody stool'
+                'stomach pain',
+                'abdominal pain',
+                'nausea',
+                'vomiting',
+                'diarrhea',
+                'constipation',
+                'acid reflux',
+                'heartburn',
+                'bloating',
+                'digestive issues',
+                'stomach problems',
+                'irritable bowel syndrome',
+                'Crohn\'s disease',
+                'ulcer',
+                'gastritis',
+                'bloody stool'
             ],
             'Neurology' => [
-                'headache', 'migraine', 'seizures', 'epilepsy', 'memory loss', 'confusion',
-                'dizziness', 'numbness', 'tingling', 'stroke', 'neurological disorder', 'brain injury',
-                'tremors', 'Parkinson\'s', 'Alzheimer\'s', 'vertigo', 'weakness'
+                'headache',
+                'migraine',
+                'seizures',
+                'epilepsy',
+                'memory loss',
+                'confusion',
+                'dizziness',
+                'numbness',
+                'tingling',
+                'stroke',
+                'neurological disorder',
+                'brain injury',
+                'tremors',
+                'Parkinson\'s',
+                'Alzheimer\'s',
+                'vertigo',
+                'weakness'
             ],
             'Orthopedics' => [
-                'joint pain', 'back pain', 'neck pain', 'knee pain', 'shoulder pain', 'arthritis',
-                'fractures', 'sports injury', 'muscle pain', 'bone problems', 'orthopedic injury',
-                'sprain', 'strain', 'tendonitis', 'ligament tear', 'sciatica', 'posture problems'
+                'joint pain',
+                'back pain',
+                'neck pain',
+                'knee pain',
+                'shoulder pain',
+                'arthritis',
+                'fractures',
+                'sports injury',
+                'muscle pain',
+                'bone problems',
+                'orthopedic injury',
+                'sprain',
+                'strain',
+                'tendonitis',
+                'ligament tear',
+                'sciatica',
+                'posture problems'
             ],
             'Pediatrics' => [
-                'child fever', 'baby cough', 'vaccination', 'growth problems', 'childhood illness',
-                'pediatric care', 'infant care', 'child development', 'kids health',
-                'chickenpox', 'measles', 'mumps', 'colic', 'feeding issues', 'developmental delay'
+                'child fever',
+                'baby cough',
+                'vaccination',
+                'growth problems',
+                'childhood illness',
+                'pediatric care',
+                'infant care',
+                'child development',
+                'kids health',
+                'chickenpox',
+                'measles',
+                'mumps',
+                'colic',
+                'feeding issues',
+                'developmental delay'
             ],
             'Psychiatry' => [
-                'depression', 'anxiety', 'stress', 'panic attacks', 'mental health', 'therapy',
-                'counseling', 'mood disorders', 'psychiatric care', 'emotional problems',
-                'bipolar disorder', 'schizophrenia', 'PTSD', 'insomnia', 'eating disorder'
+                'depression',
+                'anxiety',
+                'stress',
+                'panic attacks',
+                'mental health',
+                'therapy',
+                'counseling',
+                'mood disorders',
+                'psychiatric care',
+                'emotional problems',
+                'bipolar disorder',
+                'schizophrenia',
+                'PTSD',
+                'insomnia',
+                'eating disorder'
             ],
             'Pulmonology' => [
-                'cough', 'breathing problems', 'asthma', 'pneumonia', 'lung problems',
-                'respiratory issues', 'chest congestion', 'wheezing', 'lung infection',
-                'bronchitis', 'COPD', 'tuberculosis', 'sleep apnea', 'shortness of breath'
+                'cough',
+                'breathing problems',
+                'asthma',
+                'pneumonia',
+                'lung problems',
+                'respiratory issues',
+                'chest congestion',
+                'wheezing',
+                'lung infection',
+                'bronchitis',
+                'COPD',
+                'tuberculosis',
+                'sleep apnea',
+                'shortness of breath'
             ],
             'Urology' => [
-                'urinary problems', 'kidney stones', 'bladder issues', 'prostate problems',
-                'urinary tract infection', 'frequent urination', 'blood in urine', 'kidney disease',
-                'incontinence', 'erectile dysfunction', 'testicular pain', 'bladder infection'
+                'urinary problems',
+                'kidney stones',
+                'bladder issues',
+                'prostate problems',
+                'urinary tract infection',
+                'frequent urination',
+                'blood in urine',
+                'kidney disease',
+                'incontinence',
+                'erectile dysfunction',
+                'testicular pain',
+                'bladder infection'
             ],
             'Gynecology' => [
-                'menstrual problems', 'pregnancy', 'womens health', 'pap smear', 'contraception',
-                'fertility issues', 'gynecological exam', 'period problems', 'reproductive health',
-                'PCOS', 'endometriosis', 'menopause', 'vaginal discharge', 'pelvic pain'
+                'menstrual problems',
+                'pregnancy',
+                'womens health',
+                'pap smear',
+                'contraception',
+                'fertility issues',
+                'gynecological exam',
+                'period problems',
+                'reproductive health',
+                'PCOS',
+                'endometriosis',
+                'menopause',
+                'vaginal discharge',
+                'pelvic pain'
             ],
             'Ophthalmology' => [
-                'eye problems', 'vision problems', 'blurred vision', 'eye pain', 'cataracts',
-                'glaucoma', 'eye exam', 'glasses', 'contact lenses', 'eye infection',
-                'conjunctivitis', 'dry eyes', 'retinal detachment', 'diabetic retinopathy'
+                'eye problems',
+                'vision problems',
+                'blurred vision',
+                'eye pain',
+                'cataracts',
+                'glaucoma',
+                'eye exam',
+                'glasses',
+                'contact lenses',
+                'eye infection',
+                'conjunctivitis',
+                'dry eyes',
+                'retinal detachment',
+                'diabetic retinopathy'
             ],
             'ENT' => [ // Ear, Nose, and Throat (Otolaryngology)
-                'ear pain', 'sore throat', 'hearing problems', 'sinus problems', 'tonsillitis',
-                'ear infection', 'throat infection', 'nose problems', 'ENT issues',
-                'vertigo', 'dizziness', 'tinnitus', 'allergies', 'difficulty swallowing', 'hoarseness'
+                'ear pain',
+                'sore throat',
+                'hearing problems',
+                'sinus problems',
+                'tonsillitis',
+                'ear infection',
+                'throat infection',
+                'nose problems',
+                'ENT issues',
+                'vertigo',
+                'dizziness',
+                'tinnitus',
+                'allergies',
+                'difficulty swallowing',
+                'hoarseness'
             ],
             'Endocrinology' => [
-                'diabetes', 'thyroid problems', 'hormonal imbalance', 'weight gain', 'weight loss',
-                'fatigue', 'excessive thirst', 'frequent urination', 'adrenal problems', 'metabolism issues'
+                'diabetes',
+                'thyroid problems',
+                'hormonal imbalance',
+                'weight gain',
+                'weight loss',
+                'fatigue',
+                'excessive thirst',
+                'frequent urination',
+                'adrenal problems',
+                'metabolism issues'
             ],
             'Rheumatology' => [
-                'joint inflammation', 'arthritis', 'autoimmune disease', 'muscle stiffness',
-                'lupus', 'rheumatoid arthritis', 'gout', 'fibromyalgia', 'connective tissue disease'
+                'joint inflammation',
+                'arthritis',
+                'autoimmune disease',
+                'muscle stiffness',
+                'lupus',
+                'rheumatoid arthritis',
+                'gout',
+                'fibromyalgia',
+                'connective tissue disease'
             ],
             'Oncology' => [
-                'cancer', 'tumor', 'unexplained weight loss', 'persistent fatigue', 'unusual lumps',
-                'abnormal bleeding', 'skin changes', 'oncology consultation', 'chemotherapy', 'radiation'
+                'cancer',
+                'tumor',
+                'unexplained weight loss',
+                'persistent fatigue',
+                'unusual lumps',
+                'abnormal bleeding',
+                'skin changes',
+                'oncology consultation',
+                'chemotherapy',
+                'radiation'
             ],
             'Infectious Disease' => [
-                'fever', 'chills', 'body aches', 'infection', 'flu', 'cold', 'virus', 'bacterial infection',
-                'parasitic infection', 'travel-related illness', 'HIV', 'hepatitis', 'tuberculosis'
+                'fever',
+                'chills',
+                'body aches',
+                'infection',
+                'flu',
+                'cold',
+                'virus',
+                'bacterial infection',
+                'parasitic infection',
+                'travel-related illness',
+                'HIV',
+                'hepatitis',
+                'tuberculosis'
             ],
             'Nephrology' => [
-                'kidney disease', 'kidney failure', 'dialysis', 'swelling', 'high blood pressure',
-                'blood in urine', 'protein in urine', 'fluid retention', 'renal problems'
+                'kidney disease',
+                'kidney failure',
+                'dialysis',
+                'swelling',
+                'high blood pressure',
+                'blood in urine',
+                'protein in urine',
+                'fluid retention',
+                'renal problems'
             ],
             'General Medicine' => [
-                'general check-up', 'routine exam', 'common cold', 'flu symptoms', 'fever', 'fatigue',
-                'minor injuries', 'wellness visit', 'preventative care', 'unknown symptoms',
-                'prescription refill', 'immunization', 'general health concerns', 'referral', 'basic consultation'
+                'general check-up',
+                'routine exam',
+                'common cold',
+                'flu symptoms',
+                'fever',
+                'fatigue',
+                'minor injuries',
+                'wellness visit',
+                'preventative care',
+                'unknown symptoms',
+                'prescription refill',
+                'immunization',
+                'general health concerns',
+                'referral',
+                'basic consultation'
             ]
         ];
     }   /**
-     * Transform doctor data for frontend
-     */
+        * Transform doctor data for frontend
+        */
     public function transformDoctorData(Collection $doctors): array
     {
         return $doctors->map(function ($doctor) {

@@ -14,10 +14,17 @@
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <style>
+        [x-cloak] { 
+            display: none !important; 
+        }
+        
         body {
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
         }
@@ -43,9 +50,9 @@
                             <i class="fas fa-flask text-white text-xl"></i>
                         </div>
                         <div class="flex flex-col">
-                            <h1 class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200">Lab Portal</h1>
+                            <h1 class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200">MediCare</h1>
                             @if(auth()->user()->laboratory()->first())
-                                <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">{{ auth()->user()->laboratory()->first()->name ?? 'Laboratory' }}</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400 font-medium">{{ auth()->user()->laboratory()->first()->name ?? 'Laboratory Portal' }}</span>
                             @endif
                         </div>
                     </a>
@@ -103,54 +110,111 @@
                 </div>
 
                 <!-- Right Section -->
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-6">
                     <!-- Availability Toggle -->
                     @if(auth()->user()->laboratory()->first())
-                        <div class="hidden sm:flex items-center">
-                            <span class="text-xs text-gray-500 dark:text-gray-400 mr-2">Status:</span>
-                            <label class="inline-flex items-center">
-                                <input type="checkbox" 
-                                       id="availability-toggle"
-                                       {{ auth()->user()->laboratory()->first()->is_available ? 'checked' : '' }}
-                                       onchange="toggleAvailability()"
-                                       class="sr-only">
-                                <div class="relative">
-                                    <div class="block bg-gray-300 dark:bg-gray-600 w-12 h-6 rounded-full transition-colors duration-200"></div>
-                                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-200"></div>
-                                </div>
-                                <span class="ml-2 text-xs text-gray-600 dark:text-gray-400 font-medium">
-                                    {{ auth()->user()->laboratory()->first()->is_available ? 'Online' : 'Offline' }}
-                                </span>
-                            </label>
+                        <div class="hidden md:flex items-center px-4 py-2 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700">
+                            <div class="flex items-center gap-3">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Laboratory Status</span>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" 
+                                           id="availability-toggle"
+                                           {{ auth()->user()->laboratory()->first()->is_available ? 'checked' : '' }}
+                                           onchange="toggleAvailability()"
+                                           class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 dark:peer-focus:ring-purple-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-purple-600"></div>
+                                    <span class="ml-2 text-sm font-medium text-gray-500 dark:text-gray-400 status-label">
+                                        {{ auth()->user()->laboratory()->first()->is_available ? 'Online' : 'Offline' }}
+                                    </span>
+                                </label>
+                            </div>
                         </div>
                     @endif
 
                     <!-- User Profile Section -->
-                    <div class="flex items-center space-x-3">
-                        <div class="flex items-center space-x-2">
-                            <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
-                                <span class="text-white text-sm font-semibold">{{ substr(auth()->user()->name, 0, 1) }}</span>
+                    <div x-data="{ isOpen: false }" @click.away="isOpen = false" class="relative">
+                        <button @click="isOpen = !isOpen" 
+                                type="button"
+                                class="flex items-center space-x-4 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-500 rounded-xl shadow-lg flex items-center justify-center">
+                                    <span class="text-white text-base font-semibold">{{ substr(auth()->user()->name, 0, 1) }}</span>
+                                </div>
+                                <div class="hidden md:block text-left">
+                                    <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ auth()->user()->name }}</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Laboratory Staff</p>
+                                </div>
+                                <svg class="w-4 h-4 text-gray-400 hidden md:block transition-transform duration-200" 
+                                     :class="{'rotate-180': isOpen}"
+                                     fill="none" 
+                                     stroke="currentColor" 
+                                     viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
                             </div>
-                            <div class="hidden md:block">
-                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ auth()->user()->name }}</span>
-                                <span class="block text-xs text-gray-500 dark:text-gray-400">Laboratory Staff</span>
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div x-show="isOpen"
+                             x-cloak
+                             x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="transform opacity-0 scale-95"
+                             x-transition:enter-end="transform opacity-100 scale-100"
+                             x-transition:leave="transition ease-in duration-75"
+                             x-transition:leave-start="transform opacity-100 scale-100"
+                             x-transition:leave-end="transform opacity-0 scale-95"
+                             class="absolute right-0 mt-2 w-60 rounded-xl bg-white dark:bg-gray-800 shadow-xl border border-gray-200 dark:border-gray-700 py-2 z-50">
+                            
+                            <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                                <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ auth()->user()->name }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ auth()->user()->email }}</p>
+                            </div>
+
+                            <!-- Mobile Status Toggle -->
+                            @if(auth()->user()->laboratory()->first())
+                                <div class="md:hidden px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-700 dark:text-gray-300">Laboratory Status</span>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" 
+                                                   id="mobile-availability-toggle"
+                                                   {{ auth()->user()->laboratory()->first()->is_available ? 'checked' : '' }}
+                                                   onchange="toggleAvailability()"
+                                                   class="sr-only peer">
+                                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 dark:peer-focus:ring-purple-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-purple-600"></div>
+                                            <span class="ml-2 text-sm font-medium text-gray-500 dark:text-gray-400 status-label">
+                                                {{ auth()->user()->laboratory()->first()->is_available ? 'Online' : 'Offline' }}
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
+                            @endif
+
+                            <div class="px-2 py-2">
+                                <a href="{{ route('laboratory.settings.index') }}" 
+                                   @click="isOpen = false"
+                                   class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200">
+                                    <i class="fas fa-cog w-4 text-gray-400"></i>
+                                    Settings
+                                </a>
+
+                                <form action="{{ route('logout') }}" method="POST" class="px-2">
+                                    @csrf
+                                    <button type="submit" 
+                                            @click="isOpen = false"
+                                            class="w-full mt-2 flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors duration-200">
+                                        <i class="fas fa-sign-out-alt w-4"></i>
+                                        Sign out
+                                    </button>
+                                </form>
                             </div>
                         </div>
-                        
-                        <!-- Logout Button -->
-                        <form action="{{ route('logout') }}" method="POST" class="inline">
-                            @csrf
-                            <button type="submit"
-                                    class="flex items-center text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors duration-200">
-                                <i class="fas fa-sign-out-alt mr-1"></i>
-                                <span class="hidden sm:inline">Logout</span>
-                            </button>
-                        </form>
                     </div>
 
                     <!-- Mobile Menu Button -->
-                    <button type="button" onclick="toggleMobileMenu()" 
-                            class="lg:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-purple-500">
+                    <button type="button" 
+                            onclick="toggleMobileMenu()" 
+                            class="lg:hidden inline-flex items-center justify-center p-2 rounded-xl text-gray-500 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200">
                         <i class="fas fa-bars text-xl"></i>
                     </button>
                 </div>
@@ -275,6 +339,17 @@
         function toggleAvailability() {
             const toggle = document.getElementById('availability-toggle');
             const mobileToggle = document.getElementById('mobile-availability-toggle');
+            const statusTexts = document.querySelectorAll('[data-status-text]');
+            const currentStatus = toggle ? toggle.checked : mobileToggle.checked;
+            
+            // Show loading state
+            [toggle, mobileToggle].forEach(t => {
+                if (t) {
+                    t.disabled = true;
+                    const bg = t.parentElement.querySelector('.peer');
+                    bg.classList.add('opacity-50');
+                }
+            });
             
             fetch('{{ route("laboratory.settings.toggle-availability") }}', {
                 method: 'PATCH',
@@ -283,88 +358,138 @@
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
                 body: JSON.stringify({
-                    is_available: toggle ? toggle.checked : mobileToggle.checked
+                    is_available: currentStatus
                 })
             })
             .then(response => response.json())
             .then(data => {
+                // Remove loading state
+                [toggle, mobileToggle].forEach(t => {
+                    if (t) {
+                        t.disabled = false;
+                        const bg = t.parentElement.querySelector('.peer');
+                        bg.classList.remove('opacity-50');
+                    }
+                });
+
                 if (data.success) {
-                    // Update both toggles
+                    // Update toggle states
                     [toggle, mobileToggle].forEach(t => {
                         if (t) {
-                            const bg = t.parentElement.querySelector('.block');
-                            const dot = t.parentElement.querySelector('.dot');
+                            t.checked = data.is_available;
+                            const bg = t.parentElement.querySelector('.peer');
                             
                             if (data.is_available) {
-                                bg.classList.remove('bg-gray-300', 'dark:bg-gray-600');
-                                bg.classList.add('bg-green-400', 'dark:bg-green-500');
-                                dot.classList.add('translate-x-6');
-                                t.checked = true;
+                                bg.classList.add('bg-purple-600');
+                                bg.classList.remove('bg-gray-200', 'dark:bg-gray-700');
                             } else {
-                                bg.classList.remove('bg-green-400', 'dark:bg-green-500');
-                                bg.classList.add('bg-gray-300', 'dark:bg-gray-600');
-                                dot.classList.remove('translate-x-6');
-                                t.checked = false;
+                                bg.classList.remove('bg-purple-600');
+                                bg.classList.add('bg-gray-200', 'dark:bg-gray-700');
+                            }
+                        }
+                    });
+
+                    // Update status text
+                    const statusLabels = document.querySelectorAll('.status-label');
+                    statusLabels.forEach(label => {
+                        label.textContent = data.is_available ? 'Online' : 'Offline';
+                    });
+
+                    // Show success message
+                    showNotification(data.message || 'Status updated successfully', 'success');
+                } else {
+                    // Revert toggle state on failure
+                    [toggle, mobileToggle].forEach(t => {
+                        if (t) {
+                            t.checked = !currentStatus;
+                            const bg = t.parentElement.querySelector('.peer');
+                            
+                            if (!currentStatus) {
+                                bg.classList.add('bg-purple-600');
+                                bg.classList.remove('bg-gray-200', 'dark:bg-gray-700');
+                            } else {
+                                bg.classList.remove('bg-purple-600');
+                                bg.classList.add('bg-gray-200', 'dark:bg-gray-700');
                             }
                         }
                     });
                     
-                    // Update status text
-                    const statusTexts = document.querySelectorAll('[data-status-text]');
-                    statusTexts.forEach(text => {
-                        text.textContent = data.is_available ? 'Online' : 'Offline';
-                    });
-                    
-                    // Show success message
-                    showNotification(data.message, 'success');
-                } else {
                     // Show error message
-                    showNotification(data.message || 'Failed to update availability', 'error');
-                    
-                    // Revert toggle state
-                    [toggle, mobileToggle].forEach(t => {
-                        if (t) t.checked = !t.checked;
-                    });
+                    showNotification(data.message || 'Failed to update status', 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showNotification('Failed to update availability', 'error');
                 
-                // Revert toggle state
+                // Remove loading state
                 [toggle, mobileToggle].forEach(t => {
-                    if (t) t.checked = !t.checked;
+                    if (t) {
+                        t.disabled = false;
+                        const bg = t.parentElement.querySelector('.peer');
+                        bg.classList.remove('opacity-50');
+                    }
                 });
+
+                // Revert toggle state on error
+                [toggle, mobileToggle].forEach(t => {
+                    if (t) {
+                        t.checked = !currentStatus;
+                        const bg = t.parentElement.querySelector('.peer');
+                        
+                        if (!currentStatus) {
+                            bg.classList.add('bg-purple-600');
+                            bg.classList.remove('bg-gray-200', 'dark:bg-gray-700');
+                        } else {
+                            bg.classList.remove('bg-purple-600');
+                            bg.classList.add('bg-gray-200', 'dark:bg-gray-700');
+                        }
+                    }
+                });
+                
+                // Show error message
+                showNotification('Failed to update status. Please try again.', 'error');
             });
         }
 
         // Show notification
-        function showNotification(message, type) {
-            // Create notification element
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-opacity duration-300 ${
+        function showNotification(message, type = 'success') {
+            const notificationId = 'status-notification';
+            let notification = document.getElementById(notificationId);
+            
+            // Remove existing notification if present
+            if (notification) {
+                notification.remove();
+            }
+            
+            // Create new notification
+            notification = document.createElement('div');
+            notification.id = notificationId;
+            notification.className = `fixed top-4 right-4 z-50 p-4 rounded-xl shadow-lg transform transition-all duration-300 ${
                 type === 'success' 
-                    ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800' 
-                    : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'
+                    ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-800' 
+                    : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-800'
             }`;
             
             notification.innerHTML = `
-                <div class="flex items-center">
-                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-2"></i>
-                    <span>${message}</span>
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} text-lg"></i>
+                    <p class="text-sm font-medium">${message}</p>
                 </div>
             `;
             
             document.body.appendChild(notification);
             
-            // Remove notification after 3 seconds
+            // Animate in
             setTimeout(() => {
-                notification.style.opacity = '0';
-                setTimeout(() => {
-                    if (document.body.contains(notification)) {
-                        document.body.removeChild(notification);
-                    }
-                }, 300);
+                notification.classList.add('translate-y-1', 'opacity-100');
+                notification.classList.remove('translate-y-0', 'opacity-0');
+            }, 100);
+            
+            // Remove after delay
+            setTimeout(() => {
+                notification.classList.add('translate-y-0', 'opacity-0');
+                notification.classList.remove('translate-y-1', 'opacity-100');
+                setTimeout(() => notification.remove(), 300);
             }, 3000);
         }
 
@@ -375,12 +500,11 @@
             
             [toggle, mobileToggle].forEach(t => {
                 if (t && t.checked) {
-                    const dot = t.parentElement.querySelector('.dot');
-                    const bg = t.parentElement.querySelector('.block');
-                    
-                    bg.classList.remove('bg-gray-300', 'dark:bg-gray-600');
-                    bg.classList.add('bg-green-400', 'dark:bg-green-500');
-                    dot.classList.add('translate-x-6');
+                    const bg = t.parentElement.querySelector('.peer');
+                    if (bg) {
+                        bg.classList.add('bg-purple-600');
+                        bg.classList.remove('bg-gray-200', 'dark:bg-gray-700');
+                    }
                 }
             });
         });
@@ -394,6 +518,20 @@
                 mobileMenu.classList.add('hidden');
             }
         });
+
+        // Theme toggle functionality
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isDark = html.classList.contains('dark');
+            
+            if (isDark) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
     </script>
 </body>
 </html>

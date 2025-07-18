@@ -5,13 +5,13 @@
         <div class="flex justify-between items-center h-16">
             <!-- Logo/Brand -->
             <div class="flex items-center space-x-4">
-                <a href="{{ route('pharmacy.dashboard') }}" class="flex items-center group">
+                <a href="{{ route('welcome') }}" class="flex items-center group">
                     <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
                         <i class="fas fa-mortar-pestle text-white text-lg"></i>
                     </div>
                     <div class="ml-3 hidden sm:block">
-                        <h1 class="text-lg font-bold text-gray-900 dark:text-white">Pharmacy Portal</h1>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Order Management</p>
+                        <h1 class="text-lg font-bold text-gray-900 dark:text-white">MediCare</h1>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">PharmacyOrder Management</p>
                     </div>
                 </a>
             </div>

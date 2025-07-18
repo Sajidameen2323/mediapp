@@ -55,56 +55,69 @@
                 @if($doctors->count() > 0)
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         @foreach($doctors as $doctor)
-                            <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
-                                <div class="flex items-center space-x-4">
-                                    <div class="flex-shrink-0">
+                            <div class="group relative border-2 border-gray-200 dark:border-gray-600 rounded-xl p-6 hover:border-purple-400 dark:hover:border-purple-500 transition-all duration-300 hover:shadow-lg">
+                                <div class="absolute top-4 right-4">
+                                    <div class="relative">
                                         <input type="checkbox" 
                                                name="doctors[]" 
                                                id="doctor_{{ $doctor->id }}" 
                                                value="{{ $doctor->id }}"
                                                {{ in_array($doctor->id, $assignedDoctors) ? 'checked' : '' }}
-                                               class="h-5 w-5 text-purple-600 focus:ring-purple-500 border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700">
+                                               class="peer h-6 w-6 cursor-pointer appearance-none rounded-md border-2 border-gray-300 dark:border-gray-600 checked:bg-purple-600 checked:border-purple-600 transition-all duration-200">
+                                        <svg class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity duration-200" 
+                                             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
                                     </div>
+                                </div>
+                                <div class="flex items-start space-x-5">
                                     <div class="flex-shrink-0">
                                         @if($doctor->profile_image)
                                             <img src="{{ Storage::url($doctor->profile_image) }}" 
                                                  alt="{{ $doctor->user->name }}" 
-                                                 class="h-16 w-16 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600">
+                                                 class="h-20 w-20 rounded-xl object-cover shadow-md group-hover:shadow-xl transition-shadow duration-300">
                                         @else
-                                            <div class="h-16 w-16 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center border-2 border-gray-200 dark:border-gray-600">
-                                                <span class="text-white font-bold text-xl">{{ substr($doctor->user->name, 0, 1) }}</span>
+                                            <div class="h-20 w-20 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-md group-hover:shadow-xl transition-shadow duration-300">
+                                                <span class="text-white font-bold text-2xl">{{ substr($doctor->user->name, 0, 1) }}</span>
                                             </div>
                                         @endif
                                     </div>
-                                    <div class="flex-1 min-w-0">
-                                        <label for="doctor_{{ $doctor->id }}" class="block text-lg font-semibold text-gray-900 dark:text-white cursor-pointer">
+                                    <div class="flex-1 min-w-0 pt-1">
+                                        <label for="doctor_{{ $doctor->id }}" class="block text-xl font-bold text-gray-900 dark:text-white cursor-pointer group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200">
                                             {{ $doctor->user->name }}
                                         </label>
-                                        <p class="text-sm text-blue-600 dark:text-blue-400 font-medium">{{ $doctor->specialization }}</p>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ $doctor->experience_years }} years experience</p>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400">License: {{ $doctor->license_number }}</p>
-                                        <div class="mt-2">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                                                <i class="fas fa-dollar-sign mr-1"></i>
-                                                ${{ number_format($doctor->consultation_fee, 2) }} consultation fee
-                                            </span>
+                                        <div class="mt-1 flex items-center gap-2">
+                                            <span class="text-sm font-semibold text-blue-600 dark:text-blue-400">{{ $doctor->specialization }}</span>
+                                            <span class="text-gray-400">•</span>
+                                            <span class="text-sm text-gray-600 dark:text-gray-400">{{ $doctor->experience_years }} years exp.</span>
                                         </div>
-                                        @if($doctor->user->email)
-                                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ $doctor->user->email }}</p>
-                                        @endif
-                                    </div>
-                                    <div class="flex-shrink-0">
-                                        @if($doctor->is_available)
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                                                <i class="fas fa-check-circle mr-1"></i>
-                                                Available
+                                        <div class="mt-3 space-y-2">
+                                            <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                                <i class="fas fa-id-card-alt"></i>
+                                                <span>License: {{ $doctor->license_number }}</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                                <i class="fas fa-envelope"></i>
+                                                <span>{{ $doctor->user->email }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="mt-4 flex items-center gap-3">
+                                            <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                                <i class="fas fa-dollar-sign mr-1.5"></i>
+                                                ${{ number_format($doctor->consultation_fee, 2) }}
                                             </span>
-                                        @else
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                                                <i class="fas fa-times-circle mr-1"></i>
-                                                Unavailable
-                                            </span>
-                                        @endif
+                                            @if($doctor->is_available)
+                                                <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
+                                                    <i class="fas fa-check-circle mr-1.5"></i>
+                                                    Available
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                                    <i class="fas fa-times-circle mr-1.5"></i>
+                                                    Unavailable
+                                                </span>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -191,20 +204,20 @@ document.addEventListener('DOMContentLoaded', function() {
     
     checkboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
-            const card = this.closest('.border');
+            const card = this.closest('.group');
             if (this.checked) {
-                card.classList.add('bg-purple-50', 'dark:bg-purple-900/30', 'border-purple-300', 'dark:border-purple-600');
+                card.classList.add('border-purple-400', 'dark:border-purple-500');
                 card.classList.remove('border-gray-200', 'dark:border-gray-600');
             } else {
-                card.classList.remove('bg-purple-50', 'dark:bg-purple-900/30', 'border-purple-300', 'dark:border-purple-600');
+                card.classList.remove('border-purple-400', 'dark:border-purple-500');
                 card.classList.add('border-gray-200', 'dark:border-gray-600');
             }
         });
         
         // Apply initial state
         if (checkbox.checked) {
-            const card = checkbox.closest('.border');
-            card.classList.add('bg-purple-50', 'dark:bg-purple-900/30', 'border-purple-300', 'dark:border-purple-600');
+            const card = checkbox.closest('.group');
+            card.classList.add('border-purple-400', 'dark:border-purple-500');
             card.classList.remove('border-gray-200', 'dark:border-gray-600');
         }
     });

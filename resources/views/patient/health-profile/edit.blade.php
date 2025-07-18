@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.patient')
 
 @section('title', 'Edit Health Profile - Medi App')
 
@@ -266,13 +266,13 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
-                        <label for="smoking_status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Smoking Status</label>
-                        <select id="smoking_status" name="smoking_status"
+                        <label for="smoking_status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Current Smoking Status</label>
+                        <select id="smoking_status" name="is_smoker"
                                 class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                             <option value="">Select Status</option>
-                            <option value="never" {{ old('smoking_status', $healthProfile->smoking_status) == 'never' ? 'selected' : '' }}>Never</option>
-                            <option value="former" {{ old('smoking_status', $healthProfile->smoking_status) == 'former' ? 'selected' : '' }}>Former</option>
-                            <option value="current" {{ old('smoking_status', $healthProfile->smoking_status) == 'current' ? 'selected' : '' }}>Current</option>
+                            <option value="0" {{ old('smoking_status', $healthProfile->is_smoker) == '0' ? 'selected' : '' }}>No</option>
+                            <option value="1" {{ old('smoking_status', $healthProfile->is_smoker) == '1' ? 'selected' : '' }}>Yes</option>
+                            {{-- <option value="current" {{ old('smoking_status', $healthProfile->smoking_status) == 'current' ? 'selected' : '' }}>Current</option> --}}
                         </select>
                         @error('smoking_status')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -281,14 +281,12 @@
 
                     <div>
                         <label for="alcohol_consumption" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Alcohol Consumption</label>
-                        <select id="alcohol_consumption" name="alcohol_consumption"
+                        <select id="alcohol_consumption" name="is_alcohol_consumer"
                                 class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                             <option value="">Select Frequency</option>
-                            <option value="never" {{ old('alcohol_consumption', $healthProfile->alcohol_consumption) == 'never' ? 'selected' : '' }}>Never</option>
-                            <option value="rarely" {{ old('alcohol_consumption', $healthProfile->alcohol_consumption) == 'rarely' ? 'selected' : '' }}>Rarely</option>
-                            <option value="occasionally" {{ old('alcohol_consumption', $healthProfile->alcohol_consumption) == 'occasionally' ? 'selected' : '' }}>Occasionally</option>
-                            <option value="weekly" {{ old('alcohol_consumption', $healthProfile->alcohol_consumption) == 'weekly' ? 'selected' : '' }}>Weekly</option>
-                            <option value="daily" {{ old('alcohol_consumption', $healthProfile->alcohol_consumption) == 'daily' ? 'selected' : '' }}>Daily</option>
+                            <option value="0" {{ old('alcohol_consumption', $healthProfile->is_alcohol_consumer) == '0' ? 'selected' : '' }}>No</option>
+                            <option value="1" {{ old('alcohol_consumption', $healthProfile->is_alcohol_consumer) == '1' ? 'selected' : '' }}>Yes</option>
+      
                         </select>
                         @error('alcohol_consumption')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

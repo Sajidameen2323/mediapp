@@ -521,7 +521,7 @@ class AppointmentController extends Controller
             ];
 
             // Use the new DoctorSearchService for intelligent symptom-based search
-            $doctors = $this->doctorSearchService->searchDoctors($query, $filters);
+            $doctors = $this->doctorSearchService->searchDoctorsV2($query, $filters);
 
             // Transform data for frontend
             $doctorsData = $this->doctorSearchService->transformDoctorData($doctors);
