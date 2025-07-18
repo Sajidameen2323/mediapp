@@ -27,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
         // Register the test command
         if ($this->app->runningInConsole()) {
             $this->commands([
-                \App\Console\Commands\TestDoctorBreakUpdate::class,
+               
             ]);
         }
     }
