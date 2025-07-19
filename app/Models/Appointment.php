@@ -364,4 +364,12 @@ class Appointment extends Model
             'reschedule_limit' => $config->reschedule_hours_limit,
         ];
     }
+    
+    /**
+     * Get the payments associated with this appointment.
+     */
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
 }

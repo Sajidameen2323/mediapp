@@ -300,7 +300,118 @@
                                 rating-action="showRatingModal('ratingModal_{{ $appointment->id }}')" />
                         </div>
                     </div>
-                </div>                <!-- Appointment Timeline -->
+                </div>
+                
+                <!-- Payment Section -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                            <i class="fas fa-credit-card text-green-500 mr-2"></i>
+                            Payment Details
+                        </h3>
+                        
+                        @php
+                            $paymentStatus = $appointment->payment_status ?? 'unpaid';
+                            $paidAmount = $appointment->paid_amount ?? 0;
+                            $remainingAmount = ($appointment->total_amount ?? 0) - $paidAmount;
+                            $isFullyPaid = $remainingAmount <= 0;
+                        @endphp
+                        
+                        <div class="space-y-4">
+                            <!-- Payment Status Badge -->
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Status</span>
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
+                                    {{ $paymentStatus === 'paid' ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' : 
+                                       ($paymentStatus === 'partial' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400' : 
+                                       'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400') }}">
+                                    <i class="fas {{ $paymentStatus === 'paid' ? 'fa-check-circle' : 
+                                                     ($paymentStatus === 'partial' ? 'fa-dot-circle' : 'fa-times-circle') }} mr-1"></i>
+                                    {{ ucfirst($paymentStatus) }}
+                                </span>
+                            </div>
+                            
+                            <!-- Amount Information -->
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <div class="text-gray-600 dark:text-gray-400">Total Amount</div>
+                                <div class="text-right font-medium text-gray-900 dark:text-white">${{ number_format($appointment->total_amount ?? 0, 2) }}</div>
+                                
+                                @if($paidAmount > 0)
+                                <div class="text-gray-600 dark:text-gray-400">Paid Amount</div>
+                                <div class="text-right font-medium text-green-600 dark:text-green-400">${{ number_format($paidAmount, 2) }}</div>
+                                
+                                <div class="text-gray-600 dark:text-gray-400">Remaining</div>
+                                <div class="text-right font-medium {{ $isFullyPaid ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
+                                    ${{ number_format($remainingAmount, 2) }}
+                                </div>
+                                @endif
+                                
+                                @if($appointment->tax_amount > 0)
+                                <div class="text-gray-600 dark:text-gray-400">Tax ({{ $appointment->tax_percentage }}%)</div>
+                                <div class="text-right font-medium text-gray-500 dark:text-gray-400">${{ number_format($appointment->tax_amount, 2) }}</div>
+                                @endif
+                            </div>
+                            
+                            <!-- Payment Action Button -->
+                            @if(!$isFullyPaid)
+                            <button type="button" onclick="showPaymentModal({{ $remainingAmount }}, {{ $appointment->id }}, 'Pay for Appointment')" 
+                                class="w-full mt-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-200 dark:bg-indigo-500 dark:hover:bg-indigo-600">
+                                <i class="fas fa-credit-card mr-2"></i>
+                                {{ $paymentStatus === 'partial' ? 'Pay Remaining Balance' : 'Pay Now' }}
+                            </button>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment History -->
+                @php
+                    // Check if the payments table exists
+                    $paymentsTableExists = \Illuminate\Support\Facades\Schema::hasTable('payments');
+                    $payments = collect([]);
+                    
+                    if ($paymentsTableExists) {
+                        $payments = \App\Models\Payment::where('appointment_id', $appointment->id)
+                            ->orderBy('created_at', 'desc')
+                            ->get();
+                    }
+                @endphp
+                
+                @if($paymentsTableExists && $payments->count() > 0)
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                            <i class="fas fa-history text-purple-500 mr-2"></i>
+                            Payment History
+                        </h3>
+                        
+                        <div class="space-y-3">
+                            @foreach($payments as $payment)
+                            <div class="border-b border-gray-100 dark:border-gray-700 pb-3 last:border-0 last:pb-0">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <span class="text-gray-800 dark:text-gray-200 font-medium">${{ number_format($payment->amount, 2) }}</span>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ $payment->created_at->format('M d, Y g:i A') }}
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col items-end">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">
+                                            {{ $payment->status }}
+                                        </span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                            {{ $payment->formatted_payment_method }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                @endif
+                
+                <!-- Appointment Timeline -->
                 <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                     <div class="p-6 mb-6">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
@@ -496,6 +607,9 @@
     @if ($appointment->canBeRated())
         <x-appointment.rating-modal :appointment="$appointment" modal-id="ratingModal_{{ $appointment->id }}" />
     @endif
+    
+    <!-- Payment Modal -->
+    <x-payment-modal id="payment-modal" :appointment-id="$appointment->id" />
 @endsection
 
 @push('styles')
@@ -568,6 +682,7 @@
 @endpush
 
 @push('scripts')
+    <script src="{{ asset('js/payment-modal-helper.js') }}"></script>
     <script>
         // Modal Functions
         function showCancelModal() {
@@ -599,6 +714,16 @@
                 if (!cancelModal.classList.contains('hidden')) {
                     hideCancelModal();
                 }
+            }
+        });
+        
+        // Payment modal success callback
+        document.addEventListener('payment:success', function(e) {
+            if (e.detail && e.detail.appointmentId == {{ $appointment->id }}) {
+                // Reload the page to show updated payment status
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
             }
         });
     </script>

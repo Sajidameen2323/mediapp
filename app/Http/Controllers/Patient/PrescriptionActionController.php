@@ -19,17 +19,7 @@ class PrescriptionActionController extends Controller
      */
     public function orderFromPharmacy(Prescription $prescription)
     {
-        Gate::authorize('patient-access');
-
-        // Ensure the prescription belongs to the authenticated patient
-        if ($prescription->patient_id !== auth()->id()) {
-            abort(403);
-        }
-
-        if (!$prescription->canBeOrdered()) {
-            return redirect()->route('patient.prescriptions.show', $prescription)
-                ->with('error', 'This prescription cannot be ordered at this time.');
-        }
+        $this->authorize('orderFromPharmacy', $prescription);
 
         $pharmacies = Pharmacy::available()
             ->with('user')
@@ -44,17 +34,7 @@ class PrescriptionActionController extends Controller
      */
     public function storePharmacyOrder(PharmacyOrderRequest $request, Prescription $prescription)
     {
-        Gate::authorize('patient-access');
-
-        // Ensure the prescription belongs to the authenticated patient
-        if ($prescription->patient_id !== auth()->id()) {
-            abort(403);
-        }
-
-        if (!$prescription->canBeOrdered()) {
-            return redirect()->route('patient.prescriptions.show', $prescription)
-                ->with('error', 'This prescription cannot be ordered at this time.');
-        }
+        $this->authorize('orderFromPharmacy', $prescription);
 
         try {
             DB::beginTransaction();
@@ -122,17 +102,7 @@ class PrescriptionActionController extends Controller
      */
     public function requestRefill(Prescription $prescription)
     {
-        Gate::authorize('patient-access');
-
-        // Ensure the prescription belongs to the authenticated patient
-        if ($prescription->patient_id !== auth()->id()) {
-            abort(403);
-        }
-
-        if (!$prescription->hasRefillsRemaining()) {
-            return redirect()->route('patient.prescriptions.show', $prescription)
-                ->with('error', 'No refills remaining for this prescription.');
-        }
+        $this->authorize('requestRefill', $prescription);
 
         try {
             $prescription->processRefill();
@@ -151,17 +121,7 @@ class PrescriptionActionController extends Controller
      */
     public function markCompleted(Prescription $prescription)
     {
-        Gate::authorize('patient-access');
-
-        // Ensure the prescription belongs to the authenticated patient
-        if ($prescription->patient_id !== auth()->id()) {
-            abort(403);
-        }
-
-        if (!$prescription->canBeCompleted()) {
-            return redirect()->route('patient.prescriptions.show', $prescription)
-                ->with('error', 'This prescription cannot be marked as completed.');
-        }
+        $this->authorize('markAsCompleted', $prescription);
 
         try {
             $prescription->markAsCompleted();
@@ -209,17 +169,7 @@ class PrescriptionActionController extends Controller
      */
     public function markAsActive(Prescription $prescription)
     {
-        Gate::authorize('patient-access');
-
-        // Ensure the prescription belongs to the authenticated patient
-        if ($prescription->patient_id !== auth()->id()) {
-            abort(403);
-        }
-
-        if (!$prescription->canBeActivated()) {
-            return redirect()->back()
-                ->with('error', 'This prescription cannot be marked as active at this time.');
-        }
+        $this->authorize('markAsActive', $prescription);
 
         try {
             $prescription->markAsActive();

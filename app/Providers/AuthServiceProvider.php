@@ -15,6 +15,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         \App\Models\PharmacyOrder::class => \App\Policies\PharmacyOrderPolicy::class,
+        \App\Models\Prescription::class => \App\Policies\PrescriptionPolicy::class,
     ];    /**
      * Register any authentication / authorization services.
      */

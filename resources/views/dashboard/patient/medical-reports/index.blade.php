@@ -109,8 +109,9 @@
                         <div class="report-card bg-white dark:bg-gray-800 overflow-hidden shadow-sm rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-lg dark:hover:shadow-gray-900/25 transition-all duration-300 hover:scale-[1.02]"
                             data-report-id="{{ $report->id }}" 
                             data-doctor="{{ $report->doctor->user->name }}"
-                            data-diagnosis="{{ $report->diagnosis ?? '' }}" data-symptoms="{{ $report->symptoms ?? '' }}"
-                            data-treatment="{{ $report->treatment ?? '' }}"
+                            data-diagnosis="{{ $report->assessment_diagnosis ?? '' }}" 
+                            data-symptoms="{{ $report->chief_complaint ?? '' }}"
+                            data-treatment="{{ $report->treatment_plan ?? '' }}"
                             data-date="{{ $report->created_at->format('Y-m-d') }}">
 
                             <!-- Card Header with Report Title -->
@@ -120,7 +121,7 @@
                                     <div class="flex-1">
                                         <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-1 leading-tight">
                                             <i class="fas fa-stethoscope text-blue-600 dark:text-blue-400 mr-2"></i>
-                                            {{ $report->diagnosis ?? 'General Consultation' }}
+                                            {{ $report->report_type ?? 'General Consultation' }}
                                         </h3>
                                         <div class="flex items-center text-sm text-gray-600 dark:text-gray-300">
                                             <i class="fas fa-user-md mr-1"></i>
@@ -173,17 +174,17 @@
                                         </div>
                                     @endif
 
-                                    <!-- Treatment -->
-                                    @if ($report->treatment)
+                                    <!-- Chief Complaint -->
+                                    @if ($report->chief_complaint)
                                         <div class="flex items-start text-sm">
                                             <div
                                                 class="flex items-center justify-center w-8 h-8 bg-purple-100 dark:bg-purple-800 rounded-lg mr-3 mt-0.5">
                                                 <i class="fas fa-pills text-purple-600 dark:text-purple-300 text-xs"></i>
                                             </div>
                                             <div class="flex-1">
-                                                <p class="font-medium text-gray-900 dark:text-white">Treatment</p>
+                                                <p class="font-medium text-gray-900 dark:text-white">Chief Complaint</p>
                                                 <p class="text-gray-600 dark:text-gray-300 line-clamp-2">
-                                                    {{ Str::limit($report->treatment, 100) }}</p>
+                                                    {{ Str::limit($report->chief_complaint, 100) }}</p>
                                             </div>
                                         </div>
                                     @endif

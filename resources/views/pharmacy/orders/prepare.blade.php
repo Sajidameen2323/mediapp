@@ -614,7 +614,7 @@
                     <div class="p-6 space-y-4">
                         <!-- Primary Action -->
                         <button type="submit" 
-                                class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-4 rounded-lg transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105">
+                                class="w-full bg-gray-800 dark:bg-gray-500 rounded text-gray-100  px-6 py-4 duration-200 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105">
                             <i class="fas fa-save mr-2"></i>
                             Save Changes & Continue Preparing
                         </button>

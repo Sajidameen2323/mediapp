@@ -425,50 +425,55 @@
                         </h3>
                     </div>
                     <div class="px-6 py-4 space-y-3">
-                        @if ($prescription->canBeOrdered())
+                        @can('orderFromPharmacy', $prescription)
                             <a href="{{ route('patient.prescriptions.order-pharmacy', $prescription) }}"
                                 class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors">
                                 <i class="fas fa-store mr-2"></i>
                                 Order from Pharmacy
                             </a>
-                        @endif                        @if ($prescription->hasRefillsRemaining())
-                            <form action="{{ route('patient.prescriptions.request-refill', $prescription) }}"
-                                method="POST" class="w-full">
+                        @endcan
+
+                        @can('requestRefill', $prescription)
+                            <form id="refill-form-{{ $prescription->id }}" 
+                                  action="{{ route('patient.prescriptions.request-refill', $prescription) }}"
+                                  method="POST" class="w-full">
                                 @csrf
-                                <button type="submit"
-                                    onclick="return confirm('Are you sure you want to request a refill for this prescription?')"
+                                <button type="button"
+                                    onclick="openRefillModal({{ $prescription->id }}, {{ $prescription->refills_remaining }})"
                                     class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:bg-green-500 dark:hover:bg-green-600 transition-colors">
                                     <i class="fas fa-redo mr-2"></i>
                                     Request Refill ({{ $prescription->refills_remaining }} left)
                                 </button>
                             </form>
-                        @endif
+                        @endcan
 
-                        @if ($prescription->canBeActivated())
-                            <form action="{{ route('patient.prescriptions.mark-active', $prescription) }}"
-                                method="POST" class="w-full">
+                        @can('markAsActive', $prescription)
+                            <form id="activate-form-{{ $prescription->id }}" 
+                                  action="{{ route('patient.prescriptions.mark-active', $prescription) }}"
+                                  method="POST" class="w-full">
                                 @csrf
-                                <button type="submit"
-                                    onclick="return confirm('Are you sure you want to mark this prescription as active?')"
+                                <button type="button"
+                                    onclick="openActivateModal({{ $prescription->id }})"
                                     class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors">
                                     <i class="fas fa-play mr-2"></i>
                                     Mark as Active
                                 </button>
                             </form>
-                        @endif
+                        @endcan
 
-                        @if ($prescription->canBeCompleted())
-                            <form action="{{ route('patient.prescriptions.mark-completed', $prescription) }}"
-                                method="POST" class="w-full">
+                        @can('markAsCompleted', $prescription)
+                            <form id="complete-form-{{ $prescription->id }}" 
+                                  action="{{ route('patient.prescriptions.mark-completed', $prescription) }}"
+                                  method="POST" class="w-full">
                                 @csrf
-                                <button type="submit"
-                                    onclick="return confirm('Are you sure you want to mark this prescription as completed? This action cannot be undone.')"
+                                <button type="button"
+                                    onclick="openCompleteModal({{ $prescription->id }})"
                                     class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 dark:bg-gray-500 dark:hover:bg-gray-600 transition-colors">
                                     <i class="fas fa-check mr-2"></i>
                                     Mark as Completed
                                 </button>
                             </form>
-                        @endif
+                        @endcan
 
                         <div class="border-t border-gray-200 dark:border-gray-600 pt-3">
                             <button type="button" onclick="window.print()"
@@ -632,6 +637,9 @@
         </div>
     </div>
 
+    <!-- Include Verification Modal -->
+    <x-verification-modal />
+
     <!-- Cancel Order Modal (if needed) -->
     <div id="cancelOrderModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
         <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
@@ -665,6 +673,93 @@
 
     @push('scripts')
         <script>
+            // Prescription Action Modal Functions
+            function openRefillModal(prescriptionId, refillsRemaining) {
+                const modalData = {
+                    type: 'warning',
+                    title: 'Request Prescription Refill',
+                    message: 'Are you sure you want to request a refill for this prescription?',
+                    details: `
+                        <div class="space-y-2">
+                            <p><strong>Refills Remaining:</strong> ${refillsRemaining}</p>
+                            <p><strong>Note:</strong> This will decrease your available refills by 1.</p>
+                            <p class="text-yellow-600 dark:text-yellow-400">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                Please ensure you actually need a refill before proceeding.
+                            </p>
+                        </div>
+                    `,
+                    confirmText: 'Request Refill',
+                    form: document.getElementById(`refill-form-${prescriptionId}`)
+                };
+                
+                window.dispatchEvent(new CustomEvent('open-verification-modal', {
+                    detail: modalData
+                }));
+            }
+
+            function openActivateModal(prescriptionId) {
+                console.log("Opening Activate model for "+ prescriptionId);
+                const modalData = {
+                    type: 'info',
+                    title: 'Activate Prescription',
+                    message: 'Are you sure you want to mark this prescription as active?',
+                    details: `
+                        <div class="space-y-2">
+                            <p><strong>This action will:</strong></p>
+                            <ul class="list-disc list-inside text-sm space-y-1">
+                                <li>Change the prescription status to "Active"</li>
+                                <li>Allow you to order medications from pharmacies</li>
+                                <li>Enable refill requests (if applicable)</li>
+                            </ul>
+                            <p class="text-blue-600 dark:text-blue-400">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                You can change this status later if needed.
+                            </p>
+                        </div>
+                    `,
+                    confirmText: 'Mark as Active',
+                    form: document.getElementById(`activate-form-${prescriptionId}`)
+                };
+                
+                window.dispatchEvent(new CustomEvent('open-verification-modal', {
+                    detail: modalData
+                }));
+            }
+
+            function openCompleteModal(prescriptionId) {
+                const modalData = {
+                    type: 'danger',
+                    title: 'Complete Prescription',
+                    message: 'Are you sure you want to mark this prescription as completed?',
+                    details: `
+                        <div class="space-y-2">
+                            <p><strong>⚠️ This action will:</strong></p>
+                            <ul class="list-disc list-inside text-sm space-y-1">
+                                <li>Mark the prescription as fully completed</li>
+                                <li>Prevent future pharmacy orders</li>
+                                <li>Disable refill requests</li>
+                                <li>Archive the prescription</li>
+                            </ul>
+                            <p class="text-red-600 dark:text-red-400 font-medium">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                This action cannot be undone!
+                            </p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                Only mark as completed if you have finished the entire treatment course.
+                            </p>
+                        </div>
+                    `,
+                    confirmText: 'Mark as Completed',
+                    form: document.getElementById(`complete-form-${prescriptionId}`)
+                };
+                
+                window.dispatchEvent(new CustomEvent('open-verification-modal', {
+                    detail: modalData
+                }));
+            }
+
+            // Legacy Cancel Order Modal Functions (keeping for compatibility)
             function confirmCancelOrder(orderId) {
                 const modal = document.getElementById('cancelOrderModal');
                 const form = document.getElementById('cancelOrderForm');

@@ -40,7 +40,7 @@
                         Report
                     </div>
                     <p class="text-sm text-gray-900 dark:text-gray-100">
-                        {{ $labTest->medicalReport->diagnosis ?? 'General Consultation' }}
+                        {{ $labTest->medicalReport->report_type ?? 'General Consultation' }}
                     </p>
                 </div>
             @endif
@@ -66,13 +66,13 @@
             </div>
 
             <!-- Expected Date -->
-            @if($labTest->expected_date)
+            @if($labTest->preferred_date)
                 <div class="space-y-1">
                     <div class="flex items-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                         <i class="fas fa-clock mr-1"></i>
                         Expected
                     </div>
-                    <p class="text-sm text-gray-900 dark:text-gray-100">{{ $labTest->expected_date->format('M d, Y') }}</p>
+                    <p class="text-sm text-gray-900 dark:text-gray-100">{{ $labTest->preferred_date->format('M d, Y') }}</p>
                 </div>
             @endif
         </div>

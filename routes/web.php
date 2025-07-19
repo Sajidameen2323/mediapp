@@ -6,12 +6,19 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DoctorController;
 
-// Public routes
-Route::get('/', function () {
-    return view('welcome');
-})->name('welcome');
+    // Public payment routes
+    Route::get('/api/payment-methods', [\App\Http\Controllers\PaymentController::class, 'getPaymentMethods'])
+        ->name('api.payment.methods');
 
-// Public doctor search routes
+    // Public routes
+    Route::get('/', function () {
+        return view('welcome');
+    })->name('welcome');
+
+    // Payment demo route
+    Route::get('/payment-demo', function() {
+        return view('demo.payment');
+    })->name('payment.demo');// Public doctor search routes
 Route::prefix('api')->group(function () {
     Route::get('/doctors/available', [DoctorController::class, 'getAvailableDoctors'])->name('api.doctors.available');
     Route::get('/doctors/search', [DoctorController::class, 'searchDoctors'])->name('api.doctors.search');
@@ -222,6 +229,10 @@ Route::middleware(['auth'])->group(function () {
     // Patient routes
     Route::middleware(['user.type:patient'])->group(function () {
         Route::get('/patient/dashboard', [DashboardController::class, 'patientDashboard'])->name('patient.dashboard');
+        
+        // Payment Processing
+        Route::post('/patient/payments/process', [\App\Http\Controllers\PaymentController::class, 'process'])
+            ->name('patient.payments.process');
         
         // Health Profile Management
         Route::get('/patient/health-profile', [\App\Http\Controllers\Patient\HealthProfileController::class, 'index'])->name('patient.health-profile.index');

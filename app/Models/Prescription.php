@@ -126,7 +126,7 @@ class Prescription extends Model
      */
     public function canBeCompleted(): bool
     {
-        return in_array($this->status, ['pending', 'partial', 'active']);
+        return in_array($this->status, ['active']);
     }
 
     /**
