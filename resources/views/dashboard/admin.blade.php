@@ -240,18 +240,6 @@
 
         <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border dark:border-gray-700">
             <div class="px-4 py-5 sm:p-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">User Management</h3>
-                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">Manage all users in the system</p>
-                <div class="mt-4">
-                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors duration-200">
-                        Manage Users
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg border dark:border-gray-700">
-            <div class="px-4 py-5 sm:p-6">
                 <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">Reports</h3>
                 <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">View system reports and analytics</p>
                 <div class="mt-4">

@@ -144,10 +144,22 @@ class SimpleAppointmentCalendar {
 
             const colorClass = statusColors[appointment.status] || statusColors['pending'];
 
+            // Format the appointment time to be more readable
+            const formatTime = (timeStr) => {
+                if (!timeStr) return 'N/A';
+                // Handle both date-time strings and time-only strings
+                const timePart = timeStr.includes('T') ? timeStr.split('T')[1] : timeStr;
+                const [hours, minutes] = timePart.split(':');
+                const hour = parseInt(hours);
+                const ampm = hour >= 12 ? 'PM' : 'AM';
+                const formattedHour = hour % 12 || 12;
+                return `${formattedHour}:${minutes} ${ampm}`;
+            };
+
             return `
                 <div class="text-xs p-1 mb-1 rounded border-l-2 ${colorClass} cursor-pointer hover:opacity-80 transition-opacity" 
                      data-appointment-id="${appointment.id}">
-                    <div class="font-medium truncate">${appointment.appointment_time || 'N/A'}</div>
+                    <div class="font-medium truncate">${formatTime(appointment.appointment_time)}</div>
                     <div class="truncate">${appointment.patient_name || 'Unknown Patient'}</div>
                 </div>
             `;

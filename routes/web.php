@@ -302,6 +302,7 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('patient/lab-tests')->name('patient.lab-tests.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Patient\LabTestController::class, 'index'])->name('index');
             Route::get('/{labTest}', [\App\Http\Controllers\Patient\LabTestController::class, 'show'])->name('show');
+            Route::delete('/{labTest}', [\App\Http\Controllers\Patient\LabTestController::class, 'destroy'])->name('destroy');
             
             // Lab Test Access Management Routes
             Route::prefix('{labTest}/access')->name('access.')->group(function () {
@@ -328,6 +329,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/', [\App\Http\Controllers\Patient\MedicalReportController::class, 'index'])->name('index');
             Route::get('/{medicalReport}', [\App\Http\Controllers\Patient\MedicalReportController::class, 'show'])->name('show');
             Route::get('/{medicalReport}/pdf', [\App\Http\Controllers\Patient\MedicalReportController::class, 'downloadPdf'])->name('pdf');
+            Route::delete('/{medicalReport}', [\App\Http\Controllers\Patient\MedicalReportController::class, 'destroy'])->name('destroy');
             
             // Access Management Routes
             Route::prefix('{medicalReport}/access')->name('access.')->group(function () {

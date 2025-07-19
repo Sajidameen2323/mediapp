@@ -6,7 +6,7 @@
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Header -->
-        <div class="mb-8">
+        <div class="appointment-header mb-8">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div class="mb-4 sm:mb-0">
                     <div class="flex items-center space-x-4">
@@ -22,7 +22,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-3 relative z-20">
                     <!-- Status Badge -->
                     <span
                         class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium
@@ -41,7 +41,7 @@
 
                     <!-- Back Button -->
                     <a href="{{ route('patient.appointments.index') }}"
-                        class="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                        class="appointment-back-button inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
                         <i class="fas fa-arrow-left mr-2"></i>
                         Back to Appointments
                     </a>
@@ -441,7 +441,7 @@
                                         $events->push([
                                             'type' => 'rescheduled',
                                             'title' => 'Appointment Rescheduled',
-                                            'subtitle' => 'by ' . $appointment->rescheduled_by,
+                                            'subtitle' => 'by ' . ($appointment->rescheduledBy->name ?? 'system'),
                                             'datetime' => \Carbon\Carbon::parse($appointment->rescheduled_at),
                                             'icon' => 'fas fa-calendar-alt',
                                             'color' => 'yellow',
@@ -454,7 +454,7 @@
                                         $events->push([
                                             'type' => 'cancelled',
                                             'title' => 'Appointment Cancelled',
-                                            'subtitle' => 'by ' . $appointment->cancelled_by,
+                                            'subtitle' => 'by ' . ($appointment->cancelledBy->name ?? 'system'),
                                             'datetime' => \Carbon\Carbon::parse($appointment->cancelled_at),
                                             'icon' => 'fas fa-times',
                                             'color' => 'red',
@@ -480,7 +480,7 @@
                                         $events->push([
                                             'type' => 'completed',
                                             'title' => 'Appointment Completed',
-                                            'subtitle' => 'by doctor',
+                                            'subtitle' => 'by '. ($appointment->doctor->user->name ?? 'doctor'),
                                             'datetime' => \Carbon\Carbon::parse($appointment->completed_at),
                                             'icon' => 'fas fa-clipboard-check',
                                             'color' => 'indigo',
@@ -665,6 +665,57 @@
             padding: 0.5rem 1rem;
         }
 
+        /* Ensure back button is not interfered with by navigation dropdowns */
+        .appointment-header {
+            position: relative;
+            z-index: 10;
+            isolation: isolate;
+        }
+        
+        .appointment-back-button {
+            position: relative;
+            z-index: 100 !important;
+            pointer-events: auto !important;
+            isolation: isolate;
+            transform: translateZ(0); /* Force hardware acceleration */
+        }
+        
+        /* Create a protection zone around the back button */
+        .appointment-back-button::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            z-index: 99;
+            pointer-events: none;
+        }
+        
+        /* Prevent any overlay issues */
+        .appointment-back-button:hover {
+            z-index: 101 !important;
+        }
+        
+        /* Ensure navigation dropdowns can't interfere */
+        nav .dropdown-menu {
+            max-width: calc(100vw - 20px);
+            right: 10px;
+        }
+        
+        /* Force navigation to stay below appointment content */
+        nav {
+            z-index: 40 !important;
+        }
+        
+        nav .dropdown-menu.pointer-events-none {
+            pointer-events: none !important;
+        }
+        
+        nav .dropdown-menu.pointer-events-auto {
+            pointer-events: auto !important;
+        }
+
         @media print {
 
             .btn,
@@ -684,6 +735,78 @@
 @push('scripts')
     <script src="{{ asset('js/payment-modal-helper.js') }}"></script>
     <script>
+        // Ensure back button click is not interfered with - maximum isolation
+        document.addEventListener('DOMContentLoaded', function() {
+            const backButton = document.querySelector('.appointment-back-button');
+            if (backButton) {
+                // Multiple event handlers for maximum protection
+                
+                // Capture phase - highest priority
+                backButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                }, true);
+                
+                // Bubble phase - secondary protection
+                backButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                }, false);
+                
+                // Mouse down event to prevent any interference
+                backButton.addEventListener('mousedown', function(e) {
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                }, true);
+                
+                // Additional protection - create invisible barrier around back button
+                const buttonRect = backButton.getBoundingClientRect();
+                const barrier = document.createElement('div');
+                barrier.style.position = 'fixed';
+                barrier.style.top = (buttonRect.top - 10) + 'px';
+                barrier.style.left = (buttonRect.left - 10) + 'px';
+                barrier.style.width = (buttonRect.width + 20) + 'px';
+                barrier.style.height = (buttonRect.height + 20) + 'px';
+                barrier.style.zIndex = '999';
+                barrier.style.pointerEvents = 'none';
+                barrier.className = 'back-button-barrier';
+                
+                // Intercept any clicks near the back button area
+                document.addEventListener('click', function(e) {
+                    const rect = backButton.getBoundingClientRect();
+                    const x = e.clientX;
+                    const y = e.clientY;
+                    
+                    // If click is within expanded area of back button
+                    if (x >= rect.left - 20 && x <= rect.right + 20 && 
+                        y >= rect.top - 20 && y <= rect.bottom + 20) {
+                        
+                        // If not exactly on the back button, prevent the click
+                        if (e.target !== backButton && !backButton.contains(e.target)) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            e.stopImmediatePropagation();
+                            return false;
+                        }
+                    }
+                }, true);
+            }
+            
+            // Force close all navigation dropdowns when page loads
+            setTimeout(() => {
+                const dropdowns = document.querySelectorAll('.dropdown-menu');
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.add('opacity-0', 'invisible', 'scale-95', 'pointer-events-none');
+                    dropdown.classList.remove('opacity-100', 'visible', 'scale-100', 'pointer-events-auto');
+                });
+                
+                const arrows = document.querySelectorAll('.dropdown-arrow');
+                arrows.forEach(arrow => {
+                    arrow.classList.remove('rotate-180');
+                });
+            }, 100);
+        });
+
         // Modal Functions
         function showCancelModal() {
             document.getElementById('cancelModal').classList.remove('hidden');

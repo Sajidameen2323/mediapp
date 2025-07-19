@@ -317,6 +317,21 @@
                                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded">
                             <label for="require_admin_approval" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Require Admin Approval</label>
                         </div>
+                        <div class="mt-2 p-4 bg-blue-50 dark:bg-gray-900 rounded-lg border border-blue-200 dark:border-gray-700">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-lightbulb text-blue-600 dark:text-blue-400 text-lg"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <h4 class="text-sm font-medium text-blue-800 dark:text-blue-300">Approval System Explained</h4>
+                                    <ul class="mt-1 text-sm text-gray-600 dark:text-gray-400 space-y-1 list-disc list-inside">
+                                        <li><strong>Admin Approval:</strong> If enabled, requires administrator verification for all appointments.</li>
+                                        <li><strong>Auto Approval:</strong> If enabled and admin approval is off, appointments are automatically confirmed.</li>
+                                        <li><strong>Neither Enabled:</strong> Appointments require doctor approval (admins can still approve but it's not mandatory).</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="space-y-4">
                         <div class="flex items-center">

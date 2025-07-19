@@ -15,45 +15,71 @@ class AppointmentModal {
         
         const statusClass = statusColors[appointment.status] || statusColors['pending'];
         
+        // Format date and time to be more readable
+        const formatDate = (dateStr) => {
+            if (!dateStr) return 'N/A';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', {
+            weekday: 'short',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+            });
+        };
+        
+        const formatTime = (timeStr) => {
+            if (!timeStr) return 'N/A';
+            // Handle both date-time strings and time-only strings
+            const timePart = timeStr.includes('T') ? timeStr.split('T')[1] : timeStr;
+            const [hours, minutes] = timePart.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const formattedHour = hour % 12 || 12;
+            return `${formattedHour}:${minutes} ${ampm}`;
+        };
+        
+        const formattedDate = formatDate(appointment.appointment_date);
+        const formattedTime = formatTime(appointment.appointment_time);
+        
         document.getElementById('appointmentModalBody').innerHTML = `
             <div class="space-y-4">
-                <div class="flex items-center justify-between">
-                    <h4 class="text-lg font-medium text-gray-900 dark:text-white">Appointment Information</h4>
-                    <span class="px-3 py-1 rounded-full text-sm font-medium ${statusClass}">${statusText}</span>
+            <div class="flex items-center justify-between">
+                <h4 class="text-lg font-medium text-gray-900 dark:text-white">Appointment Information</h4>
+                <span class="px-3 py-1 rounded-full text-sm font-medium ${statusClass}">${statusText}</span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Patient</label>
+                <p class="mt-1 text-sm text-gray-900 dark:text-gray-100">${appointment.patient_name}</p>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Patient</label>
-                        <p class="mt-1 text-sm text-gray-900 dark:text-gray-100">${appointment.patient_name}</p>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Service</label>
-                        <p class="mt-1 text-sm text-gray-900 dark:text-gray-100">${appointment.service_name}</p>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Date</label>
-                        <p class="mt-1 text-sm text-gray-900 dark:text-gray-100">${appointment.appointment_date}</p>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Time</label>
-                        <p class="mt-1 text-sm text-gray-900 dark:text-gray-100">${appointment.appointment_time}</p>
-                    </div>
+                <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Service</label>
+                <p class="mt-1 text-sm text-gray-900 dark:text-gray-100">${appointment.service_name}</p>
                 </div>
                 
-                <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <button onclick="closeModal()" 
-                            class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
-                        Close
-                    </button>
-                    <a href="${window.appointmentRoutes.show.replace(':id', appointment.id)}"
-                       class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md">
-                        View Details
-                    </a>
+                <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Date</label>
+                <p class="mt-1 text-sm text-gray-900 dark:text-gray-100">${formattedDate}</p>
                 </div>
+                
+                <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Time</label>
+                <p class="mt-1 text-sm text-gray-900 dark:text-gray-100">${formattedTime}</p>
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <button onclick="closeModal()" 
+                    class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
+                Close
+                </button>
+                <a href="${window.appointmentRoutes.show.replace(':id', appointment.id)}"
+                   class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md">
+                View Details
+                </a>
+            </div>
             </div>
         `;
         

@@ -32,7 +32,7 @@
                 </a>
 
                 <!-- Health Services Dropdown -->
-                <div class="relative dropdown-container">
+                <div class="relative dropdown-container" style="z-index: 45;">
                     <button class="dropdown-toggle flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs(['patient.prescriptions.*', 'patient.pharmacy-orders.*', 'patient.medical-reports.*']) 
                                 ? 'bg-purple-50 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300' 
                                 : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700/50' }}">
@@ -40,7 +40,7 @@
                         <span>Health</span>
                         <i class="fas fa-chevron-down ml-2 text-xs transition-transform dropdown-arrow"></i>
                     </button>
-                    <div class="dropdown-menu absolute left-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 opacity-0 invisible transform scale-95 transition-all duration-200">
+                    <div class="dropdown-menu absolute left-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 opacity-0 invisible transform scale-95 transition-all duration-200 pointer-events-none">
                         <div class="py-2">
                             <a href="{{ route('patient.prescriptions.index') }}" 
                                class="flex items-center px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors {{ request()->routeIs('patient.prescriptions.*') ? 'bg-purple-50 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300' : '' }}">
@@ -77,7 +77,7 @@
                 </div>
 
                 <!-- Lab Services Dropdown -->
-                <div class="relative dropdown-container">
+                <div class="relative dropdown-container" style="z-index: 45;">
                     <button class="dropdown-toggle flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs(['patient.lab-tests.*', 'patient.lab-appointments.*']) 
                                 ? 'bg-yellow-50 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300' 
                                 : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700/50' }}">
@@ -85,7 +85,7 @@
                         <span>Lab</span>
                         <i class="fas fa-chevron-down ml-2 text-xs transition-transform dropdown-arrow"></i>
                     </button>
-                    <div class="dropdown-menu absolute left-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 opacity-0 invisible transform scale-95 transition-all duration-200">
+                    <div class="dropdown-menu absolute left-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 opacity-0 invisible transform scale-95 transition-all duration-200 pointer-events-none">
                         <div class="py-2">
                             <a href="{{ route('patient.lab-tests.index') }}" 
                                class="flex items-center px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors {{ request()->routeIs('patient.lab-tests.*') ? 'bg-yellow-50 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300' : '' }}">
@@ -121,7 +121,7 @@
                 </button>
 
                 <!-- User Menu -->
-                <div class="relative dropdown-container">
+                <div class="relative dropdown-container" style="z-index: 45;">
                     <button class="dropdown-toggle flex items-center space-x-2 p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg transition-all">
                         <div class="w-7 h-7 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center">
                             <i class="fas fa-user text-gray-600 dark:text-gray-300 text-sm"></i>
@@ -129,7 +129,7 @@
                         <span class="hidden lg:block text-sm font-medium">{{ auth()->user()->name }}</span>
                         <i class="fas fa-chevron-down text-xs transition-transform dropdown-arrow"></i>
                     </button>
-                    <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 opacity-0 invisible transform scale-95 transition-all duration-200">
+                    <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 opacity-0 invisible transform scale-95 transition-all duration-200 pointer-events-none">
                         <div class="py-2">
                             <a href="{{ route('patient.health-profile.index') }}" 
                                class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
@@ -143,7 +143,7 @@
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit" 
-                                        class="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                        class="logout-button flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                                     <i class="fas fa-sign-out-alt mr-3 text-gray-400"></i>Sign Out
                                 </button>
                             </form>
@@ -312,23 +312,23 @@ document.addEventListener('DOMContentLoaded', function() {
                         const otherMenu = otherContainer.querySelector('.dropdown-menu');
                         const otherArrow = otherContainer.querySelector('.dropdown-arrow');
                         if (otherMenu && otherArrow) {
-                            otherMenu.classList.add('opacity-0', 'invisible', 'scale-95');
-                            otherMenu.classList.remove('opacity-100', 'visible', 'scale-100');
+                            otherMenu.classList.add('opacity-0', 'invisible', 'scale-95', 'pointer-events-none');
+                            otherMenu.classList.remove('opacity-100', 'visible', 'scale-100', 'pointer-events-auto');
                             otherArrow.classList.remove('rotate-180');
                         }
                     }
                 });
                 
                 // Show this dropdown
-                menu.classList.remove('opacity-0', 'invisible', 'scale-95');
-                menu.classList.add('opacity-100', 'visible', 'scale-100');
+                menu.classList.remove('opacity-0', 'invisible', 'scale-95', 'pointer-events-none');
+                menu.classList.add('opacity-100', 'visible', 'scale-100', 'pointer-events-auto');
                 arrow.classList.add('rotate-180');
                 isOpen = true;
             };
             
             const hideDropdown = () => {
-                menu.classList.add('opacity-0', 'invisible', 'scale-95');
-                menu.classList.remove('opacity-100', 'visible', 'scale-100');
+                menu.classList.add('opacity-0', 'invisible', 'scale-95', 'pointer-events-none');
+                menu.classList.remove('opacity-100', 'visible', 'scale-100', 'pointer-events-auto');
                 arrow.classList.remove('rotate-180');
                 isOpen = false;
             };
@@ -360,5 +360,39 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+    
+    // Additional protection for logout buttons - prevent clicks when dropdown is not open
+    const logoutButtons = document.querySelectorAll('.logout-button');
+    logoutButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            const dropdown = button.closest('.dropdown-menu');
+            if (dropdown && dropdown.classList.contains('pointer-events-none')) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                return false;
+            }
+        }, true);
+    });
+    
+    // Prevent any accidental navigation dropdown interactions on pages with back buttons
+    if (document.querySelector('.appointment-back-button')) {
+        document.addEventListener('click', function(e) {
+            // If clicking outside navigation area while on appointment details page
+            const nav = document.querySelector('nav');
+            if (nav && !nav.contains(e.target)) {
+                // Force close all dropdowns
+                dropdownContainers.forEach(container => {
+                    const menu = container.querySelector('.dropdown-menu');
+                    const arrow = container.querySelector('.dropdown-arrow');
+                    if (menu && arrow) {
+                        menu.classList.add('opacity-0', 'invisible', 'scale-95', 'pointer-events-none');
+                        menu.classList.remove('opacity-100', 'visible', 'scale-100', 'pointer-events-auto');
+                        arrow.classList.remove('rotate-180');
+                    }
+                });
+            }
+        });
+    }
 });
 </script>

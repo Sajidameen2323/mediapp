@@ -256,6 +256,19 @@ class Appointment extends Model
     }
 
     /**
+     * Check if appointment can be confirmed by doctor.
+     */
+
+    public function canBeConfirmedByDoctor()
+    {
+        $config = AppointmentConfig::getActive();
+        if ($config && $config->require_admin_approval) {
+            return false;
+        }
+        return $this->status === 'pending';
+    }
+
+    /**
      * Check if appointment can be rated.
      */
     public function canBeRated()

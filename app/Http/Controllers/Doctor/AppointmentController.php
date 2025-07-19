@@ -137,7 +137,7 @@ class AppointmentController extends Controller
 
         // Check if doctor has permission to view patient's health profile
         $hasHealthProfileAccess = auth()->user()->hasHealthProfileAccessFrom($appointment->patient_id);
-        
+
         // Load health profile if permission exists
         $healthProfile = null;
         if ($hasHealthProfileAccess) {
@@ -151,13 +151,13 @@ class AppointmentController extends Controller
                 $query->where('doctor_id', $doctor->id)
                     // Or reports where this doctor has been granted access
                     ->orWhereHas('accessRecords', function ($accessQuery) use ($doctor) {
-                        $accessQuery->where('doctor_id', $doctor->id)
-                            ->where('status', 'active')
-                            ->where(function ($expQuery) {
-                                $expQuery->whereNull('expires_at')
-                                    ->orWhere('expires_at', '>', now());
-                            });
-                    });
+                    $accessQuery->where('doctor_id', $doctor->id)
+                        ->where('status', 'active')
+                        ->where(function ($expQuery) {
+                            $expQuery->whereNull('expires_at')
+                                ->orWhere('expires_at', '>', now());
+                        });
+                });
             })
             ->with(['doctor.user', 'prescriptions', 'labTestRequests'])
             ->orderBy('consultation_date', 'desc')
@@ -170,21 +170,21 @@ class AppointmentController extends Controller
                 $query->where('doctor_id', $doctor->id)
                     // Or lab tests where this doctor has been granted access
                     ->orWhereHas('accessRecords', function ($accessQuery) use ($doctor) {
-                        $accessQuery->where('doctor_id', $doctor->id)
-                            ->where('status', 'active')
-                            ->where(function ($expQuery) {
-                                $expQuery->whereNull('expires_at')
-                                    ->orWhere('expires_at', '>', now());
-                            });
-                    });
+                    $accessQuery->where('doctor_id', $doctor->id)
+                        ->where('status', 'active')
+                        ->where(function ($expQuery) {
+                            $expQuery->whereNull('expires_at')
+                                ->orWhere('expires_at', '>', now());
+                        });
+                });
             })
             ->with(['doctor.user', 'laboratory', 'medicalReport'])
             ->orderBy('created_at', 'desc')
             ->get();
 
         return view('doctor.appointments.show', compact(
-            'appointment', 
-            'hasHealthProfileAccess', 
+            'appointment',
+            'hasHealthProfileAccess',
             'healthProfile',
             'medicalReports',
             'labTestRequests'
@@ -197,6 +197,7 @@ class AppointmentController extends Controller
     public function confirm(Appointment $appointment)
     {
         try {
+
             $doctor = Doctor::where('user_id', auth()->id())->first();
 
             if (!$doctor) {
@@ -205,6 +206,10 @@ class AppointmentController extends Controller
 
             if ($appointment->doctor_id !== $doctor->id) {
                 abort(403, 'Unauthorized access to appointment.');
+            }
+
+            if (!$appointment->canBeConfirmedByDoctor()) {
+                return redirect()->back()->with('error', 'This appointment requires admin approval before confirmation.');
             }
 
             if ($appointment->status !== 'pending') {

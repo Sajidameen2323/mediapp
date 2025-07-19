@@ -70,4 +70,32 @@ class MedicalReportController extends Controller
 
         return view('dashboard.patient.medical-reports.show', compact('medicalReport'));
     }
+
+    /**
+     * Delete the specified medical report.
+     */
+    public function destroy(MedicalReport $medicalReport)
+    {
+        Gate::authorize('patient-access');
+
+        // Ensure the medical report belongs to the authenticated patient
+        if ($medicalReport->patient_id !== auth()->id()) {
+            abort(403);
+        }
+
+        // Check if the report is allowed to be deleted
+        if ($medicalReport->status === 'completed' && $medicalReport->created_at->diffInDays(now()) > 7) {
+            return redirect()->route('patient.medical-reports.show', $medicalReport)
+                ->with('error', 'You cannot delete reports that are more than a week old.');
+        }
+
+        try {
+            $medicalReport->delete();
+            return redirect()->route('patient.medical-reports.index')
+                ->with('success', 'Medical report has been deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->route('patient.medical-reports.show', $medicalReport)
+                ->with('error', 'Failed to delete the report. Please try again.');
+        }
+    }
 }

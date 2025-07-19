@@ -66,4 +66,39 @@ class LabTestController extends Controller
 
         return view('dashboard.patient.lab-tests.show', compact('labTest'));
     }
+
+    /**
+     * Delete the specified lab test request.
+     */
+    public function destroy(LabTestRequest $labTest)
+    {
+        Gate::authorize('patient-access');
+
+        // Ensure the lab test belongs to the authenticated patient
+        if ($labTest->patient_id !== auth()->id()) {
+            abort(403);
+        }
+
+        // Prevent deletion of in-progress lab tests
+        if ($labTest->status === 'in_progress') {
+            return redirect()->route('patient.lab-tests.show', $labTest)
+                ->with('error', 'You cannot delete lab tests that are currently in progress.');
+        }
+
+        // Prevent deletion of completed lab tests that are less than 30 days old
+        if ($labTest->status === 'completed' && $labTest->completed_at && now()->diffInDays($labTest->completed_at) < 30) {
+            $daysRemaining = 30 - now()->diffInDays($labTest->completed_at);
+            return redirect()->route('patient.lab-tests.show', $labTest)
+                ->with('error', "Completed lab tests can only be deleted after 30 days. Please wait {$daysRemaining} more days.");
+        }
+
+        try {
+            $labTest->delete();
+            return redirect()->route('patient.lab-tests.index')
+                ->with('success', 'Lab test has been deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->route('patient.lab-tests.show', $labTest)
+                ->with('error', 'Failed to delete the lab test. Please try again.');
+        }
+    }
 }

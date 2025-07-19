@@ -163,15 +163,6 @@ class AppointmentController extends Controller
     {
         $this->authorize('patient-access');
 
-        // // error log all request data
-        // error_log('Appointment booking request data: ' . json_encode($request->all()));
-
-        // // return to index if no doctor or service is selected
-        // if (!$request->has('doctor_id') || !$request->has('service_id')) {
-        //     return redirect()->route('patient.appointments.create')
-        //         ->with('error', 'Please select a doctor and service to book an appointment.');
-        // }
-
         $user = auth()->user();
         /** @var Doctor $doctor */
         $doctor = Doctor::findOrFail($request->doctor_id); // Single doctor instance
@@ -188,7 +179,7 @@ class AppointmentController extends Controller
         }
 
         // Calculate end time based on service duration or default slot duration
-        $config = AppointmentConfig::first();
+        $config = AppointmentConfig::getActive();
         $duration = $service->duration_minutes ?? $config->default_slot_duration ?? 15;
         $endTime = $appointmentDateTime->copy()->addMinutes($duration);
 
@@ -199,6 +190,12 @@ class AppointmentController extends Controller
             $taxAmount = round(($service->price * $taxRate), 2);
         }
 
+        $initial_status = 'pending';
+        if($config->require_admin_approval){
+            $initial_status = 'pending';
+        } elseif ($config->auto_approve_appointments) {
+            $initial_status = 'confirmed';
+        }
         // Generate appointment number
         $appointmentNumber = 'APT-' . now()->format('Ymd') . '-' . str_pad(
             Appointment::whereDate('created_at', now()->toDateString())->count() + 1,
@@ -222,7 +219,7 @@ class AppointmentController extends Controller
             'notes' => $request->notes,
             'priority' => $request->priority,
             'appointment_type' => $request->appointment_type,
-            'status' => 'pending',
+            'status' => $initial_status,
             'payment_status' => 'pending',
             'total_amount' => $service->price + $taxAmount,
             'paid_amount' => 0,

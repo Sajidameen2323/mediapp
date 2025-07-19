@@ -255,7 +255,7 @@
                                                     <i class="fas fa-eye mr-2"></i>View Details
                                                 </a>
 
-                                                @if ($appointment->status === 'pending')
+                                                @if ($appointment->canBeConfirmedByDoctor())
                                                     <form
                                                         action="{{ route('doctor.appointments.confirm', $appointment) }}"
                                                         method="POST" class="inline w-full">
