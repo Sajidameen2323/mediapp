@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.doctor')
 
 @section('title', 'Break Management - Doctor Dashboard')
 

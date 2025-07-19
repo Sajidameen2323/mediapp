@@ -330,6 +330,31 @@ class Appointment extends Model
     }
 
     /**
+     * Get appointment time (backward compatibility accessor).
+     * This provides a fallback for views that still reference appointment_time.
+     */
+    public function getAppointmentTimeAttribute()
+    {
+        return $this->start_time;
+    }
+
+    /**
+     * Get original appointment time (backward compatibility accessor).
+     */
+    public function getOriginalAppointmentTimeAttribute()
+    {
+        return $this->original_time;
+    }
+
+    /**
+     * Get original appointment date (backward compatibility accessor).
+     */
+    public function getOriginalAppointmentDateAttribute()
+    {
+        return $this->original_date;
+    }
+
+    /**
      * Get status badge color.
      */
     public function getStatusColorAttribute()

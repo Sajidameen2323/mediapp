@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
 <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -44,7 +44,7 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Appointment Date</label>
-                                <p class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($appointment->appointment_date)->format('l, F j, Y') }}</p>
+                                <p class="text-gray-900 dark:text-white">{{ $appointment->appointment_date->format('l, F j, Y') }}</p>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Appointment Time</label>
@@ -149,7 +149,9 @@
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Original Date</label>
                                 <p class="text-gray-900 dark:text-white">
                                     {{ \Carbon\Carbon::parse($appointment->original_appointment_date)->format('M j, Y') }} 
-                                    at {{ \Carbon\Carbon::parse($appointment->original_appointment_time)->format('g:i A') }}
+                                    @if($appointment->original_appointment_time)
+                                        at {{ \Carbon\Carbon::parse($appointment->original_appointment_time)->format('g:i A') }}
+                                    @endif
                                 </p>
                             </div>
                             @endif

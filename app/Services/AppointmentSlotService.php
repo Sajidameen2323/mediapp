@@ -64,16 +64,16 @@ class AppointmentSlotService
         // Generate time slots based on schedule
         $slots = $this->generateTimeSlotsFromSchedule($schedule, $config, $service, $date);
 
-        error_log($slots->count());
+        
         // Remove blocked slots
         $slots = $this->removeBlockedSlots($slots, $doctor, $date);
-        error_log($slots->count());
+        
         // Remove doctor break times
         $slots = $this->removeDoctorBreaks($slots, $doctor, $date);
-        error_log($slots->count());
+        
         // Remove already booked slots
         $slots = $this->removeBookedSlots($slots, $doctor, $date);
-        error_log($slots->count());
+        
 
         $reindexedSlots = $slots->values();
 
@@ -305,8 +305,6 @@ class AppointmentSlotService
             ->where('is_active', true)
             ->get();
 
-        // error_log("Found " . $breaks->count() . " breaks for doctor ID: {$doctor->id} on day: {$dayOfWeek}");
-
         return $slots->filter(function ($slot) use ($breaks) {
             foreach ($breaks as $break) {
                 $slotStart = $slot['start_time'];
@@ -330,7 +328,7 @@ class AppointmentSlotService
             ->where('appointment_date', $date->toDateString())
             ->whereIn('status', ['confirmed', 'pending'])
             ->get();
-
+                
         return $slots->filter(function ($slot) use ($bookedAppointments) {
             foreach ($bookedAppointments as $appointment) {
                 $slotStart = $slot['start_time'];

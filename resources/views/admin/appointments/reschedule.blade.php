@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
 <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -40,6 +40,25 @@
                                 {{ \Carbon\Carbon::parse($appointment->appointment_date)->format('M j, Y') }}
                                 <br>
                                 {{ \Carbon\Carbon::parse($appointment->start_time)->format('g:i A') }}
+                                @if($appointment->end_time)
+                                    - {{ \Carbon\Carbon::parse($appointment->end_time)->format('g:i A') }}
+                                @endif
+                            </p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Duration</label>
+                            <p class="text-gray-900 dark:text-white">
+                                @if($appointment->duration_minutes)
+                                    {{ $appointment->duration_minutes }} minutes
+                                    @if($appointment->duration_minutes >= 60)
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">
+                                            ({{ floor($appointment->duration_minutes / 60) }}h {{ $appointment->duration_minutes % 60 }}m)
+                                        </span>
+                                    @endif
+                                @else
+                                    <span class="text-gray-500 dark:text-gray-400">Not specified</span>
+                                @endif
                             </p>
                         </div>
 

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
     <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -235,7 +235,7 @@
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Date & Time</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-32">Status</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-36">Payment</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-32">Actions</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-48">Actions</th>
                         </tr>
                     </thead>                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                         @forelse($appointments as $appointment)
@@ -257,10 +257,13 @@
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap">
                                     <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                        {{ \Carbon\Carbon::parse($appointment->appointment_date)->format('M j, Y') }}
+                                        {{ $appointment->appointment_date->format('M j, Y') }}
                                     </div>
                                     <div class="text-sm text-gray-500 dark:text-gray-400">
                                         {{ \Carbon\Carbon::parse($appointment->appointment_time)->format('g:i A') }}
+                                        @if($appointment->end_time)
+                                            - {{ \Carbon\Carbon::parse($appointment->end_time)->format('g:i A') }}
+                                        @endif
                                     </div>
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap">
@@ -273,7 +276,7 @@
                                             'no_show' => 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
                                         ];
                                     @endphp
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusColors[$appointment->status] ?? 'bg-gray-100 text-gray-800' }}">
+                                    <span class="status-badge px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusColors[$appointment->status] ?? 'bg-gray-100 text-gray-800' }}">
                                         {{ ucfirst(str_replace('_', ' ', $appointment->status)) }}
                                     </span>
                                 </td>
@@ -287,7 +290,7 @@
                                                 'refunded' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
                                             ];
                                         @endphp
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $paymentStatusColors[$appointment->payment_status ?? 'pending'] ?? 'bg-gray-100 text-gray-800' }}">
+                                        <span class="status-badge px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $paymentStatusColors[$appointment->payment_status ?? 'pending'] ?? 'bg-gray-100 text-gray-800' }}">
                                             {{ ucfirst(str_replace('_', ' ', $appointment->payment_status ?? 'pending')) }}
                                         </span>
                                         <div class="text-xs text-gray-500 dark:text-gray-400">
@@ -296,36 +299,40 @@
                                     </div>
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                                    <div class="flex space-x-2">
+                                    <div class="flex items-center space-x-1">
                                         <a href="{{ route('admin.appointments.show', $appointment) }}" 
-                                           class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                                           class="action-button inline-flex items-center px-2 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 hover:text-blue-800 dark:bg-blue-900 dark:hover:bg-blue-800 dark:text-blue-300 dark:hover:text-blue-200 rounded-md text-xs font-medium transition-colors duration-200"
                                            title="View Details">
-                                            <i class="fas fa-eye"></i>
+                                            <i class="fas fa-eye w-3 h-3"></i>
                                         </a>
                                         
                                         @if($appointment->status === 'pending')
                                             <form method="POST" action="{{ route('admin.appointments.approve', $appointment) }}" class="inline">
                                                 @csrf
-                                                <button type="submit" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300" 
-                                                        title="Approve" onclick="return confirm('Are you sure you want to approve this appointment?')">
-                                                    <i class="fas fa-check"></i>
+                                                <button type="submit" 
+                                                        class="action-button inline-flex items-center px-2 py-1 bg-green-100 hover:bg-green-200 text-green-700 hover:text-green-800 dark:bg-green-900 dark:hover:bg-green-800 dark:text-green-300 dark:hover:text-green-200 rounded-md text-xs font-medium transition-colors duration-200" 
+                                                        title="Approve" 
+                                                        onclick="return confirm('Are you sure you want to approve this appointment?')">
+                                                    <i class="fas fa-check w-3 h-3"></i>
                                                 </button>
                                             </form>
                                         @endif
 
-                                        @if($appointment->canBeCancelled())
-                                            <button type="button" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                                                    title="Cancel" onclick="showCancelModal({{ $appointment->id }})">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        @endif
-
                                         @if($appointment->canBeRescheduled())
                                             <a href="{{ route('admin.appointments.reschedule', $appointment) }}" 
-                                               class="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300"
+                                               class="action-button inline-flex items-center px-2 py-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-700 hover:text-yellow-800 dark:bg-yellow-900 dark:hover:bg-yellow-800 dark:text-yellow-300 dark:hover:text-yellow-200 rounded-md text-xs font-medium transition-colors duration-200"
                                                title="Reschedule">
-                                                <i class="fas fa-calendar-alt"></i>
+                                                <i class="fas fa-calendar-alt w-3 h-3"></i>
                                             </a>
+                                        @endif
+
+                                        @if($appointment->canBeCancelled())
+                                            <button type="button" 
+                                                    class="action-button inline-flex items-center px-2 py-1 bg-red-100 hover:bg-red-200 text-red-700 hover:text-red-800 dark:bg-red-900 dark:hover:bg-red-800 dark:text-red-300 dark:hover:text-red-200 rounded-md text-xs font-medium transition-colors duration-200"
+                                                    title="Cancel" 
+                                                    onclick="showCancelModal({{ $appointment->id }})">
+                                                <i class="fas fa-times w-3 h-3"></i>
+                                            </button>
                                         @endif
                                     </div>
                                 </td>
@@ -457,6 +464,35 @@
                 border-radius: 0.5rem;
                 box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
             }
+        }
+
+        /* Action buttons enhancements */
+        .action-button {
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .action-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .action-button:active {
+            transform: translateY(0);
+        }
+
+        /* Tooltip improvements */
+        [title] {
+            position: relative;
+        }
+
+        /* Status badge improvements */
+        .status-badge {
+            transition: all 0.2s ease-in-out;
+        }
+
+        .status-badge:hover {
+            transform: scale(1.05);
         }
     </style>
 @endpush
