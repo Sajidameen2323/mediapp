@@ -26,8 +26,15 @@ class Service extends Model
      */
     public function doctors(): BelongsToMany
     {
-        return $this->belongsToMany(Doctor::class)
-                    ->select('doctors.id', 'doctors.user_id', 'doctors.specialization', 'doctors.experience_years', 'doctors.consultation_fee', 'doctors.is_available');
+        return $this->belongsToMany(Doctor::class);
+    }
+
+    /**
+     * Get the appointments for the service.
+     */
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
     }
 
     /**

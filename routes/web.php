@@ -154,6 +154,15 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/{appointment}/reschedule', [\App\Http\Controllers\Admin\AppointmentController::class, 'updateSchedule'])->name('update-schedule');
             Route::post('/bulk-update', [\App\Http\Controllers\Admin\AppointmentController::class, 'bulkUpdate'])->name('bulk-update');
         });
+
+        // Reports & Analytics Management
+        Route::prefix('admin/reports')->name('admin.reports.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('index');
+            Route::get('/analytics', [\App\Http\Controllers\Admin\ReportController::class, 'analytics'])->name('analytics');
+            Route::get('/export', [\App\Http\Controllers\Admin\ReportController::class, 'export'])->name('export');
+            Route::get('/user-management', [\App\Http\Controllers\Admin\ReportController::class, 'userManagement'])->name('user-management');
+            Route::patch('/users/{user}/toggle-status', [\App\Http\Controllers\Admin\ReportController::class, 'toggleUserStatus'])->name('toggle-user-status');
+        });
     });
     
     // Doctor routes

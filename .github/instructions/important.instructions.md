@@ -3,7 +3,7 @@ applyTo: '**'
 ---
 
 # Important Instructions
-Use windows commands
+Use windows powershell commands
 
 when styling pages, please ensure that you follow these guidelines:
 - refer THEME.md for the theme design

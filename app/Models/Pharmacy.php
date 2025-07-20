@@ -57,6 +57,14 @@ class Pharmacy extends Model
     }
 
     /**
+     * Get the pharmacy orders.
+     */
+    public function orders()
+    {
+        return $this->hasMany(PharmacyOrder::class);
+    }
+
+    /**
      * Scope to get available pharmacies.
      */
     public function scopeAvailable($query)
