@@ -47,23 +47,28 @@ class AppointmentSlotService
         error_log("Getting available slots for doctor ID: {$doctor->id} on date: {$date->toDateString()}");
         // Check if the date is valid for appointments
         if (!$this->isDateAvailableForAppointments($date, $config)) {
+            error_log("Date {$date->toDateString()} is not available for appointments.");
             return collect();
         }
 
         // Check if doctor is available on this date
         if (!$this->isDoctorAvailableOnDate($doctor, $date)) {
+            error_log("Doctor ID: {$doctor->id} is not available on date: {$date->toDateString()}");
             return collect();
         }
 
         // Get doctor's schedule for this day
         $schedule = $this->getDoctorScheduleForDay($doctor, $date);
         if (!$schedule) {
+            error_log("No schedule found for doctor ID: {$doctor->id} on date: {$date->toDateString()}");
             return collect();
         }
 
         // Generate time slots based on schedule
         $slots = $this->generateTimeSlotsFromSchedule($schedule, $config, $service, $date);
 
+        // Remove slots that are within minimum booking hours ahead
+        $slots = $this->removeSlotsTooEarly($slots, $config, $date);
         
         // Remove blocked slots
         $slots = $this->removeBlockedSlots($slots, $doctor, $date);
@@ -104,8 +109,12 @@ class AppointmentSlotService
             return null;
         }
 
-        $startDate = Carbon::now()->addDays($config->min_advance_booking_days);
-        $endDate = Carbon::now()->addDays($config->max_advance_booking_days);
+        // Calculate start date based on minimum booking hours ahead
+        $minHoursAhead = $config->min_booking_hours_ahead ?? 2;
+        $startDate = Carbon::now()->addHours($minHoursAhead)->startOfDay();
+        
+        // Use max_booking_days_ahead for end date
+        $endDate = Carbon::now()->addDays($config->max_booking_days_ahead ?? 30);
 
         for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
             $slots = $this->getAvailableSlots($doctor, $date->toDateString(), $serviceId);
@@ -152,20 +161,18 @@ class AppointmentSlotService
             return false;
         }
 
-        if (isset($config->min_booking_hours_ahead)) {
-            $config->min_advance_booking_days = ceil($config->min_booking_hours_ahead / 24);
-        } else {
-            $config->min_advance_booking_days = 1; // Default to 1 day if not set
-        }
-
-        // Check minimum advance booking
-        if ($date->lt(Carbon::today()->addDays($config->min_advance_booking_days))) {
-            error_log("Date {$date->toDateString()} is before the minimum advance booking days.");
+        // Get minimum booking hours ahead
+        $minHoursAhead = $config->min_booking_hours_ahead ?? 2;
+        
+        // Check minimum advance booking based on hours
+        $earliestBookingDateTime = Carbon::now()->addHours($minHoursAhead);
+        if ($date->startOfDay()->lt($earliestBookingDateTime->startOfDay())) {
+            error_log("Date {$date->toDateString()} is before the minimum advance booking hours.");
             return false;
         }
 
         // Check maximum advance booking
-        if ($date->gt(Carbon::today()->addDays($config->max_booking_days_ahead))) {
+        if ($date->gt(Carbon::today()->addDays($config->max_booking_days_ahead ?? 30))) {
             return false;
         }
 
@@ -202,7 +209,7 @@ class AppointmentSlotService
      */
     private function getDoctorScheduleForDay(Doctor $doctor, Carbon $date): ?DoctorSchedule
     {
-        $dayOfWeek = $date->dayOfWeek; // 0 = Sunday, 6 = Saturday
+        $dayOfWeek = strtolower($date->format('l')); 
 
         return DoctorSchedule::where('doctor_id', $doctor->id)
             ->where('day_of_week', $dayOfWeek)
@@ -261,6 +268,54 @@ class AppointmentSlotService
         error_log("Generated " . $slots->count() . " slots for doctor ID: {$schedule->doctor_id} on date: {$date->toDateString()}");
 
         return $slots;
+    }
+
+    /**
+     * Remove slots that fall under minimum booking hours ahead setting.
+     */
+    private function removeSlotsTooEarly(Collection $slots, AppointmentConfig $config, Carbon $date): Collection
+    {
+        // Ensure we're using the correct timezone
+        $this->ensureCorrectTimezone();
+        
+        // Get minimum booking hours ahead (default to 2 hours if not set)
+        $minHoursAhead = $config->min_booking_hours_ahead ?? 2;
+        error_log("Removing slots too early. Min hours ahead: {$minHoursAhead}");
+        // Calculate the earliest allowed booking time
+        error_log("Current time: " . Carbon::now()->format('Y-m-d H:i:s T'));
+        $earliestBookingTime = Carbon::now()->addHours($minHoursAhead);
+        
+        error_log("Removing slots too early. Min hours ahead: {$minHoursAhead}, earliest booking time: {$earliestBookingTime->format('Y-m-d H:i:s T')}");
+        
+        $filteredSlots = $slots->filter(function ($slot) use ($earliestBookingTime, $date) {
+            // Create full datetime for the slot
+            $slotDateTime = Carbon::parse($date->toDateString() . ' ' . $slot['start_time']);
+            
+            // Only include slots that are after the earliest booking time
+            $isValid = $slotDateTime->gte($earliestBookingTime);
+            
+            if (!$isValid) {
+                error_log("Removing slot {$slot['start_time']} on {$date->toDateString()} - too early (before {$earliestBookingTime->format('Y-m-d H:i:s T')})");
+            }
+            
+            return $isValid;
+        });
+        
+        error_log("Filtered " . ($slots->count() - $filteredSlots->count()) . " slots that were too early");
+        
+        return $filteredSlots;
+    }
+
+    /**
+     * Ensure the correct timezone is set for this service.
+     */
+    private function ensureCorrectTimezone(): void
+    {
+        $appTimezone = config('app.timezone', 'Asia/Colombo');
+        if (date_default_timezone_get() !== $appTimezone) {
+            date_default_timezone_set($appTimezone);
+            error_log("Timezone set to: {$appTimezone} for AppointmentSlotService");
+        }
     }
 
     /**

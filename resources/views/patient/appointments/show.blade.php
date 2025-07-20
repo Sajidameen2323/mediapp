@@ -311,7 +311,9 @@
                         </h3>
                         
                         @php
+                            $canBePaid = $appointment->canBePaid();
                             $paymentStatus = $appointment->payment_status ?? 'unpaid';
+                            $paymentStatus = $appointment->status === 'cancelled' ? 'cancelled' : $paymentStatus;
                             $paidAmount = $appointment->paid_amount ?? 0;
                             $remainingAmount = ($appointment->total_amount ?? 0) - $paidAmount;
                             $isFullyPaid = $remainingAmount <= 0;
@@ -353,12 +355,14 @@
                             </div>
                             
                             <!-- Payment Action Button -->
-                            @if(!$isFullyPaid)
-                            <button type="button" onclick="showPaymentModal({{ $remainingAmount }}, {{ $appointment->id }}, 'Pay for Appointment')" 
-                                class="w-full mt-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-200 dark:bg-indigo-500 dark:hover:bg-indigo-600">
-                                <i class="fas fa-credit-card mr-2"></i>
-                                {{ $paymentStatus === 'partial' ? 'Pay Remaining Balance' : 'Pay Now' }}
-                            </button>
+                            @if($canBePaid)
+                                @if(!$isFullyPaid)
+                                <button type="button" onclick="showPaymentModal({{ $remainingAmount }}, {{ $appointment->id }}, 'Pay for Appointment')" 
+                                    class="w-full mt-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-200 dark:bg-indigo-500 dark:hover:bg-indigo-600">
+                                    <i class="fas fa-credit-card mr-2"></i>
+                                    {{ $paymentStatus === 'partial' ? 'Pay Remaining Balance' : 'Pay Now' }}
+                                </button>
+                                @endif
                             @endif
                         </div>
                     </div>
@@ -578,19 +582,36 @@
                 <form action="{{ route('patient.appointments.cancel', $appointment) }}" method="POST" id="cancelForm">
                     @csrf
                     @method('PATCH')
+                    
+                    <!-- Display validation errors -->
+                    @if ($errors->any())
+                        <div class="px-7 py-3">
+                            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                                <ul class="list-disc list-inside">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    @endif
+                    
                     <div class="px-7 py-3">
                         <label for="cancellation_reason"
                             class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Cancellation Reason <span class="text-red-500">*</span>
                         </label>
-                        <textarea name="cancellation_reason" id="cancellation_reason" rows="4" required
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
-                            placeholder="Please explain why you need to cancel this appointment..."></textarea>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Minimum 10 characters required</p>
+                        <textarea name="cancellation_reason" id="cancellation_reason" rows="4" required minlength="10" maxlength="500"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm @error('cancellation_reason') border-red-500 @enderror"
+                            placeholder="Please explain why you need to cancel this appointment...">{{ old('cancellation_reason') }}</textarea>
+                        @error('cancellation_reason')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" id="cancellation-char-count">Minimum 10 characters required</p>
                     </div>
 
                     <div class="px-4 py-3 text-center space-x-3">
-                        <button type="submit"
+                        <button type="submit" id="cancelSubmitBtn"
                             class="px-6 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 transition-colors duration-200">
                             <i class="fas fa-times mr-2"></i>
                             Cancel Appointment
@@ -811,6 +832,12 @@
         function showCancelModal() {
             document.getElementById('cancelModal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
+            // Reset validation styling when modal opens
+            const textarea = document.getElementById('cancellation_reason');
+            const submitBtn = document.getElementById('cancelSubmitBtn');
+            textarea.classList.remove('border-red-500', 'border-green-500');
+            submitBtn.disabled = false;
+            updateCharacterCount();
         }
 
         function hideCancelModal() {
@@ -818,7 +845,85 @@
             document.body.style.overflow = 'auto';
             // Reset form
             document.getElementById('cancellation_reason').value = '';
+            updateCharacterCount();
         }
+
+        // Character count and validation
+        function updateCharacterCount() {
+            const textarea = document.getElementById('cancellation_reason');
+            const charCount = document.getElementById('cancellation-char-count');
+            const submitBtn = document.getElementById('cancelSubmitBtn');
+            const currentLength = textarea.value.length;
+            
+            if (currentLength === 0) {
+                charCount.textContent = 'Minimum 10 characters required';
+                charCount.className = 'text-xs text-gray-500 dark:text-gray-400 mt-1';
+                textarea.classList.remove('border-red-500', 'border-green-500');
+                submitBtn.disabled = false;
+            } else if (currentLength < 10) {
+                charCount.textContent = `${currentLength}/10 characters - ${10 - currentLength} more needed`;
+                charCount.className = 'text-xs text-red-500 mt-1';
+                textarea.classList.add('border-red-500');
+                textarea.classList.remove('border-green-500');
+                submitBtn.disabled = true;
+            } else if (currentLength <= 500) {
+                charCount.textContent = `${currentLength}/500 characters - Valid`;
+                charCount.className = 'text-xs text-green-500 mt-1';
+                textarea.classList.add('border-green-500');
+                textarea.classList.remove('border-red-500');
+                submitBtn.disabled = false;
+            } else {
+                charCount.textContent = `${currentLength}/500 characters - Too long!`;
+                charCount.className = 'text-xs text-red-500 mt-1';
+                textarea.classList.add('border-red-500');
+                textarea.classList.remove('border-green-500');
+                submitBtn.disabled = true;
+            }
+        }
+
+        // Add event listeners for real-time validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const textarea = document.getElementById('cancellation_reason');
+            const form = document.getElementById('cancelForm');
+            
+            // Real-time character count update
+            textarea.addEventListener('input', updateCharacterCount);
+            textarea.addEventListener('keyup', updateCharacterCount);
+            textarea.addEventListener('paste', function() {
+                setTimeout(updateCharacterCount, 10);
+            });
+            
+            // Form submission validation
+            form.addEventListener('submit', function(e) {
+                const reason = textarea.value.trim();
+                
+                if (reason.length < 10) {
+                    e.preventDefault();
+                    alert('Cancellation reason must be at least 10 characters long.');
+                    textarea.focus();
+                    return false;
+                }
+                
+                if (reason.length > 500) {
+                    e.preventDefault();
+                    alert('Cancellation reason cannot exceed 500 characters.');
+                    textarea.focus();
+                    return false;
+                }
+                
+                // Show loading state
+                const submitBtn = document.getElementById('cancelSubmitBtn');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Cancelling...';
+            });
+        });
+
+        // Show modal if there are validation errors
+        @if ($errors->any())
+            document.addEventListener('DOMContentLoaded', function() {
+                showCancelModal();
+            });
+        @endif
 
         // Close modals when clicking outside
         window.onclick = function(event) {

@@ -21,6 +21,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Set timezone for Carbon and PHP
+        if (config('app.timezone')) {
+            date_default_timezone_set(config('app.timezone'));
+        }
+        
         // Register observers
         LabTestRequest::observe(LabTestRequestObserver::class);
         

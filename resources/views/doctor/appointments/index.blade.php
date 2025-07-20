@@ -254,7 +254,6 @@
                                                     class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                                                     <i class="fas fa-eye mr-2"></i>View Details
                                                 </a>
-
                                                 @if ($appointment->canBeConfirmedByDoctor())
                                                     <form
                                                         action="{{ route('doctor.appointments.confirm', $appointment) }}"
@@ -365,7 +364,7 @@
                                             <i class="fas fa-eye mr-1"></i>View
                                         </a>
 
-                                        @if ($appointment->status === 'pending')
+                                        @if ($appointment->canBeConfirmedByDoctor())
                                             <form action="{{ route('doctor.appointments.confirm', $appointment) }}"
                                                 method="POST" class="inline">
                                                 @csrf

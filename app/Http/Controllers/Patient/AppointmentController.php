@@ -44,7 +44,7 @@ class AppointmentController extends Controller
 
         // Get validated and sanitized filters
         $filters = $request->getValidatedFilters();
-        
+
         $status = $filters['status'];
         $date = $filters['date'];
         $fromDate = $filters['from_date'];
@@ -108,10 +108,10 @@ class AppointmentController extends Controller
         $config = AppointmentConfig::getActive();
 
         return view('patient.appointments.index', compact(
-            'appointments', 
-            'stats', 
-            'status', 
-            'date', 
+            'appointments',
+            'stats',
+            'status',
+            'date',
             'fromDate',
             'toDate',
             'config',
@@ -191,7 +191,7 @@ class AppointmentController extends Controller
         }
 
         $initial_status = 'pending';
-        if($config->require_admin_approval){
+        if ($config->require_admin_approval) {
             $initial_status = 'pending';
         } elseif ($config->auto_approve_appointments) {
             $initial_status = 'confirmed';
@@ -252,26 +252,26 @@ class AppointmentController extends Controller
 
         // Load relationships without the profile array method
         $appointment->load([
-            'doctor.user', 
-            'service', 
+            'doctor.user',
+            'service',
             'patient',
             'doctor.user.doctor', // For doctor profile data
             'doctor.user.laboratory', // For laboratory profile data  
             'doctor.user.pharmacy', // For pharmacy profile data
             'doctor.user.healthProfile' // For patient profile data
         ]);
-        
+
         // Get appointment configuration for policy display
         $config = AppointmentConfig::getActive();
-        
+
         // Calculate time remaining for actions
         $canCancel = $appointment->canBeCancelled();
         $canReschedule = $appointment->canBeRescheduled();
-        
+
         return view('patient.appointments.show', compact(
-            'appointment', 
-            'config', 
-            'canCancel', 
+            'appointment',
+            'config',
+            'canCancel',
             'canReschedule'
         ));
     }
@@ -282,20 +282,39 @@ class AppointmentController extends Controller
     public function cancel(AppointmentRequest $request, Appointment $appointment)
     {
         $this->authorize('patient-access');
-
+        
+        \Log::info('Cancel method reached', [
+            'appointment_id' => $appointment->id,
+            'user_id' => auth()->id(),
+            'request_data' => $request->all()
+        ]);
+   
         $user = auth()->user();
 
         if ($appointment->patient_id !== $user->id) {
+            \Log::warning('Unauthorized cancellation attempt', [
+                'appointment_id' => $appointment->id,
+                'appointment_patient_id' => $appointment->patient_id,
+                'user_id' => $user->id
+            ]);
             abort(403, 'Unauthorized access to appointment.');
         }
 
         if (in_array($appointment->status, ['cancelled', 'completed'])) {
+            \Log::warning('Attempt to cancel already processed appointment', [
+                'appointment_id' => $appointment->id,
+                'status' => $appointment->status
+            ]);
             return redirect()->back()->with('error', 'This appointment cannot be cancelled.');
         }
 
         // Check cancellation policy using model method
         if (!$appointment->canBeCancelled()) {
             $config = AppointmentConfig::getActive();
+            \Log::warning('Cancellation not allowed due to policy', [
+                'appointment_id' => $appointment->id,
+                'cancellation_hours_limit' => $config->cancellation_hours_limit
+            ]);
             return redirect()->back()->with(
                 'error',
                 'Appointments can only be cancelled at least ' . $config->cancellation_hours_limit . ' hours in advance.'
@@ -303,12 +322,21 @@ class AppointmentController extends Controller
         }
 
         $validated = $request->validated();
+        
+        \Log::info('Validation passed, updating appointment', [
+            'appointment_id' => $appointment->id,
+            'validated_data' => $validated
+        ]);
 
         $appointment->update([
             'status' => 'cancelled',
             'cancelled_at' => now(),
             'cancelled_by' => 'patient',
             'cancellation_reason' => $validated['cancellation_reason']
+        ]);
+
+        \Log::info('Appointment cancelled successfully', [
+            'appointment_id' => $appointment->id
         ]);
 
         return redirect()->route('patient.appointments.index')
@@ -466,8 +494,8 @@ class AppointmentController extends Controller
         // Mark appointment as rated
         $appointment->markAsRated($doctorRating);
 
-        $message = $doctorRating->is_published 
-            ? 'Thank you for rating this appointment!' 
+        $message = $doctorRating->is_published
+            ? 'Thank you for rating this appointment!'
             : 'Thank you for your rating! It is under review and will be published soon.';
 
         return redirect()->back()->with('success', $message);
@@ -609,23 +637,30 @@ class AppointmentController extends Controller
 
         // calculate min advance booking days based on min booking hours ahead
         // If min_booking_hours_ahead is not set, default to 1 day (24 hours)
+        error_log('Config min_booking_hours_ahead: ' . ($config->min_booking_hours_ahead ?? 'not set'));
         if (isset($config->min_booking_hours_ahead)) {
-            $config->min_advance_booking_days = ceil($config->min_booking_hours_ahead / 24);
+            $config->min_advance_booking_days = floor($config->min_booking_hours_ahead / 24);
+            error_log('Calculated min_advance_booking_days: ' . $config->min_advance_booking_days);
         } else {
             $config->min_advance_booking_days = 1; // Default to 1 day if not set
         }
+        error_log('Config min_advance_booking_days: ' . ($config->min_advance_booking_days ?? 1));
         // Calculate date range
         $startDate = Carbon::now()->addDays($config->min_advance_booking_days ?? 1);
         $endDate = Carbon::now()->addDays($config->max_booking_days_ahead ?? 90);
 
         //log current date and config min/max days
-
+        error_log('Current date: ' . Carbon::now()->toDateString());
+        error_log('Start date: ' . $startDate->toDateString());
+        error_log('End date: ' . $endDate->toDateString());
 
         $selectableDates = [];
         $unavailableDates = [];
 
         // Check each date in the range
         for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+            error_log("Checking date: " . $date);
+
             $dateString = $date->toDateString();
 
             // Check if date is selectable
@@ -685,7 +720,9 @@ class AppointmentController extends Controller
             Holiday::where('date', $date->toDateString())
                 ->where('is_active', true)
                 ->exists()
-        ) {
+        ) 
+        {
+            error_log("Date {$date->toDateString()} is a system holiday");
             return false;
         }
 
@@ -696,16 +733,20 @@ class AppointmentController extends Controller
                 ->where('end_date', '>=', $date->toDateString())
                 ->where('status', 'approved')
                 ->exists()
-        ) {
+        ) 
+        {
+            error_log("Doctor {$doctor->id} is on holiday on {$date->toDateString()}");
             return false;
         }
 
         // Check if doctor has schedule for this day
-        $dayOfWeek = $date->dayOfWeek;
+        $dayOfWeek = strtolower($date->format('l')); // converts to lowercase day name like 'sunday'
+        error_log("Checking schedule for doctor {$doctor->id} on {$date->toDateString()} (day of week: {$dayOfWeek})");
         $hasSchedule = DoctorSchedule::where('doctor_id', $doctor->id)
             ->where('day_of_week', $dayOfWeek)
             ->where('is_available', true)
             ->exists();
+        error_log("Doctor {$doctor->id} has schedule on {$date->toDateString()}: " . ($hasSchedule ? 'Yes' : 'No'));
         return $hasSchedule;
     }
 

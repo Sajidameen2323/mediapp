@@ -257,15 +257,60 @@ class Appointment extends Model
 
     /**
      * Check if appointment can be confirmed by doctor.
+     * Doctors can only confirm appointments if:
+     * 1. Admin approval is not required in the config
+     * 2. The appointment status is 'pending'
+     * 3. The appointment is not cancelled or completed
      */
-
     public function canBeConfirmedByDoctor()
     {
+        // Get the appointment configuration
         $config = AppointmentConfig::getActive();
-        if ($config && $config->require_admin_approval) {
+        error_log('Appointment Config: ' . json_encode($config->require_admin_approval));
+        // If no config exists, default to not allowing doctor confirmation
+        if (!$config) {
             return false;
         }
-        return $this->status === 'pending';
+        
+        // If admin approval is required, doctors cannot confirm
+        if ($config->require_admin_approval) {
+            error_log('Admin approval required for confirmation');
+            return false;
+        }
+        
+        // Only pending appointments can be confirmed
+        if ($this->status !== 'pending') {
+            return false;
+        }
+        
+        // Additional check: appointment shouldn't be in the past
+        $appointmentDateTime = $this->appointment_date->copy()->setTimeFromTimeString($this->getRawOriginal('start_time'));
+        if ($appointmentDateTime->isPast()) {
+            return false;
+        }
+        
+        return true;
+    }
+
+    /**
+     * Check if appointment can be confirmed by admin.
+     * Admins can confirm appointments regardless of the require_admin_approval setting,
+     * but the appointment must still be in pending status and not in the past.
+     */
+    public function canBeConfirmedByAdmin()
+    {
+        // Only pending appointments can be confirmed
+        if ($this->status !== 'pending') {
+            return false;
+        }
+        
+        // Additional check: appointment shouldn't be in the past
+        $appointmentDateTime = $this->appointment_date->copy()->setTimeFromTimeString($this->getRawOriginal('start_time'));
+        if ($appointmentDateTime->isPast()) {
+            return false;
+        }
+        
+        return true;
     }
 
     /**
@@ -409,5 +454,11 @@ class Appointment extends Model
     public function payments()
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function canBePaid()
+    {
+        // Check if the appointment is in a state that allows payment
+        return ($this->status === 'confirmed' || $this->status === 'completed') && $this->payment_status !== 'paid';
     }
 }

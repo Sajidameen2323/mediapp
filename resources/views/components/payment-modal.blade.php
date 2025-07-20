@@ -5,116 +5,200 @@
     'appointmentId' => null,
 ])
 
-<div id="{{ $id }}" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full flex items-center justify-center">
-    <div class="relative w-full max-w-md max-h-full">
+<!-- Modal backdrop -->
+<div id="{{ $id }}" tabindex="-1" aria-hidden="true" class="fixed inset-0 z-50 hidden overflow-y-auto overflow-x-hidden">
+    <div class="flex min-h-full items-center justify-center p-4 sm:p-6 lg:p-8">
+        <!-- Modal backdrop overlay -->
+        <div class="fixed inset-0 bg-gray-900/50 dark:bg-gray-900/80 transition-opacity"></div>
+        
         <!-- Modal content -->
-        <div class="relative bg-white rounded-lg shadow dark:bg-gray-800">
+        <div class="relative w-full max-w-lg transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all dark:bg-gray-800 sm:max-w-xl lg:max-w-2xl">
             <!-- Modal header -->
-            <div class="flex items-center justify-between p-4 border-b rounded-t dark:border-gray-700">
-                <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-                    {{ $title }}
-                </h3>
-                <button type="button" class="close-modal text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
-                    <i class="fas fa-times"></i>
+            <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700 sm:px-8 sm:py-6">
+                <div class="flex items-center space-x-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+                        <i class="fas fa-credit-card text-blue-600 dark:text-blue-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white sm:text-xl">
+                            {{ $title }}
+                        </h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Secure payment processing</p>
+                    </div>
+                </div>
+                <button type="button" class="close-modal inline-flex h-10 w-10 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300">
+                    <i class="fas fa-times text-lg"></i>
                     <span class="sr-only">Close modal</span>
                 </button>
             </div>
             <!-- Modal body -->
-            <div class="p-6 space-y-6">
+            <div class="px-6 py-6 sm:px-8 sm:py-8">
                 <div id="payment-modal-content">
-                    <div class="mb-4">
-                        <div class="text-gray-700 dark:text-gray-300">
-                            <p class="text-lg font-medium">Amount to Pay: <span class="font-bold text-indigo-600 dark:text-indigo-400" id="payment-amount">${{ number_format($amount, 2) }}</span></p>
-                            <p class="text-sm text-gray-500 dark:text-gray-400" id="payment-deposit-note"></p>
+                    <!-- Amount Section -->
+                    <div class="mb-8 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 p-6 dark:from-blue-900/20 dark:to-indigo-900/20">
+                        <div class="text-center">
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Amount to Pay</p>
+                            <p class="mt-1 text-3xl font-bold text-blue-600 dark:text-blue-400 sm:text-4xl" id="payment-amount">
+                                ${{ number_format($amount, 2) }}
+                            </p>
+                            <p class="mt-2 text-sm text-gray-500 dark:text-gray-400" id="payment-deposit-note"></p>
                         </div>
                     </div>
 
-                    <form id="payment-form" class="space-y-4">
+                    <form id="payment-form" class="space-y-6">
                         @csrf
                         <input type="hidden" name="amount" value="{{ $amount }}" id="amount-input">
                         @if($appointmentId)
                             <input type="hidden" name="appointment_id" value="{{ $appointmentId }}">
                         @endif
 
-                        <div class="mb-4">
-                            <label for="payment_method" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Payment Method</label>
-                            <div id="payment-methods-container" class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                <!-- Payment methods will be populated here dynamically -->
-                                <div class="flex justify-center items-center h-20 text-gray-500 dark:text-gray-400">
-                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+                        <!-- Payment Methods Section -->
+                        <div>
+                            <label class="mb-4 block text-base font-semibold text-gray-900 dark:text-white">
+                                Choose Payment Method
+                            </label>
+                            <div id="payment-methods-container" class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                <!-- Loading state -->
+                                <div class="col-span-full flex items-center justify-center py-8">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="h-6 w-6 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+                                        <span class="text-sm text-gray-500 dark:text-gray-400">Loading payment methods...</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div id="card-details" class="hidden space-y-4">
-                            <div>
-                                <label for="card_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Card Number</label>
-                                <input type="text" id="card_number" name="card_number" placeholder="1234 5678 9012 3456" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white" maxlength="16">
-                            </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label for="card_expiry" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Expiry Date</label>
-                                    <input type="text" id="card_expiry" name="card_expiry" placeholder="MM/YY" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white" maxlength="5">
+                        <!-- Card Details Section -->
+                        <div id="card-details" class="hidden">
+                            <div class="rounded-xl border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800/50">
+                                <h4 class="mb-4 flex items-center text-lg font-semibold text-gray-900 dark:text-white">
+                                    <i class="fas fa-credit-card mr-3 text-blue-600 dark:text-blue-400"></i>
+                                    Card Information
+                                </h4>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label for="card_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            Card Number
+                                        </label>
+                                        <div class="relative mt-1">
+                                            <input type="text" id="card_number" name="card_number" placeholder="1234 5678 9012 3456" 
+                                                class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-400" 
+                                                maxlength="16">
+                                            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                                <i class="fas fa-credit-card text-gray-400"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="card_expiry" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                Expiry Date
+                                            </label>
+                                            <input type="text" id="card_expiry" name="card_expiry" placeholder="MM/YY" 
+                                                class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-400" 
+                                                maxlength="5">
+                                        </div>
+                                        <div>
+                                            <label for="card_cvc" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                CVC
+                                            </label>
+                                            <input type="text" id="card_cvc" name="card_cvc" placeholder="123" 
+                                                class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-400" 
+                                                maxlength="3">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="cardholder_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            Cardholder Name
+                                        </label>
+                                        <input type="text" id="cardholder_name" name="cardholder_name" placeholder="John Doe" 
+                                            class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-400">
+                                    </div>
                                 </div>
-                                <div>
-                                    <label for="card_cvc" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">CVC</label>
-                                    <input type="text" id="card_cvc" name="card_cvc" placeholder="123" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white" maxlength="3">
+                            </div>
+                        </div>
+
+                        <!-- Bank Transfer Details Section -->
+                        <div id="bank-details" class="hidden">
+                            <div class="rounded-xl border border-blue-200 bg-blue-50 p-6 dark:border-blue-800 dark:bg-blue-900/20">
+                                <h4 class="mb-4 flex items-center text-lg font-semibold text-blue-900 dark:text-blue-300">
+                                    <i class="fas fa-university mr-3"></i>
+                                    Bank Transfer Instructions
+                                </h4>
+                                <div class="rounded-lg bg-white p-4 dark:bg-gray-800">
+                                    <p class="mb-4 text-sm text-gray-700 dark:text-gray-300">
+                                        Please transfer the exact amount to the following account and use the reference number below:
+                                    </p>
+                                    <dl class="space-y-3">
+                                        <div class="flex flex-col sm:flex-row sm:justify-between">
+                                            <dt class="font-medium text-gray-900 dark:text-gray-100">Account Name:</dt>
+                                            <dd class="font-mono text-sm text-gray-700 dark:text-gray-300 sm:text-right">MediApp Healthcare Ltd</dd>
+                                        </div>
+                                        <div class="flex flex-col sm:flex-row sm:justify-between">
+                                            <dt class="font-medium text-gray-900 dark:text-gray-100">Account Number:</dt>
+                                            <dd class="font-mono text-sm text-gray-700 dark:text-gray-300 sm:text-right">12345678</dd>
+                                        </div>
+                                        <div class="flex flex-col sm:flex-row sm:justify-between">
+                                            <dt class="font-medium text-gray-900 dark:text-gray-100">Sort Code:</dt>
+                                            <dd class="font-mono text-sm text-gray-700 dark:text-gray-300 sm:text-right">01-02-03</dd>
+                                        </div>
+                                        <div class="flex flex-col sm:flex-row sm:justify-between border-t pt-3 dark:border-gray-700">
+                                            <dt class="font-medium text-gray-900 dark:text-gray-100">Reference:</dt>
+                                            <dd class="font-mono text-sm font-bold text-blue-600 dark:text-blue-400 sm:text-right" id="payment-reference">PAYMENT-{{ time() }}</dd>
+                                        </div>
+                                    </dl>
+                                </div>
+                                <div class="mt-4 rounded-lg bg-amber-50 p-3 dark:bg-amber-900/20">
+                                    <div class="flex items-start">
+                                        <i class="fas fa-exclamation-triangle mr-2 mt-0.5 text-amber-600 dark:text-amber-400"></i>
+                                        <p class="text-sm text-amber-800 dark:text-amber-300">
+                                            <strong>Important:</strong> Please include the reference number in your transfer to ensure proper processing.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                            <div>
-                                <label for="cardholder_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Cardholder Name</label>
-                                <input type="text" id="cardholder_name" name="cardholder_name" placeholder="John Doe" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                        </div>
+
+                        <!-- Insurance Details Section -->
+                        <div id="insurance-details" class="hidden">
+                            <div class="rounded-xl border border-green-200 bg-green-50 p-6 dark:border-green-800 dark:bg-green-900/20">
+                                <h4 class="mb-4 flex items-center text-lg font-semibold text-green-900 dark:text-green-300">
+                                    <i class="fas fa-shield-alt mr-3"></i>
+                                    Insurance Information
+                                </h4>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label for="insurance_provider" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            Insurance Provider
+                                        </label>
+                                        <input type="text" id="insurance_provider" name="insurance_provider" placeholder="Insurance Company Name" 
+                                            class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 shadow-sm transition-colors focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-green-400">
+                                    </div>
+                                    <div>
+                                        <label for="policy_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                            Policy Number
+                                        </label>
+                                        <input type="text" id="policy_number" name="policy_number" placeholder="Policy Number" 
+                                            class="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 shadow-sm transition-colors focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-green-400">
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div id="bank-details" class="hidden space-y-4">
-                            <div class="p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-                                <h4 class="font-medium text-blue-800 dark:text-blue-300">Bank Transfer Instructions</h4>
-                                <p class="text-sm text-gray-700 dark:text-gray-300 mt-2">
-                                    Please transfer the exact amount to the following account:
-                                </p>
-                                <dl class="mt-3 space-y-1 text-sm">
-                                    <div class="flex justify-between">
-                                        <dt class="font-medium text-gray-600 dark:text-gray-400">Account Name:</dt>
-                                        <dd>MediApp Healthcare Ltd</dd>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <dt class="font-medium text-gray-600 dark:text-gray-400">Account Number:</dt>
-                                        <dd>12345678</dd>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <dt class="font-medium text-gray-600 dark:text-gray-400">Sort Code:</dt>
-                                        <dd>01-02-03</dd>
-                                    </div>
-                                    <div class="flex justify-between">
-                                        <dt class="font-medium text-gray-600 dark:text-gray-400">Reference:</dt>
-                                        <dd id="payment-reference">PAYMENT-{{ time() }}</dd>
-                                    </div>
-                                </dl>
-                            </div>
-                        </div>
-
-                        <div id="insurance-details" class="hidden space-y-4">
-                            <div>
-                                <label for="insurance_provider" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Insurance Provider</label>
-                                <input type="text" id="insurance_provider" name="insurance_provider" placeholder="Insurance Company Name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                            </div>
-                            <div>
-                                <label for="policy_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Policy Number</label>
-                                <input type="text" id="policy_number" name="policy_number" placeholder="Policy Number" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                            </div>
-                        </div>
-
-                        <div id="payment-messages" class="hidden py-3 px-4 rounded-md"></div>
+                        <!-- Messages Section -->
+                        <div id="payment-messages" class="hidden rounded-lg p-4"></div>
                     </form>
                 </div>
             </div>
             <!-- Modal footer -->
-            <div class="flex items-center p-4 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-700">
-                <button type="button" id="submit-payment" class="px-5 py-2.5 text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm text-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800">
-                    Confirm Payment
+            <div class="border-t border-gray-200 bg-gray-50 px-6 py-4 dark:border-gray-700 dark:bg-gray-800/50 sm:flex sm:flex-row-reverse sm:px-8">
+                <button type="button" id="submit-payment" 
+                    class="inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-lg transition-all hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 sm:ml-3 sm:w-auto">
+                    <i class="fas fa-lock mr-2"></i>
+                    Secure Payment
                 </button>
-                <button type="button" class="close-modal px-5 py-2.5 text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700">
+                <button type="button" 
+                    class="close-modal mt-3 inline-flex w-full items-center justify-center rounded-lg border border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-50 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:focus:ring-gray-700 sm:mt-0 sm:w-auto">
                     Cancel
                 </button>
             </div>
@@ -140,6 +224,20 @@
                 paymentModal.classList.add('hidden');
                 document.body.classList.remove('overflow-hidden');
             });
+        });
+
+        // Close modal when clicking backdrop
+        paymentModal.addEventListener('click', (e) => {
+            if (e.target === paymentModal) {
+                paymentModal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }
+        });
+
+        // Prevent modal from closing when clicking inside the modal content
+        const modalContent = paymentModal.querySelector('.relative.w-full');
+        modalContent?.addEventListener('click', (e) => {
+            e.stopPropagation();
         });
 
         // Fetch payment methods
@@ -170,22 +268,42 @@
             
             Object.entries(methods).forEach(([key, label]) => {
                 const methodCard = document.createElement('div');
-                methodCard.className = 'payment-method-card border border-gray-200 dark:border-gray-700 rounded-lg p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700';
+                methodCard.className = 'payment-method-card group relative cursor-pointer rounded-xl border-2 border-gray-200 bg-white p-4 transition-all hover:border-blue-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-blue-600';
                 methodCard.dataset.method = key;
                 
-                let icon = 'fa-money-bill';
-                if (key === 'card') icon = 'fa-credit-card';
-                if (key === 'online') icon = 'fa-globe';
-                if (key === 'insurance') icon = 'fa-file-medical';
-                if (key === 'bank_transfer') icon = 'fa-university';
+                let icon = 'fa-money-bill-wave';
+                let bgColor = 'bg-gray-100 dark:bg-gray-700';
+                let iconColor = 'text-gray-600 dark:text-gray-400';
+                
+                if (key === 'card') {
+                    icon = 'fa-credit-card';
+                    bgColor = 'bg-blue-100 dark:bg-blue-900/30';
+                    iconColor = 'text-blue-600 dark:text-blue-400';
+                } else if (key === 'online') {
+                    icon = 'fa-globe';
+                    bgColor = 'bg-purple-100 dark:bg-purple-900/30';
+                    iconColor = 'text-purple-600 dark:text-purple-400';
+                } else if (key === 'insurance') {
+                    icon = 'fa-shield-alt';
+                    bgColor = 'bg-green-100 dark:bg-green-900/30';
+                    iconColor = 'text-green-600 dark:text-green-400';
+                } else if (key === 'bank_transfer') {
+                    icon = 'fa-university';
+                    bgColor = 'bg-orange-100 dark:bg-orange-900/30';
+                    iconColor = 'text-orange-600 dark:text-orange-400';
+                }
                 
                 methodCard.innerHTML = `
-                    <div class="flex items-center space-x-3">
-                        <div class="text-indigo-500 dark:text-indigo-400 text-xl">
-                            <i class="fas ${icon}"></i>
+                    <div class="flex flex-col items-center space-y-3 text-center">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-full ${bgColor} transition-colors group-hover:scale-110">
+                            <i class="fas ${icon} text-lg ${iconColor}"></i>
                         </div>
-                        <span class="font-medium text-gray-800 dark:text-gray-200">${label}</span>
+                        <div>
+                            <span class="block font-semibold text-gray-900 dark:text-gray-100">${label}</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">Click to select</span>
+                        </div>
                     </div>
+                    <div class="absolute inset-0 rounded-xl border-2 border-transparent opacity-0 transition-opacity group-hover:opacity-100"></div>
                 `;
                 
                 methodCard.addEventListener('click', () => selectPaymentMethod(key));
@@ -197,13 +315,15 @@
         function selectPaymentMethod(method) {
             // Reset selection
             document.querySelectorAll('.payment-method-card').forEach(card => {
-                card.classList.remove('bg-indigo-50', 'border-indigo-500', 'dark:bg-indigo-900/30', 'dark:border-indigo-500');
+                card.classList.remove('border-blue-500', 'bg-blue-50', 'dark:border-blue-500', 'dark:bg-blue-900/30', 'ring-2', 'ring-blue-200', 'dark:ring-blue-800');
+                card.classList.add('border-gray-200', 'dark:border-gray-700');
             });
             
             // Select the clicked one
             const selectedCard = document.querySelector(`.payment-method-card[data-method="${method}"]`);
             if (selectedCard) {
-                selectedCard.classList.add('bg-indigo-50', 'border-indigo-500', 'dark:bg-indigo-900/30', 'dark:border-indigo-500');
+                selectedCard.classList.remove('border-gray-200', 'dark:border-gray-700');
+                selectedCard.classList.add('border-blue-500', 'bg-blue-50', 'dark:border-blue-500', 'dark:bg-blue-900/30', 'ring-2', 'ring-blue-200', 'dark:ring-blue-800');
             }
             
             // Add hidden input for payment method
@@ -244,7 +364,7 @@
             
             // Validate card details if card payment
             if (paymentMethod === 'card') {
-                const cardNumber = formData.get('card_number');
+                const cardNumber = formData.get('card_number').replace(/\s/g, ''); // Remove spaces for validation
                 const cardExpiry = formData.get('card_expiry');
                 const cardCvc = formData.get('card_cvc');
                 const cardholderName = formData.get('cardholder_name');
@@ -272,7 +392,8 @@
             
             // Disable button and show loading
             submitPaymentBtn.disabled = true;
-            submitPaymentBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+            submitPaymentBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing Payment...';
+            submitPaymentBtn.classList.add('opacity-75', 'cursor-not-allowed');
             
             try {
                 const response = await fetch('/patient/payments/process', {
@@ -307,27 +428,47 @@
                 } else {
                     showMessage(result.message || 'Payment failed', 'error');
                     submitPaymentBtn.disabled = false;
-                    submitPaymentBtn.innerHTML = 'Confirm Payment';
+                    submitPaymentBtn.innerHTML = '<i class="fas fa-lock mr-2"></i> Secure Payment';
+                    submitPaymentBtn.classList.remove('opacity-75', 'cursor-not-allowed');
                 }
             } catch (error) {
                 console.error('Payment error:', error);
                 showMessage('An error occurred while processing payment', 'error');
                 submitPaymentBtn.disabled = false;
-                submitPaymentBtn.innerHTML = 'Confirm Payment';
+                submitPaymentBtn.innerHTML = '<i class="fas fa-lock mr-2"></i> Secure Payment';
+                submitPaymentBtn.classList.remove('opacity-75', 'cursor-not-allowed');
             }
         });
 
         // Show message
         function showMessage(message, type = 'success') {
             paymentMessages.classList.remove('hidden');
-            paymentMessages.className = 'py-3 px-4 rounded-md';
+            paymentMessages.className = 'rounded-lg p-4';
             
             if (type === 'success') {
-                paymentMessages.classList.add('bg-green-50', 'text-green-800', 'dark:bg-green-900/30', 'dark:text-green-300');
-                paymentMessages.innerHTML = `<div class="flex items-center"><i class="fas fa-check-circle mr-2"></i> ${message}</div>`;
+                paymentMessages.classList.add('bg-green-50', 'border', 'border-green-200', 'text-green-800', 'dark:bg-green-900/30', 'dark:border-green-800', 'dark:text-green-300');
+                paymentMessages.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/50">
+                            <i class="fas fa-check text-green-600 dark:text-green-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="font-medium">${message}</p>
+                        </div>
+                    </div>
+                `;
             } else {
-                paymentMessages.classList.add('bg-red-50', 'text-red-800', 'dark:bg-red-900/30', 'dark:text-red-300');
-                paymentMessages.innerHTML = `<div class="flex items-center"><i class="fas fa-exclamation-circle mr-2"></i> ${message}</div>`;
+                paymentMessages.classList.add('bg-red-50', 'border', 'border-red-200', 'text-red-800', 'dark:bg-red-900/30', 'dark:border-red-800', 'dark:text-red-300');
+                paymentMessages.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50">
+                            <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="font-medium">${message}</p>
+                        </div>
+                    </div>
+                `;
             }
         }
 
@@ -368,10 +509,13 @@
             document.dispatchEvent(showPaymentModalEvent);
         };
 
-        // Format card number as user types
+        // Format card number with spaces for better readability
         const cardNumberInput = document.getElementById('card_number');
         cardNumberInput?.addEventListener('input', (e) => {
-            e.target.value = e.target.value.replace(/\D/g, '').substring(0, 16);
+            let value = e.target.value.replace(/\D/g, '').substring(0, 16);
+            // Add spaces every 4 digits for display
+            let formattedValue = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+            e.target.value = formattedValue;
         });
 
         // Format expiry date as MM/YY

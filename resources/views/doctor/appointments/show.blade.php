@@ -1399,19 +1399,40 @@
                             </p>
                         </div>
 
-                        <form action="{{ route('doctor.appointments.cancel', $appointment) }}" method="POST">
+                        <form action="{{ route('doctor.appointments.cancel', $appointment) }}" method="POST" id="cancelForm">
                             @csrf
                             @method('PATCH')
+                            
+                            <!-- Display validation errors -->
+                            @if ($errors->any())
+                                <div class="px-7 py-3">
+                                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                                        <ul class="list-disc list-inside">
+                                            @foreach ($errors->all() as $error)
+                                                <li>{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                </div>
+                            @endif
+                            
                             <div class="px-7 py-3">
-                                <textarea name="cancellation_reason" rows="3" required
-                                    class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md text-sm"
-                                    placeholder="Enter cancellation reason..."></textarea>
+                                <label for="cancellation_reason" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Cancellation Reason <span class="text-red-500">*</span>
+                                </label>
+                                <textarea name="cancellation_reason" id="cancellation_reason" rows="4" required minlength="10" maxlength="500"
+                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm @error('cancellation_reason') border-red-500 @enderror"
+                                    placeholder="Please explain why you need to cancel this appointment...">{{ old('cancellation_reason') }}</textarea>
+                                @error('cancellation_reason')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" id="cancellation-char-count">Minimum 10 characters required</p>
                             </div>
 
                             <div class="items-center px-4 py-3">
-                                <button type="submit"
+                                <button type="submit" id="cancelSubmitBtn"
                                     class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">
-                                    Cancel Appointment
+                                    <i class="fas fa-times mr-2"></i>Cancel Appointment
                                 </button>
                                 <button type="button" onclick="hideCancelModal()"
                                     class="mt-3 px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-400 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300">
@@ -1508,10 +1529,140 @@
 
                 function showCancelModal() {
                     document.getElementById('cancelModal').classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                    // Reset validation styling when modal opens
+                    const textarea = document.getElementById('cancellation_reason');
+                    const submitBtn = document.getElementById('cancelSubmitBtn');
+                    if (textarea && submitBtn) {
+                        textarea.classList.remove('border-red-500', 'border-green-500');
+                        submitBtn.disabled = false;
+                        updateCharacterCount();
+                    }
                 }
 
                 function hideCancelModal() {
                     document.getElementById('cancelModal').classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                    // Reset form
+                    const textarea = document.getElementById('cancellation_reason');
+                    if (textarea) {
+                        textarea.value = '';
+                        updateCharacterCount();
+                    }
                 }
+
+                // Character count and validation
+                function updateCharacterCount() {
+                    const textarea = document.getElementById('cancellation_reason');
+                    const charCount = document.getElementById('cancellation-char-count');
+                    const submitBtn = document.getElementById('cancelSubmitBtn');
+                    
+                    if (!textarea || !charCount || !submitBtn) return;
+                    
+                    const currentLength = textarea.value.length;
+                    
+                    if (currentLength === 0) {
+                        charCount.textContent = 'Minimum 10 characters required';
+                        charCount.className = 'text-xs text-gray-500 dark:text-gray-400 mt-1';
+                        textarea.classList.remove('border-red-500', 'border-green-500');
+                        submitBtn.disabled = false;
+                    } else if (currentLength < 10) {
+                        charCount.textContent = `${currentLength}/10 characters - ${10 - currentLength} more needed`;
+                        charCount.className = 'text-xs text-red-500 mt-1';
+                        textarea.classList.add('border-red-500');
+                        textarea.classList.remove('border-green-500');
+                        submitBtn.disabled = true;
+                    } else if (currentLength <= 500) {
+                        charCount.textContent = `${currentLength}/500 characters - Valid`;
+                        charCount.className = 'text-xs text-green-500 mt-1';
+                        textarea.classList.add('border-green-500');
+                        textarea.classList.remove('border-red-500');
+                        submitBtn.disabled = false;
+                    } else {
+                        charCount.textContent = `${currentLength}/500 characters - Too long!`;
+                        charCount.className = 'text-xs text-red-500 mt-1';
+                        textarea.classList.add('border-red-500');
+                        textarea.classList.remove('border-green-500');
+                        submitBtn.disabled = true;
+                    }
+                }
+
+                // Add event listeners for real-time validation
+                document.addEventListener('DOMContentLoaded', function() {
+                    const textarea = document.getElementById('cancellation_reason');
+                    const form = document.getElementById('cancelForm');
+                    
+                    if (textarea) {
+                        // Real-time character count update
+                        textarea.addEventListener('input', updateCharacterCount);
+                        textarea.addEventListener('keyup', updateCharacterCount);
+                        textarea.addEventListener('paste', function() {
+                            setTimeout(updateCharacterCount, 10);
+                        });
+                    }
+                    
+                    if (form) {
+                        // Form submission validation
+                        form.addEventListener('submit', function(e) {
+                            const reason = textarea.value.trim();
+                            
+                            if (reason.length < 10) {
+                                e.preventDefault();
+                                alert('Cancellation reason must be at least 10 characters long.');
+                                textarea.focus();
+                                return false;
+                            }
+                            
+                            if (reason.length > 500) {
+                                e.preventDefault();
+                                alert('Cancellation reason cannot exceed 500 characters.');
+                                textarea.focus();
+                                return false;
+                            }
+                            
+                            // Show loading state
+                            const submitBtn = document.getElementById('cancelSubmitBtn');
+                            if (submitBtn) {
+                                submitBtn.disabled = true;
+                                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Cancelling...';
+                            }
+                        });
+                    }
+                });
+
+                // Show modal if there are validation errors
+                @if ($errors->any())
+                    document.addEventListener('DOMContentLoaded', function() {
+                        showCancelModal();
+                    });
+                @endif
+
+                // Close modals when clicking outside
+                window.onclick = function(event) {
+                    const cancelModal = document.getElementById('cancelModal');
+                    const completeModal = document.getElementById('completeModal');
+
+                    if (event.target === cancelModal) {
+                        hideCancelModal();
+                    }
+                    if (event.target === completeModal) {
+                        hideCompleteModal();
+                    }
+                }
+
+                // Close modals with Escape key
+                document.addEventListener('keydown', function(event) {
+                    if (event.key === 'Escape') {
+                        const cancelModal = document.getElementById('cancelModal');
+                        const completeModal = document.getElementById('completeModal');
+
+                        if (cancelModal && !cancelModal.classList.contains('hidden')) {
+                            hideCancelModal();
+                        }
+                        if (completeModal && !completeModal.classList.contains('hidden')) {
+                            hideCompleteModal();
+                        }
+                    }
+                });
             </script>
         @endpush

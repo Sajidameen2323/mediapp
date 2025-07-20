@@ -57,17 +57,17 @@ class AppointmentRequest extends FormRequest
 
         // Add validation rules for cancellation requests
         if ($this->isMethod('patch') && $this->route()->getName() === 'patient.appointments.cancel') {
-            $rules = [
+            $rules = array_merge($rules, [
                 'cancellation_reason' => 'required|string|min:10|max:500'
-            ];
+            ]);
         }
 
         // Add validation rules for rating requests
         if ($this->isMethod('post') && $this->route()->getName() === 'patient.appointments.rate') {
-            $rules = [
+            $rules = array_merge($rules, [
                 'rating' => 'required|integer|min:1|max:5',
                 'review' => 'nullable|string|max:1000',
-            ];
+            ]);
         }
 
         return $rules;
