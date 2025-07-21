@@ -183,15 +183,15 @@
                                                 </div>
                                             </div>
                                             @if($access->access_type !== 'author')
-                                                <div class="flex items-center space-x-2">
+                                                <div class="flex items-center space-x-2" x-data="accessActions">
                                                     <button type="button" 
-                                                            onclick="openEditModal({{ $access->id }}, '{{ $access->expires_at ? $access->expires_at->format('Y-m-d') : '' }}', '{{ $access->notes }}')"
+                                                            @click="openEditModal({{ $access->id }}, '{{ $access->expires_at ? $access->expires_at->format('Y-m-d') : '' }}', '{{ addslashes($access->notes ?? '') }}')"
                                                             class="inline-flex items-center px-3 py-1.5 border border-blue-300 dark:border-blue-600 rounded-md text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors">
                                                         <i class="fas fa-edit mr-1"></i>
                                                         Edit
                                                     </button>
                                                     <button type="button" 
-                                                            onclick="openRevokeModal({{ $access->id }}, '{{ $access->doctor->user->name }}')"
+                                                            @click="openRevokeModal({{ $access->id }}, '{{ addslashes($access->doctor->user->name) }}')"
                                                             class="inline-flex items-center px-3 py-1.5 border border-red-300 dark:border-red-600 rounded-md text-xs font-medium text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors">
                                                         <i class="fas fa-ban mr-1"></i>
                                                         Revoke
@@ -318,48 +318,76 @@
 </div>
 
 <!-- Edit Access Modal -->
-<div id="editModal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeEditModal()"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <form id="editForm" method="POST">
+<div x-data="editModal" x-show="isOpen" x-cloak class="fixed inset-0 z-50 overflow-y-auto" 
+     x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" 
+     x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" 
+     x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+    
+    <!-- Background overlay -->
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="closeModal()"></div>
+    
+    <!-- Modal container -->
+    <div class="flex items-center justify-center min-h-screen px-4 py-6">
+        <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-lg w-full mx-auto"
+             x-transition:enter="ease-out duration-300" 
+             x-transition:enter-start="opacity-0 transform scale-95" 
+             x-transition:enter-end="opacity-100 transform scale-100" 
+             x-transition:leave="ease-in duration-200" 
+             x-transition:leave-start="opacity-100 transform scale-100" 
+             x-transition:leave-end="opacity-0 transform scale-95">
+            
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 rounded-t-xl">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-bold text-white flex items-center">
+                        <i class="fas fa-edit mr-3"></i>
+                        Edit Access Settings
+                    </h3>
+                    <button @click="closeModal()" class="text-white hover:text-gray-200 transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Form -->
+            <form :action="formAction" method="POST" class="p-6">
                 @csrf
                 @method('PUT')
-                <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900 sm:mx-0 sm:h-10 sm:w-10">
-                            <i class="fas fa-edit text-blue-600 dark:text-blue-400"></i>
-                        </div>
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">
-                                Edit Access Settings
-                            </h3>
-                            <div class="mt-4 space-y-4">
-                                <div>
-                                    <label for="edit_expires_at" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Access Expires
-                                    </label>
-                                    <input type="date" name="expires_at" id="edit_expires_at" min="{{ now()->addDay()->format('Y-m-d') }}"
-                                           class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                </div>
-                                <div>
-                                    <label for="edit_notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Notes
-                                    </label>
-                                    <textarea name="notes" id="edit_notes" rows="3"
-                                              class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
-                                </div>
-                            </div>
-                        </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label for="edit_expires_at" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <i class="fas fa-calendar-alt mr-1"></i>
+                            Access Expires
+                        </label>
+                        <input type="date" name="expires_at" id="edit_expires_at" 
+                               x-model="expiresAt" x-ref="firstInput"
+                               min="{{ now()->addDay()->format('Y-m-d') }}"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200">
+                    </div>
+                    
+                    <div>
+                        <label for="edit_notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <i class="fas fa-sticky-note mr-1"></i>
+                            Notes
+                        </label>
+                        <textarea name="notes" id="edit_notes" rows="3" 
+                                  x-model="notes"
+                                  placeholder="Add notes about this access..."
+                                  class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200"></textarea>
                     </div>
                 </div>
-                <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
-                        Update Access
-                    </button>
-                    <button type="button" onclick="closeEditModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
+
+                <div class="flex space-x-3 mt-6">
+                    <button type="button" @click="closeModal()" 
+                            class="flex-1 px-4 py-3 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white text-base font-medium rounded-xl hover:bg-gray-400 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-all duration-200">
+                        <i class="fas fa-times mr-2"></i>
                         Cancel
+                    </button>
+                    <button type="submit" 
+                            class="flex-1 px-4 py-3 bg-blue-600 text-white text-base font-medium rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200">
+                        <i class="fas fa-save mr-2"></i>
+                        Update Access
                     </button>
                 </div>
             </form>
@@ -368,111 +396,252 @@
 </div>
 
 <!-- Revoke Access Modal -->
-<div id="revokeModal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeRevokeModal()"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <form id="revokeForm" method="POST">
-                @csrf
-                @method('DELETE')
-                <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900 sm:mx-0 sm:h-10 sm:w-10">
-                            <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400"></i>
-                        </div>
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">
-                                Revoke Access
-                            </h3>
-                            <div class="mt-2">
-                                <p class="text-sm text-gray-500 dark:text-gray-400" id="revokeMessage">
-                                    Are you sure you want to revoke access for this doctor?
-                                </p>
-                            </div>
-                            <div class="mt-4">
-                                <label for="revoke_notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Reason for Revocation (Optional)
-                                </label>
-                                <textarea name="notes" id="revoke_notes" rows="3" placeholder="Enter reason for revoking access..."
-                                          class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-red-500"></textarea>
-                            </div>
+<div x-data="revokeModal" x-show="isOpen" x-cloak class="fixed inset-0 z-50 overflow-y-auto" 
+     x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" 
+     x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" 
+     x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+    
+    <!-- Background overlay -->
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="closeModal()"></div>
+    
+    <!-- Modal container -->
+    <div class="flex items-center justify-center min-h-screen px-4 py-6">
+        <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-lg w-full mx-auto"
+             x-transition:enter="ease-out duration-300" 
+             x-transition:enter-start="opacity-0 transform scale-95" 
+             x-transition:enter-end="opacity-100 transform scale-100" 
+             x-transition:leave="ease-in duration-200" 
+             x-transition:leave-start="opacity-100 transform scale-100" 
+             x-transition:leave-end="opacity-0 transform scale-95">
+            
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-red-600 to-red-700 px-6 py-4 rounded-t-xl">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-bold text-white flex items-center">
+                        <i class="fas fa-exclamation-triangle mr-3"></i>
+                        Revoke Access
+                    </h3>
+                    <button @click="closeModal()" class="text-white hover:text-gray-200 transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="p-6">
+                <div class="flex items-start space-x-4 mb-6">
+                    <div class="flex-shrink-0 w-12 h-12 bg-red-100 dark:bg-red-900/50 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user-times text-red-600 dark:text-red-400 text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-gray-700 dark:text-gray-300 text-lg font-medium mb-2">
+                            Are you sure you want to revoke access?
+                        </p>
+                        <p class="text-gray-600 dark:text-gray-400" x-text="message"></p>
+                        <div class="mt-3 px-4 py-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                            <p class="text-sm text-red-800 dark:text-red-200">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                This action cannot be undone. The doctor will immediately lose access to this medical report.
+                            </p>
                         </div>
                     </div>
                 </div>
-                <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
-                        Revoke Access
-                    </button>
-                    <button type="button" onclick="closeRevokeModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
-                        Cancel
-                    </button>
-                </div>
-            </form>
+
+                <form :action="formAction" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    
+                    <div class="mb-6">
+                        <label for="revoke_notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <i class="fas fa-comment mr-1"></i>
+                            Reason for Revocation (Optional)
+                        </label>
+                        <textarea name="notes" id="revoke_notes" rows="3" 
+                                  x-model="notes" x-ref="notesTextarea"
+                                  placeholder="Enter reason for revoking access..."
+                                  class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200"></textarea>
+                    </div>
+
+                    <div class="flex space-x-3">
+                        <button type="button" @click="closeModal()" 
+                                class="flex-1 px-4 py-3 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white text-base font-medium rounded-xl hover:bg-gray-400 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-all duration-200">
+                            <i class="fas fa-times mr-2"></i>
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                                class="flex-1 px-4 py-3 bg-red-600 text-white text-base font-medium rounded-xl hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200">
+                            <i class="fas fa-ban mr-2"></i>
+                            Revoke Access
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 
 @push('scripts')
 <script>
-function openEditModal(accessId, expiresAt, notes) {
-    const modal = document.getElementById('editModal');
-    const form = document.getElementById('editForm');
-    const expiresAtInput = document.getElementById('edit_expires_at');
-    const notesInput = document.getElementById('edit_notes');
+// Alpine.js Components
+document.addEventListener('alpine:init', () => {
     
-    form.action = `{{ route('patient.medical-reports.access.update', [$medicalReport, ':id']) }}`.replace(':id', accessId);
-    expiresAtInput.value = expiresAt;
-    notesInput.value = notes;
-    
-    modal.classList.remove('hidden');
-}
+    // Shared actions for access management
+    Alpine.data('accessActions', () => ({
+        openEditModal(accessId, expiresAt, notes) {
+            // Get the edit modal component
+            const editModalComponent = Alpine.$data(document.querySelector('[x-data*="editModal"]'));
+            if (editModalComponent) {
+                editModalComponent.open(accessId, expiresAt, notes);
+            }
+        },
+        
+        openRevokeModal(accessId, doctorName) {
+            // Get the revoke modal component
+            const revokeModalComponent = Alpine.$data(document.querySelector('[x-data*="revokeModal"]'));
+            if (revokeModalComponent) {
+                revokeModalComponent.open(accessId, doctorName);
+            }
+        }
+    }));
 
-function closeEditModal() {
-    document.getElementById('editModal').classList.add('hidden');
-}
+    // Edit Modal Component
+    Alpine.data('editModal', () => ({
+        isOpen: false,
+        formAction: '',
+        expiresAt: '',
+        notes: '',
 
-function openRevokeModal(accessId, doctorName) {
-    const modal = document.getElementById('revokeModal');
-    const form = document.getElementById('revokeForm');
-    const message = document.getElementById('revokeMessage');
-    
-    form.action = `{{ route('patient.medical-reports.access.revoke', [$medicalReport, ':id']) }}`.replace(':id', accessId);
-    message.textContent = `Are you sure you want to revoke access for Dr. ${doctorName}? This action cannot be undone.`;
-    
-    modal.classList.remove('hidden');
-}
+        open(accessId, expiresAt, notes) {
+            this.formAction = `{{ route('patient.medical-reports.access.update', [$medicalReport, ':id']) }}`.replace(':id', accessId);
+            this.expiresAt = expiresAt || '';
+            this.notes = notes || '';
+            this.isOpen = true;
+            
+            // Focus on first input after modal opens
+            this.$nextTick(() => {
+                this.$refs.firstInput?.focus();
+            });
+        },
 
-function closeRevokeModal() {
-    document.getElementById('revokeModal').classList.add('hidden');
-}
+        closeModal() {
+            this.isOpen = false;
+            // Reset form data
+            setTimeout(() => {
+                this.formAction = '';
+                this.expiresAt = '';
+                this.notes = '';
+            }, 300); // Wait for transition to complete
+        },
 
-function openBulkModal() {
-    // Implementation for bulk management modal
-    alert('Bulk management feature coming soon!');
-}
+        // Handle escape key
+        init() {
+            this.$watch('isOpen', (value) => {
+                if (value) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+    }));
 
-// Close modals when clicking outside
-document.addEventListener('click', function(event) {
-    const editModal = document.getElementById('editModal');
-    const revokeModal = document.getElementById('revokeModal');
-    
-    if (event.target === editModal) {
-        closeEditModal();
-    }
-    
-    if (event.target === revokeModal) {
-        closeRevokeModal();
-    }
+    // Revoke Modal Component
+    Alpine.data('revokeModal', () => ({
+        isOpen: false,
+        formAction: '',
+        message: '',
+        notes: '',
+
+        open(accessId, doctorName) {
+            this.formAction = `{{ route('patient.medical-reports.access.revoke', [$medicalReport, ':id']) }}`.replace(':id', accessId);
+            this.message = `You are about to revoke access for Dr. ${doctorName}. They will no longer be able to view this medical report.`;
+            this.notes = '';
+            this.isOpen = true;
+            
+            // Focus on textarea after modal opens
+            this.$nextTick(() => {
+                this.$refs.notesTextarea?.focus();
+            });
+        },
+
+        closeModal() {
+            this.isOpen = false;
+            // Reset form data
+            setTimeout(() => {
+                this.formAction = '';
+                this.message = '';
+                this.notes = '';
+            }, 300); // Wait for transition to complete
+        },
+
+        // Handle escape key
+        init() {
+            this.$watch('isOpen', (value) => {
+                if (value) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+    }));
 });
 
-// Close modals with Escape key
+// Global escape key handler for closing modals
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
-        closeEditModal();
-        closeRevokeModal();
+        // Close any open modals
+        const editModal = document.querySelector('[x-data*="editModal"]');
+        const revokeModal = document.querySelector('[x-data*="revokeModal"]');
+        
+        if (editModal && Alpine.$data(editModal).isOpen) {
+            Alpine.$data(editModal).closeModal();
+        }
+        
+        if (revokeModal && Alpine.$data(revokeModal).isOpen) {
+            Alpine.$data(revokeModal).closeModal();
+        }
     }
 });
 </script>
+
+<style>
+/* Alpine.js cloak styles */
+[x-cloak] {
+    display: none !important;
+}
+
+/* Custom scrollbar for modal content */
+.modal-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Dark mode scrollbar */
+.dark .modal-content::-webkit-scrollbar-track {
+    background: #374151;
+}
+
+.dark .modal-content::-webkit-scrollbar-thumb {
+    background: #6b7280;
+}
+
+.dark .modal-content::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+</style>
 @endpush
 @endsection

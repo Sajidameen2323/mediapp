@@ -4,8 +4,7 @@
 
 @section('content')
 
-
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900" x-data="labTestPage">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Page Header -->
         <div class="mb-8">
@@ -46,12 +45,12 @@
                             </p>
                         </div>
                         @if($labTest->status !== 'in_progress' && (!($labTest->status === 'completed' && $labTest->completed_at && now()->diffInDays($labTest->completed_at) < 30)))
-                        <button type="button" 
-                                onclick="openDeleteModal()"
-                                class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-800 transition-colors">
-                            <i class="fas fa-trash-alt mr-2"></i>
-                            Delete Lab Test
-                        </button>
+                            <button type="button" 
+                                    @click="showDeleteModal = true"
+                                    class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-800 transition-colors">
+                                <i class="fas fa-trash-alt mr-2"></i>
+                                Delete Lab Test
+                            </button>
                         @else
                         <button type="button" 
                                 disabled
@@ -71,45 +70,85 @@
             </div>
         </div>
     </div>
-</div>
 
-<!-- Delete Confirmation Modal -->
-<div id="deleteModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <!-- Delete Confirmation Modal -->
+    <div x-show="showDeleteModal" 
+         x-cloak 
+         class="fixed inset-0 z-50 overflow-y-auto" 
+         x-transition:enter="ease-out duration-300" 
+         x-transition:enter-start="opacity-0" 
+         x-transition:enter-end="opacity-100" 
+         x-transition:leave="ease-in duration-200" 
+         x-transition:leave-start="opacity-100" 
+         x-transition:leave-end="opacity-0">
+        
         <!-- Background overlay -->
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 dark:bg-gray-900 dark:bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeDeleteModal()"></div>
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 dark:bg-gray-900 dark:bg-opacity-75 transition-opacity" 
+             @click="closeDeleteModal()"></div>
 
-        <!-- Modal panel -->
-        <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div class="sm:flex sm:items-start">
-                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900 sm:mx-0 sm:h-10 sm:w-10">
-                        <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400"></i>
-                    </div>
-                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                        <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">
+        <!-- Modal container -->
+        <div class="flex items-center justify-center min-h-screen px-4 py-6">
+            <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-lg w-full mx-auto"
+                 x-transition:enter="ease-out duration-300" 
+                 x-transition:enter-start="opacity-0 transform scale-95" 
+                 x-transition:enter-end="opacity-100 transform scale-100" 
+                 x-transition:leave="ease-in duration-200" 
+                 x-transition:leave-start="opacity-100 transform scale-100" 
+                 x-transition:leave-end="opacity-0 transform scale-95"
+                 @click.stop>
+                
+                <!-- Modal Header -->
+                <div class="bg-gradient-to-r from-red-600 to-red-700 px-6 py-4 rounded-t-xl">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-bold text-white flex items-center">
+                            <i class="fas fa-exclamation-triangle mr-3"></i>
                             Delete Lab Test
                         </h3>
-                        <div class="mt-2">
-                            <p class="text-sm text-gray-500 dark:text-gray-400">
-                                Are you sure you want to delete this lab test? This action cannot be undone.
-                                All data associated with this lab test will be permanently removed.
-                            </p>
-                        </div>
+                        <button @click="closeDeleteModal()" class="text-white hover:text-gray-200 transition-colors">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
                     </div>
                 </div>
-            </div>
-            <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <form action="{{ route('patient.lab-tests.destroy', $labTest) }}" method="POST">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-800 sm:ml-3 sm:w-auto sm:text-sm">
-                        Delete
-                    </button>
-                </form>
-                <button type="button" onclick="closeDeleteModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                    Cancel
-                </button>
+
+                <!-- Modal Content -->
+                <div class="p-6">
+                    <div class="flex items-start space-x-4 mb-6">
+                        <div class="flex-shrink-0 w-12 h-12 bg-red-100 dark:bg-red-900/50 rounded-full flex items-center justify-center">
+                            <i class="fas fa-trash-alt text-red-600 dark:text-red-400 text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-gray-700 dark:text-gray-300 text-lg font-medium mb-2">
+                                Are you sure you want to delete this lab test?
+                            </p>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">
+                                <strong>{{ $labTest->test_name }}</strong> will be permanently deleted and cannot be recovered.
+                            </p>
+                            <div class="px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                                <p class="text-sm text-red-800 dark:text-red-200">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>
+                                    <strong>Warning:</strong> This action cannot be undone. All data associated with this lab test will be permanently removed.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex space-x-3">
+                        <button type="button" @click="closeDeleteModal()" 
+                                class="flex-1 px-4 py-3 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white text-base font-medium rounded-xl hover:bg-gray-400 dark:hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-all duration-200">
+                            <i class="fas fa-times mr-2"></i>
+                            Cancel
+                        </button>
+                        <form action="{{ route('patient.lab-tests.destroy', $labTest) }}" method="POST" class="flex-1">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" 
+                                    class="w-full px-4 py-3 bg-red-600 text-white text-base font-medium rounded-xl hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200">
+                                <i class="fas fa-trash-alt mr-2"></i>
+                                Delete Lab Test
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -117,16 +156,43 @@
 
 @push('scripts')
 <script>
-    function openDeleteModal() {
-        document.getElementById('deleteModal').classList.remove('hidden');
-        document.body.classList.add('overflow-hidden');
-    }
-    
-    function closeDeleteModal() {
-        document.getElementById('deleteModal').classList.add('hidden');
-        document.body.classList.remove('overflow-hidden');
-    }
+document.addEventListener('alpine:init', () => {
+    // Main page component
+    Alpine.data('labTestPage', () => ({
+        showDeleteModal: false,
+
+        closeDeleteModal() {
+            this.showDeleteModal = false;
+        },
+
+        init() {
+            // Handle escape key to close modal
+            this.$watch('showDeleteModal', (value) => {
+                if (value) {
+                    document.body.style.overflow = 'hidden';
+                    
+                    // Add escape key listener
+                    const escapeHandler = (e) => {
+                        if (e.key === 'Escape') {
+                            this.closeDeleteModal();
+                            document.removeEventListener('keydown', escapeHandler);
+                        }
+                    };
+                    document.addEventListener('keydown', escapeHandler);
+                } else {
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+    }));
+});
 </script>
+
+<style>
+[x-cloak] {
+    display: none !important;
+}
+</style>
 @endpush
 
 @endsection

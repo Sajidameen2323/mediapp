@@ -68,7 +68,7 @@
                                 </div>
                                 <div class="ml-4 flex flex-col space-y-2">
                                     <button
-                                        onclick="showRevokeModal({{ $permission->id }}, '{{ $permission->doctor->name }}')"
+                                        onclick="showRevokeModal({{ $permission->id }}, '{{ addslashes($permission->doctor->name) }}')"
                                         class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200 px-3 py-1 rounded-md border border-red-300 dark:border-red-600 hover:border-red-400 dark:hover:border-red-500 transition text-sm">
                                         <i class="fas fa-ban mr-1"></i>Revoke
                                     </button>
@@ -186,7 +186,9 @@
                                             @if ($permission->granted_at)
                                                 Granted {{ $permission->granted_at->diffForHumans() }} •
                                             @endif
-                                            Revoked {{ $permission->revoked_at->diffForHumans() }}
+                                            @if ($permission->revoked_at)
+                                                Revoked {{ $permission->revoked_at->diffForHumans() }}
+                                            @endif
                                         </div>
                                         @if ($permission->notes)
                                             <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">
@@ -230,6 +232,7 @@
 
                 <form id="revokeForm" method="POST" class="p-6">
                     @csrf
+                    @method('PATCH')
                     <div class="space-y-4">
                         <p class="text-gray-700 dark:text-gray-300">
                             Are you sure you want to revoke health profile access from <strong id="doctorName"></strong>?
@@ -262,19 +265,57 @@
         </div>
     </div>
 
-@endsection
-
-@section('scripts')
     <script>
         function showRevokeModal(permissionId, doctorName) {
-            document.getElementById('doctorName').textContent = doctorName;
-            document.getElementById('revokeForm').action = `/patient/health-profile/permissions/${permissionId}/revoke`;
-            document.getElementById('revokeModal').classList.remove('hidden');
+            try {
+                document.getElementById('doctorName').textContent = doctorName;
+                document.getElementById('revokeForm').action = `/patient/health-profile/permissions/${permissionId}/revoke`;
+                document.getElementById('revokeModal').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error showing revoke modal:', error);
+                alert('Error opening revoke modal. Please try again.');
+            }
         }
 
         function hideRevokeModal() {
+            try {
+                document.getElementById('revokeModal').classList.add('hidden');
+                document.getElementById('revoke_notes').value = '';
+            } catch (error) {
+                console.error('Error hiding revoke modal:', error);
+            }
+        }
+
+        // Ensure functions are available globally
+        window.showRevokeModal = showRevokeModal;
+        window.hideRevokeModal = hideRevokeModal;
+    </script>
+
+@endsection
+
+@push('scripts')
+<script>
+    function showRevokeModal(permissionId, doctorName) {
+        try {
+            document.getElementById('doctorName').textContent = doctorName;
+            document.getElementById('revokeForm').action = `/patient/health-profile/permissions/${permissionId}/revoke`;
+            document.getElementById('revokeModal').classList.remove('hidden');
+        } catch (error) {
+            console.error('Error showing revoke modal:', error);
+        }
+    }
+
+    function hideRevokeModal() {
+        try {
             document.getElementById('revokeModal').classList.add('hidden');
             document.getElementById('revoke_notes').value = '';
+        } catch (error) {
+            console.error('Error hiding revoke modal:', error);
         }
-    </script>
-@endsection
+    }
+
+    // Make functions globally available
+    window.showRevokeModal = showRevokeModal;
+    window.hideRevokeModal = hideRevokeModal;
+</script>
+@endpush

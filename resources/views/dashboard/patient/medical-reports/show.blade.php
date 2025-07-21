@@ -4,9 +4,9 @@
 
 @section('content')
 
-
-<div class="max-w-6xl mx-auto py-6 sm:px-6 lg:px-8">
-    <div class="px-4 py-6 sm:px-0">
+<div x-data="medicalReportPage">
+    <div class="max-w-6xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="px-4 py-6 sm:px-0">
         <!-- Header -->
         <div class="mb-8">
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -717,7 +717,7 @@
                             </p>
                         </div>
                         <button type="button" 
-                                onclick="openDeleteModal()"
+                                @click="showDeleteConfirmation = true"
                                 class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-800 transition-colors">
                             <i class="fas fa-trash-alt mr-2"></i>
                             Delete Report
@@ -727,45 +727,105 @@
             </div>
         </div>
     </div>
-</div>
+    </div>
 
-<!-- Delete Confirmation Modal -->
-<div id="deleteModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <!-- Enhanced Delete Confirmation Modal -->
+    <div x-show="showDeleteConfirmation" 
+         x-cloak
+         x-transition:enter="ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-[9999] overflow-y-auto modal-debug"
+         style="z-index: 9999 !important; background-color: rgba(0,0,0,0.5);"
+         aria-labelledby="modal-title" 
+         role="dialog" 
+         aria-modal="true">
+        
         <!-- Background overlay -->
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 dark:bg-gray-900 dark:bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeDeleteModal()"></div>
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity backdrop-blur-sm" 
+                 @click="closeDeleteModal()"
+                 style="z-index: 9998;"
+                 aria-hidden="true"></div>
 
-        <!-- Modal panel -->
-        <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <!-- This element is to trick the browser into centering the modal contents. -->
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+            <!-- Modal panel -->
+            <div x-show="showDeleteConfirmation"
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 class="relative inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6"
+                 @click.stop>
+                
                 <div class="sm:flex sm:items-start">
-                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900 sm:mx-0 sm:h-10 sm:w-10">
-                        <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400"></i>
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/30 sm:mx-0 sm:h-10 sm:w-10">
+                        <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400 text-lg"></i>
                     </div>
-                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left flex-1">
                         <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">
                             Delete Medical Report
                         </h3>
                         <div class="mt-2">
                             <p class="text-sm text-gray-500 dark:text-gray-400">
-                                Are you sure you want to delete this medical report? This action cannot be undone.
-                                All data associated with this report will be permanently removed.
+                                Are you sure you want to permanently delete this medical report? This action cannot be undone and will remove all associated data including prescriptions and lab test requests.
                             </p>
+                        </div>
+                        
+                        <!-- Enhanced confirmation input -->
+                        <div class="mt-4">
+                            <label for="delete-confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                To confirm deletion, type <span class="font-bold text-red-600 dark:text-red-400">"DELETE"</span> below:
+                            </label>
+                            <input type="text" 
+                                   id="delete-confirmation"
+                                   x-model="deleteConfirmationText"
+                                   placeholder="Type DELETE to confirm"
+                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 text-center font-mono">
+                            
+                            <!-- Progress indicator -->
+                            <div class="mt-2 flex items-center justify-center">
+                                <div class="flex space-x-1">
+                                    <template x-for="(char, index) in 'DELETE'.split('')" :key="index">
+                                        <div class="w-3 h-3 rounded-full transition-colors duration-200"
+                                             :class="deleteConfirmationText.length > index ? 'bg-red-500' : 'bg-gray-300 dark:bg-gray-600'">
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <form action="{{ route('patient.medical-reports.destroy', $medicalReport) }}" method="POST">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-gray-800 sm:ml-3 sm:w-auto sm:text-sm">
-                        Delete
+                
+                <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                    <form action="{{ route('patient.medical-reports.destroy', $medicalReport) }}" method="POST" class="inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" 
+                                :disabled="deleteConfirmationText !== 'DELETE'"
+                                :class="{
+                                    'bg-red-600 hover:bg-red-700 focus:ring-red-500': deleteConfirmationText === 'DELETE',
+                                    'bg-gray-400 cursor-not-allowed': deleteConfirmationText !== 'DELETE'
+                                }"
+                                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm transition-colors">
+                            <i class="fas fa-trash-alt mr-2"></i>
+                            Delete Report
+                        </button>
+                    </form>
+                    <button type="button" 
+                            @click="closeDeleteModal()"
+                            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:w-auto sm:text-sm transition-colors">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancel
                     </button>
-                </form>
-                <button type="button" onclick="closeDeleteModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                    Cancel
-                </button>
+                </div>
             </div>
         </div>
     </div>
@@ -773,6 +833,43 @@
 
 @push('styles')
 <style>
+    [x-cloak] {
+        display: none !important;
+    }
+    
+    /* Enhanced Modal Styles */
+    .modal-overlay {
+        backdrop-filter: blur(8px);
+    }
+    
+    /* Ensure modal has proper z-index */
+    [x-show="showDeleteConfirmation"] {
+        z-index: 9999 !important;
+        position: fixed !important;
+    }
+    
+    /* Progress dots animation */
+    .progress-dot {
+        transition: all 0.3s ease;
+    }
+    
+    /* Custom focus styles for delete confirmation input */
+    #delete-confirmation:focus {
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        border-color: #ef4444;
+    }
+    
+    /* Button disabled state */
+    button:disabled {
+        opacity: 0.6;
+        transform: none !important;
+    }
+    
+    /* Debugging - temporary red border for modal */
+    .modal-debug {
+        border: 3px solid red !important;
+    }
+    
     @media print {
         .no-print {
             display: none !important;
@@ -803,15 +900,44 @@
 
 @push('scripts')
 <script>
-    function openDeleteModal() {
-        document.getElementById('deleteModal').classList.remove('hidden');
-        document.body.classList.add('overflow-hidden');
-    }
-    
-    function closeDeleteModal() {
-        document.getElementById('deleteModal').classList.add('hidden');
-        document.body.classList.remove('overflow-hidden');
-    }
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('medicalReportPage', () => ({
+            showDeleteConfirmation: false,
+            deleteConfirmationText: '',
+            
+            closeDeleteModal() {
+                this.showDeleteConfirmation = false;
+                this.deleteConfirmationText = '';
+                // Remove focus from any active element
+                document.activeElement?.blur();
+            },
+            
+            // Keyboard event handler for escape key
+            init() {
+                // Add some debugging
+                console.log('Alpine component initialized');
+                
+                this.$watch('showDeleteConfirmation', (value) => {
+                    console.log('showDeleteConfirmation changed to:', value);
+                    if (value) {
+                        // Focus on the confirmation input when modal opens
+                        this.$nextTick(() => {
+                            document.getElementById('delete-confirmation')?.focus();
+                        });
+                        
+                        // Add escape key listener
+                        const handleEscape = (e) => {
+                            if (e.key === 'Escape') {
+                                this.closeDeleteModal();
+                                document.removeEventListener('keydown', handleEscape);
+                            }
+                        };
+                        document.addEventListener('keydown', handleEscape);
+                    }
+                });
+            }
+        }));
+    });
 </script>
 @endpush
 @endsection
