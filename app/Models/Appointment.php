@@ -324,10 +324,11 @@ class Appointment extends Model
         }
 
         // Appointment must not be already rated
-        if ($this->is_rated) {
+        if ($this->isRated()) {
+            error_log('------Appointment already rated');
             return false;
         }
-
+        error_log('------Appointment not rated yet');
         // For testing purposes, no time restriction
         // In production, you might want to add a minimum time delay:
         // $completedAt = $this->completed_at ?: $this->updated_at;

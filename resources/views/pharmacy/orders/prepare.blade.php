@@ -399,7 +399,7 @@
                                                        class="quantity-input focus-enhanced w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 pr-16"
                                                        data-index="{{ $index }}"
                                                        onchange="calculateItemTotal({{ $index }})"
-                                                       oninput="calculateItemTotal({{ $index }})">>
+                                                       oninput="calculateItemTotal({{ $index }})">
                                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3">
                                                     <button type="button" onclick="setMaxQuantity({{ $index }})" 
                                                             class="text-blue-500 hover:text-blue-700 text-xs font-medium focus-enhanced px-2 py-1 rounded">
@@ -427,7 +427,7 @@
                                                        class="unit-price-input focus-enhanced w-full pl-8 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                                        data-index="{{ $index }}"
                                                        onchange="calculateItemTotal({{ $index }})"
-                                                       oninput="calculateItemTotal({{ $index }})">>
+                                                       oninput="calculateItemTotal({{ $index }})">
                                             </div>
                                         </div>
                                         

@@ -64,6 +64,8 @@ class AppointmentRequest extends FormRequest
 
         // Add validation rules for rating requests
         if ($this->isMethod('post') && $this->route()->getName() === 'patient.appointments.rate') {
+            
+            error_log('################Adding rating rules for appointment');
             $rules = array_merge($rules, [
                 'rating' => 'required|integer|min:1|max:5',
                 'review' => 'nullable|string|max:1000',

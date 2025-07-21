@@ -83,7 +83,7 @@
                                         <div class="relative mt-1">
                                             <input type="text" id="card_number" name="card_number" placeholder="1234 5678 9012 3456" 
                                                 class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 shadow-sm transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-400" 
-                                                maxlength="16">
+                                                maxlength="19">
                                             <div class="absolute inset-y-0 right-0 flex items-center pr-3">
                                                 <i class="fas fa-credit-card text-gray-400"></i>
                                             </div>
@@ -362,9 +362,12 @@
                 return;
             }
             
-            // Validate card details if card payment
+            // Clean and validate card details if card payment
             if (paymentMethod === 'card') {
                 const cardNumber = formData.get('card_number').replace(/\s/g, ''); // Remove spaces for validation
+                
+                // Update the form data with cleaned card number (no spaces)
+                formData.set('card_number', cardNumber);
                 const cardExpiry = formData.get('card_expiry');
                 const cardCvc = formData.get('card_cvc');
                 const cardholderName = formData.get('cardholder_name');

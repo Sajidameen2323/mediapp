@@ -149,7 +149,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/export', [\App\Http\Controllers\Admin\AppointmentController::class, 'export'])->name('export');
             Route::get('/{appointment}', [\App\Http\Controllers\Admin\AppointmentController::class, 'show'])->name('show');
             Route::post('/{appointment}/approve', [\App\Http\Controllers\Admin\AppointmentController::class, 'approve'])->name('approve');
-            Route::post('/{appointment}/cancel', [\App\Http\Controllers\Admin\AppointmentController::class, 'cancel'])->name('cancel');
+            Route::patch('/{appointment}/cancel', [\App\Http\Controllers\Admin\AppointmentController::class, 'cancel'])->name('cancel');
             Route::get('/{appointment}/reschedule', [\App\Http\Controllers\Admin\AppointmentController::class, 'reschedule'])->name('reschedule');
             Route::post('/{appointment}/reschedule', [\App\Http\Controllers\Admin\AppointmentController::class, 'updateSchedule'])->name('update-schedule');
             Route::post('/bulk-update', [\App\Http\Controllers\Admin\AppointmentController::class, 'bulkUpdate'])->name('bulk-update');

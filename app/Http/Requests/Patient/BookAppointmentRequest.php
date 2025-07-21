@@ -34,7 +34,7 @@ class BookAppointmentRequest extends FormRequest
             'appointment_date' => [
                 'required',
                 'date',
-                'after:today',
+                'after_or_equal:today',
                 function ($attribute, $value, $fail) use ($maxDaysAhead) {
                     // Check if the date is not more than the configured max days in advance
                     $maxDate = Carbon::now()->addDays($maxDaysAhead);
@@ -77,7 +77,7 @@ class BookAppointmentRequest extends FormRequest
             'service_id.required' => 'Please select a service for your appointment.',
             'service_id.exists' => 'The selected service is not valid.',
             'appointment_date.required' => 'Please select an appointment date.',
-            'appointment_date.after' => 'Appointment date must be in the future.',
+            'appointment_date.after_or_equal' => 'Appointment date cannot be in the past.',
             'start_time.required' => 'Please select an appointment time.',
             'start_time.date_format' => 'Please provide a valid time format (HH:MM).',
             'reason.required' => 'Please provide a reason for your appointment.',
