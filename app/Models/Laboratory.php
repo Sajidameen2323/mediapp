@@ -36,6 +36,7 @@ class Laboratory extends Model
     ];
 
     protected $casts = [
+        'services_offered' => 'array',
         'working_days' => 'array',
         'consultation_fee' => 'decimal:2',
         'home_service_fee' => 'decimal:2',
@@ -116,5 +117,17 @@ class Laboratory extends Model
         $dayOfWeek = Carbon::parse($date)->format('l');
         
         return in_array(strtolower($dayOfWeek), array_map('strtolower', $workingDays));
+    }
+
+    /**
+     * Get services offered as a comma-separated string.
+     */
+    public function getServicesOfferedStringAttribute()
+    {
+        if (!$this->services_offered || empty($this->services_offered)) {
+            return 'No services specified';
+        }
+        
+        return implode(', ', $this->services_offered);
     }
 }

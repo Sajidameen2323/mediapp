@@ -127,7 +127,7 @@ class PharmacyController extends Controller
                 'working_days' => $request->working_days,
                 
                 // Services & Features
-                'specializations' => $request->specializations ? json_encode($request->specializations) : null,
+                'specializations' => $request->specializations ?? [],
                 'accepts_insurance' => $request->boolean('accepts_insurance'),
                 
                 // Contact Information
@@ -270,7 +270,7 @@ class PharmacyController extends Controller
                 'working_days' => $request->working_days,
                 
                 // Services & Features
-                'specializations' => $request->specializations ? json_encode($request->specializations) : null,
+                'specializations' => $request->specializations ?? [],
                 'accepts_insurance' => $request->boolean('accepts_insurance'),
                 
                 // Contact Information

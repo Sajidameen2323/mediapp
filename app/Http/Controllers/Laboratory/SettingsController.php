@@ -63,7 +63,7 @@ class SettingsController extends Controller
                 'closing_time' => $request->closing_time,
                 'working_days' => $request->working_days,
                 'consultation_fee' => $request->consultation_fee ?? 0,
-                'services_offered' => $request->services_offered ? implode(',', $request->services_offered) : null,
+                'services_offered' => $request->services_offered ?? [],
                 'equipment_details' => $request->equipment_details,
                 'home_service_available' => $request->boolean('home_service_available'),
                 'home_service_fee' => $request->home_service_available ? ($request->home_service_fee ?? 0) : 0,

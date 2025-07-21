@@ -289,33 +289,10 @@
                             <!-- Specializations -->
                             <div>
                                 <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-3">Specializations</h3>
-                                @php
-                                    if (is_string($pharmacy->specializations)) {
-                                        $decoded_specializations = json_decode($pharmacy->specializations, true);
-                                        // Check if JSON decoding was successful
-                                        if (json_last_error() === JSON_ERROR_NONE) {
-                                            // Update $pharmacy->specializations with the decoded value.
-                                            // This allows the subsequent `is_array($pharmacy->specializations)` check
-                                            // to work correctly if it was a JSON string representing an array.
-                                            $pharmacy->specializations = $decoded_specializations;
-                                        } else {
-                                            // If JSON was invalid, set to an empty array to prevent errors
-                                            // and allow the subsequent logic to treat it as "no specializations".
-                                            $pharmacy->specializations = [];
-                                        }
-                                    }
-                                @endphp
-                                @php
-
-                                    $specializations = is_array($pharmacy->specializations)
-                                        ? $pharmacy->specializations
-                                        : [];
-                                @endphp
-                                @if (!empty($specializations))
+                                @if(is_array($pharmacy->specializations) && count($pharmacy->specializations) > 0)
                                     <div class="flex flex-wrap gap-2">
-                                        @foreach ($specializations as $specialization)
-                                            <span
-                                                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200">
+                                        @foreach($pharmacy->specializations as $specialization)
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200">
                                                 {{ $specialization }}
                                             </span>
                                         @endforeach

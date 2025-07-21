@@ -66,7 +66,8 @@
                                             {{ implode(', ', array_map('ucfirst', $pharmacy->working_days)) }}
                                         @endif
                                     </div>
-                                </td>                                <td class="px-6 py-4 whitespace-nowrap">
+                                </td>                                
+                                <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm text-gray-900 dark:text-white">
                                         @if($pharmacy->home_delivery_available)
                                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 mr-1">
